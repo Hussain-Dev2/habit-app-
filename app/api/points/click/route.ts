@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { authOptions } from '@/lib/auth-config';
 import { calculateClickReward, getDailyBonus, checkAchievements } from '@/lib/points-utils';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
 
