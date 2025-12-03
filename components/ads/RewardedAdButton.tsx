@@ -53,15 +53,14 @@ export const RewardedAdButton: React.FC<RewardedAdButtonProps> = ({
         await new Promise(resolve => setTimeout(resolve, 5000));
 
         // Process reward
-        const response = await apiFetch('/api/points/activity', {
+        const data = await apiFetch('/api/points/reward-ad', {
           method: 'POST',
           body: JSON.stringify({
-            activityId: 'watch-ad',
+            adType: 'adsterra',
           }),
         });
 
-        if (response.ok) {
-          const data = await response.json();
+        if (data && (data as any).success) {
           trackAdCompletion();
           
           const newCount = getRewardedAdCount();
