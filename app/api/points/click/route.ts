@@ -13,9 +13,15 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Minimal user fetch - only needed fields
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      include: { dailyStats: true },
+      select: {
+        id: true,
+        clicks: true,
+        points: true,
+        streakDays: true,
+      },
     });
 
     if (!user) {
@@ -25,23 +31,24 @@ export async function POST(request: Request) {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    // Get or create today's stats
-    let dailyStat = user.dailyStats.find(
-      (stat) =>
-        new Date(stat.date).toDateString() === today.toDateString()
-    );
+    // Get today's stats separately (minimal fields)
+    let dailyStat = await prisma.dailyStats.findFirst({
+      where: {
+        userId: user.id,
+        date: {
+          gte: today,
+          lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+        },
+      },
+      select: {
+        id: true,
+        clicksToday: true,
+        pointsEarned: true,
+      },
+    });
 
     if (!dailyStat) {
-      // Check if previous day exists to maintain streak
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdaysStat = user.dailyStats.find(
-        (stat) =>
-          new Date(stat.date).toDateString() === yesterday.toDateString()
-      );
-
-      const newStreakDays = yesterdaysStat ? user.streakDays + 1 : 1;
-
+      // Create new daily stat
       dailyStat = await prisma.dailyStats.create({
         data: {
           userId: user.id,
@@ -52,114 +59,68 @@ export async function POST(request: Request) {
           tasksCompleted: 0,
           sessionTime: 0,
         },
-      });
-
-      // Update user streak
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { streakDays: newStreakDays },
+        select: {
+          id: true,
+          clicksToday: true,
+          pointsEarned: true,
+        },
       });
     }
 
-    // Calculate reward with bonuses
+    // Calculate reward
     const clickReward = calculateClickReward(user.streakDays, dailyStat.clicksToday);
     const dailyBonus = dailyStat.clicksToday === 99 ? getDailyBonus(100) : 0;
     const totalReward = clickReward + dailyBonus;
 
-    // Update user and daily stats
+    // Update user - minimal fields
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: {
         clicks: user.clicks + 1,
         points: user.points + totalReward,
-        dailyEarnings: dailyStat.pointsEarned + totalReward,
-        lifetimePoints: user.lifetimePoints + totalReward,
+        lifetimePoints: { increment: totalReward },
         lastClick: now,
-        lastActivityAt: now,
+      },
+      select: {
+        id: true,
+        points: true,
+        clicks: true,
+        lifetimePoints: true,
       },
     });
 
-    await prisma.dailyStats.update({
+    // Everything after this is background (fire and forget)
+    // Update daily stats
+    prisma.dailyStats.update({
       where: { id: dailyStat.id },
       data: {
         clicksToday: dailyStat.clicksToday + 1,
         pointsEarned: dailyStat.pointsEarned + totalReward,
       },
-    });
+    }).catch(console.error);
 
-    // Record in points history
-    await prisma.pointsHistory.create({
-      data: {
-        userId: user.id,
-        amount: totalReward,
-        source: 'click',
-        description: `Earned ${clickReward} points from click${dailyBonus > 0 ? ` + ${dailyBonus} daily bonus` : ''}`,
-      },
-    });
-
-    // Check for achievement unlocks
+    // Check achievements
     const achievementIds = checkAchievements(
       updatedUser.clicks,
-      updatedUser.lifetimePoints,
-      updatedUser.streakDays
+      user.points + totalReward,
+      user.streakDays
     );
 
-    const newAchievements = [];
-    for (const achievementId of achievementIds) {
-      const existing = await prisma.userAchievement.findUnique({
-        where: {
-          userId_achievementId: {
-            userId: user.id,
-            achievementId,
-          },
-        },
-      });
-
-      if (!existing) {
-        // Get achievement for reward
-        const achievement = await prisma.achievement.findUnique({
-          where: { name: achievementId },
-        });
-
-        if (achievement) {
-          await prisma.userAchievement.create({
-            data: {
-              userId: user.id,
-              achievementId: achievement.id,
-            },
-          });
-
-          // Award points for achievement
-          await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              points: { increment: achievement.reward },
-              lifetimePoints: { increment: achievement.reward },
-            },
-          });
-
-          newAchievements.push({
-            id: achievement.id,
-            name: achievement.name,
-            reward: achievement.reward,
-          });
-        }
-      }
+    if (achievementIds.length > 0) {
+      processAchievements(user.id, achievementIds).catch(console.error);
     }
 
     return Response.json({
-      message: 'Click recorded successfully',
       user: {
         id: updatedUser.id,
         points: updatedUser.points,
         clicks: updatedUser.clicks,
-        dailyEarnings: updatedUser.dailyEarnings,
         lifetimePoints: updatedUser.lifetimePoints,
       },
       clickReward,
       dailyBonus,
-      newAchievements,
-      streakDays: updatedUser.streakDays,
+      newAchievements: [],
+      streakDays: user.streakDays,
     });
   } catch (error) {
     console.error('Error recording click:', error);
@@ -167,5 +128,46 @@ export async function POST(request: Request) {
       { error: 'Failed to record click' },
       { status: 500 }
     );
+  }
+}
+
+// Process achievements asynchronously
+async function processAchievements(userId: string, achievementIds: string[]) {
+  try {
+    for (const achievementId of achievementIds) {
+      const existing = await prisma.userAchievement.findUnique({
+        where: {
+          userId_achievementId: {
+            userId,
+            achievementId,
+          },
+        },
+      });
+
+      if (!existing) {
+        const achievement = await prisma.achievement.findUnique({
+          where: { name: achievementId },
+        });
+
+        if (achievement) {
+          await prisma.userAchievement.create({
+            data: {
+              userId,
+              achievementId: achievement.id,
+            },
+          });
+
+          await prisma.user.update({
+            where: { id: userId },
+            data: {
+              points: { increment: achievement.reward },
+              lifetimePoints: { increment: achievement.reward },
+            },
+          });
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error processing achievements:', error);
   }
 }

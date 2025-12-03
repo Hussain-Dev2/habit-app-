@@ -39,6 +39,10 @@ model User {
   streakDays        Int       @default(0)
   totalSessionTime  Int       @default(0) // in seconds
 
+  // Advertising System
+  lastAdWatch       DateTime?
+  adWatchCount      Int       @default(0)
+
   accounts          Account[]
   sessions          Session[]
   orders            Order[]
@@ -110,7 +114,7 @@ model PointsHistory {
   id          String   @id @default(cuid())
   userId      String
   amount      Int
-  source      String   // "click", "ad", "task", "purchase", etc
+  source      String   // "click", "ad_watch_adsterra", "ad_watch_google", "activity", "task", etc
   description String?
   createdAt   DateTime @default(now())
 

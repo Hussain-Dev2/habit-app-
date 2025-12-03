@@ -4,14 +4,18 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import ClickButton from '@/components/ClickButton';
 import UserCard from '@/components/UserCard';
+import LevelCard from '@/components/LevelCard';
 import Toast from '@/components/Toast';
+import ActivitiesPanel from '@/components/ActivitiesPanel';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { GoogleAdSense, AdsterraAd, RewardedAdButton, AdContainer } from '@/components/ads';
 import { apiFetch } from '@/lib/client';
 
 interface User {
   id: string;
   points: number;
   clicks: number;
+  lifetimePoints: number;
 }
 
 interface MeResponse {
@@ -102,9 +106,14 @@ export default function Dashboard() {
           </div>
 
           {/* Main Grid */}
-          <div className="grid md:grid-cols-2 gap-8 items-center mb-12">
-            {/* Left: User Card */}
+          <div className="grid md:grid-cols-3 gap-8 items-center mb-12">
+            {/* Left: Level Card */}
             <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
+              <LevelCard lifetimePoints={user.lifetimePoints || 0} />
+            </div>
+
+            {/* Center: User Stats */}
+            <div className="animate-fade-in" style={{ animationDelay: '150ms' }}>
               <UserCard points={user.points} clicks={user.clicks} />
             </div>
 
@@ -125,7 +134,7 @@ export default function Dashboard() {
                 <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">Tips</span>
               </h3>
               <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                Click the button to earn <span className="font-bold text-yellow-600 dark:text-yellow-400">10 points</span> per click. Purchase upgrades in the Shop to increase your earnings!
+                Click the button to earn <span className="font-bold text-yellow-600 dark:text-yellow-400">1 point</span> per click. Build combos for multipliers!
               </p>
             </div>
 
@@ -135,7 +144,7 @@ export default function Dashboard() {
                 <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">Growth</span>
               </h3>
               <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                Every <span className="font-bold text-green-600 dark:text-green-400">100 clicks</span> you reach a milestone. Special events trigger at each milestone!
+                Try <span className="font-bold text-green-600 dark:text-green-400">multiple activities</span> to earn faster and unlock achievements!
               </p>
             </div>
 
@@ -145,8 +154,51 @@ export default function Dashboard() {
                 <span className="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent">Rewards</span>
               </h3>
               <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                Visit the <span className="font-bold text-pink-600 dark:text-pink-400">Shop</span> to buy exclusive items and boosters with your earned points!
+                Complete activities and visit the <span className="font-bold text-pink-600 dark:text-pink-400">Shop</span> to buy exclusive items!
               </p>
+            </div>
+          </div>
+
+          {/* Activities Panel */}
+          <div className="my-12 animate-fade-in" style={{ animationDelay: '400ms' }}>
+            <ActivitiesPanel />
+          </div>
+
+          {/* Ad Section */}
+          <div className="my-12 animate-fade-in" style={{ animationDelay: '450ms' }}>
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <span className="text-3xl">📺</span>
+                <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">Earn More Points with Ads</span>
+              </h2>
+              
+              {/* Rewarded Ad Button */}
+              <div className="backdrop-blur-xl bg-white/60 dark:bg-white/10 border border-green-200/50 dark:border-white/20 rounded-2xl p-6 mb-6">
+                <p className="text-slate-700 dark:text-slate-300 mb-4">Watch advertisements to earn bonus points:</p>
+                <RewardedAdButton 
+                  onRewardEarned={(points) => {
+                    setToast({
+                      message: `🎉 Earned ${points} points from ad!`,
+                      type: 'success',
+                    });
+                    fetchUser();
+                  }}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Display Ads */}
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Google AdSense */}
+                <AdContainer placement="sidebar">
+                  <GoogleAdSense placement="sidebar" />
+                </AdContainer>
+
+                {/* Adsterra Display Ad */}
+                <AdContainer placement="sidebar">
+                  <AdsterraAd width={300} height={250} />
+                </AdContainer>
+              </div>
             </div>
           </div>
 
