@@ -1,0 +1,179 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  username      String?
+  points        Int       @default(0)
+  clicks        Int       @default(0)
+  lastClick     DateTime?
+  isAdmin       Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Smart Points System
+  dailyEarnings     Int       @default(0)
+  lifetimePoints    Int       @default(0)
+  pointsFromAds     Int       @default(0)
+  pointsFromTasks   Int       @default(0)
+  lastActivityAt    DateTime? @default(now())
+  lastDailyReset    DateTime? @default(now())
+  streakDays        Int       @default(0)
+  totalSessionTime  Int       @default(0) // in seconds
+
+  accounts          Account[]
+  sessions          Session[]
+  orders            Order[]
+  pointsHistory     PointsHistory[]
+  dailyStats        DailyStats[]
+  achievements      UserAchievement[]
+  tasks             Task[]
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Order {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  cost      Int
+  createdAt DateTime @default(now())
+}
+
+
+model Product {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  costPoints  Int
+  stock       Int?     // null => unlimited
+  createdAt   DateTime @default(now())
+
+  orders      Order[]
+}
+
+// Smart Points System Models
+model PointsHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Int
+  source      String   // "click", "ad", "task", "purchase", etc
+  description String?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model DailyStats {
+  id              String   @id @default(cuid())
+  userId          String
+  date            DateTime @default(now())
+  clicksToday     Int      @default(0)
+  pointsEarned    Int      @default(0)
+  adsWatched      Int      @default(0)
+  tasksCompleted  Int      @default(0)
+  sessionTime     Int      @default(0) // in seconds
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  icon        String?
+  requirement String   // "100_clicks", "1000_points", etc
+  reward      Int      // bonus points
+  createdAt   DateTime @default(now())
+
+  users       UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  reward      Int
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
