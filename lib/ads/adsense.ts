@@ -1,6 +1,6 @@
 declare global {
   interface Window {
-    adsbygoogle?: { push: (params: unknown) => void }[];
+    adsbygoogle?: Array<Record<string, unknown>> & { push: (params: Record<string, unknown>) => void };
   }
 }
 
