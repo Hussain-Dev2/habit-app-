@@ -7,8 +7,9 @@ import UserCard from '@/components/UserCard';
 import LevelCard from '@/components/LevelCard';
 import Toast from '@/components/Toast';
 import ActivitiesPanel from '@/components/ActivitiesPanel';
+import RandomAd from '@/components/ads/RandomAd';
+import AdsterraRewarded from '@/components/ads/AdsterraRewarded';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import { GoogleAdSense, AdsterraAd, RewardedAdButton, AdContainer } from '@/components/ads';
 import { apiFetch } from '@/lib/client';
 
 interface User {
@@ -64,6 +65,36 @@ export default function Dashboard() {
     }
   };
 
+  const handleRewardSuccess = (
+    rewardedUser: { id: string; points: number; lifetimePoints: number; clicks: number },
+    reward: number,
+  ) => {
+    setUser((prev) =>
+      prev
+        ? {
+            ...prev,
+            points: rewardedUser.points,
+            lifetimePoints: rewardedUser.lifetimePoints,
+            clicks: rewardedUser.clicks ?? prev.clicks,
+          }
+        : {
+            id: rewardedUser.id,
+            points: rewardedUser.points,
+            lifetimePoints: rewardedUser.lifetimePoints,
+            clicks: rewardedUser.clicks,
+          }
+    );
+
+    setToast({
+      message: `✅ Rewarded ad complete: +${reward} points`,
+      type: 'success',
+    });
+  };
+
+  const handleRewardError = (message: string) => {
+    setToast({ message, type: 'error' });
+  };
+
   const handleClickError = (message: string) => {
     setToast({ message, type: 'error' });
   };
@@ -85,24 +116,31 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <main className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 relative overflow-hidden">
-        {/* Animated background elements */}
+      <main className="min-h-screen bg-gradient-to-br from-primary-50 via-secondary-50/30 to-primary-100 dark:from-gray-900 dark:via-primary-900/50 dark:to-secondary-900/50 relative overflow-hidden">
+        {/* Animated background elements - Dreamy floating orbs */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 dark:opacity-20 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 dark:opacity-20 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-1/3 left-1/2 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 dark:opacity-20 animate-blob animation-delay-4000"></div>
+          <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-pastel-1 rounded-full mix-blend-normal filter blur-3xl opacity-30 dark:opacity-20 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-smooth-2 rounded-full mix-blend-normal filter blur-3xl opacity-30 dark:opacity-20 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-1/3 left-1/2 w-96 h-96 bg-gradient-smooth-3 rounded-full mix-blend-normal filter blur-3xl opacity-25 dark:opacity-15 animate-blob animation-delay-4000"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-pastel-4 rounded-full mix-blend-normal filter blur-3xl opacity-20 dark:opacity-10 animate-blob"></div>
         </div>
 
         <div className="max-w-6xl mx-auto px-4 py-12 relative z-10">
           {/* Header */}
           <div className="mb-12 animate-fade-in">
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-5xl">⚡</span>
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+              <span className="text-5xl animate-float">✨</span>
+              <h1 className="text-5xl font-bold bg-gradient-smooth-1 bg-clip-text text-transparent animate-gradient">
                 ClickerPro Dashboard
               </h1>
             </div>
-            <p className="text-slate-600 dark:text-slate-300 text-lg">Start your clicking journey and earn amazing rewards</p>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">Your journey to rewards begins here — enjoy every click! 🚀</p>
+          </div>
+
+          {/* Sponsored rail - randomize slots and variants */}
+          <div className="grid md:grid-cols-2 gap-4 mb-10 animate-fade-in" style={{ animationDelay: '120ms' }}>
+            <RandomAd label="Sponsored • Hero" />
+            <RandomAd label="Sponsored • Sidebar" />
           </div>
 
           {/* Main Grid */}
@@ -127,79 +165,52 @@ export default function Dashboard() {
           </div>
 
           {/* Info Section */}
-          <div className="grid md:grid-cols-3 gap-4 animate-fade-in" style={{ animationDelay: '300ms' }}>
-            <div className="backdrop-blur-xl bg-white/60 dark:bg-white/10 border border-blue-200/50 dark:border-white/20 rounded-2xl p-6 hover:border-blue-300/50 dark:hover:border-white/40 transition-all duration-300 hover:shadow-xl">
-              <h3 className="font-bold text-lg flex items-center gap-2 mb-3">
-                <span className="text-2xl">💡</span>
-                <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">Tips</span>
+          <div className="grid md:grid-cols-3 gap-6 animate-fade-in" style={{ animationDelay: '300ms' }}>
+            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-primary-200/50 dark:border-primary-700/50 rounded-3xl p-8 card-lift hover:border-primary-400 dark:hover:border-primary-500 transition-all duration-500 hover:shadow-glow">
+              <h3 className="font-bold text-xl flex items-center gap-3 mb-4">
+                <span className="text-3xl animate-pulse-soft">💡</span>
+                <span className="bg-gradient-smooth-4 bg-clip-text text-transparent">Smart Tips</span>
               </h3>
-              <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                Click the button to earn <span className="font-bold text-yellow-600 dark:text-yellow-400">1 point</span> per click. Build combos for multipliers!
+              <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
+                Click to earn <span className="font-bold text-accent-peach dark:text-warm-400">points</span> — build combos for amazing multipliers! ⚡
               </p>
             </div>
 
-            <div className="backdrop-blur-xl bg-white/60 dark:bg-white/10 border border-blue-200/50 dark:border-white/20 rounded-2xl p-6 hover:border-blue-300/50 dark:hover:border-white/40 transition-all duration-300 hover:shadow-xl">
-              <h3 className="font-bold text-lg flex items-center gap-2 mb-3">
-                <span className="text-2xl">📈</span>
-                <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">Growth</span>
+            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-secondary-200/50 dark:border-secondary-700/50 rounded-3xl p-8 card-lift hover:border-secondary-400 dark:hover:border-secondary-500 transition-all duration-500 hover:shadow-glow-mint">
+              <h3 className="font-bold text-xl flex items-center gap-3 mb-4">
+                <span className="text-3xl animate-pulse-soft">📈</span>
+                <span className="bg-gradient-smooth-3 bg-clip-text text-transparent">Level Up</span>
               </h3>
-              <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                Try <span className="font-bold text-green-600 dark:text-green-400">multiple activities</span> to earn faster and unlock achievements!
+              <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
+                Explore <span className="font-bold text-accent-mint dark:text-primary-400">activities</span> to boost earnings and unlock achievements! 🎯
               </p>
             </div>
 
-            <div className="backdrop-blur-xl bg-white/60 dark:bg-white/10 border border-blue-200/50 dark:border-white/20 rounded-2xl p-6 hover:border-blue-300/50 dark:hover:border-white/40 transition-all duration-300 hover:shadow-xl">
-              <h3 className="font-bold text-lg flex items-center gap-2 mb-3">
-                <span className="text-2xl">🎁</span>
-                <span className="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent">Rewards</span>
+            <div className="group glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-warm-200/50 dark:border-warm-700/50 rounded-3xl p-8 card-lift hover:border-warm-400 dark:hover:border-warm-500 transition-all duration-500 hover:shadow-glow-coral">
+              <h3 className="font-bold text-xl flex items-center gap-3 mb-4">
+                <span className="text-3xl animate-pulse-soft">🎁</span>
+                <span className="bg-gradient-smooth-4 bg-clip-text text-transparent">Rewards</span>
               </h3>
-              <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                Complete activities and visit the <span className="font-bold text-pink-600 dark:text-pink-400">Shop</span> to buy exclusive items!
+              <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
+                Complete tasks and visit the <span className="font-bold text-accent-sunset dark:text-secondary-400">Shop</span> for exclusive items! 🛍️
               </p>
             </div>
           </div>
+
+            {/* Rewarded ad + inline sponsored */}
+            <div className="grid lg:grid-cols-[2fr_1fr] gap-6 my-12 animate-fade-in" style={{ animationDelay: '350ms' }}>
+              <AdsterraRewarded onReward={handleRewardSuccess} onError={handleRewardError} />
+              <RandomAd label="Sponsored • Inline" />
+            </div>
 
           {/* Activities Panel */}
           <div className="my-12 animate-fade-in" style={{ animationDelay: '400ms' }}>
             <ActivitiesPanel />
           </div>
 
-          {/* Ad Section */}
-          <div className="my-12 animate-fade-in" style={{ animationDelay: '450ms' }}>
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <span className="text-3xl">📺</span>
-                <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">Earn More Points with Ads</span>
-              </h2>
-              
-              {/* Rewarded Ad Button */}
-              <div className="backdrop-blur-xl bg-white/60 dark:bg-white/10 border border-green-200/50 dark:border-white/20 rounded-2xl p-6 mb-6">
-                <p className="text-slate-700 dark:text-slate-300 mb-4">Watch advertisements to earn bonus points:</p>
-                <RewardedAdButton 
-                  onRewardEarned={(points) => {
-                    setToast({
-                      message: `🎉 Earned ${points} points from ad!`,
-                      type: 'success',
-                    });
-                    fetchUser();
-                  }}
-                  className="w-full"
-                />
-              </div>
-
-              {/* Display Ads */}
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Google AdSense */}
-                <AdContainer placement="sidebar">
-                  <GoogleAdSense placement="sidebar" />
-                </AdContainer>
-
-                {/* Adsterra Display Ad */}
-                <AdContainer placement="sidebar">
-                  <AdsterraAd width={300} height={250} />
-                </AdContainer>
-              </div>
-            </div>
+          {/* Footer sponsored slot */}
+          <div className="animate-fade-in" style={{ animationDelay: '450ms' }}>
+            <RandomAd label="Sponsored • Footer" />
           </div>
 
           {toast && (

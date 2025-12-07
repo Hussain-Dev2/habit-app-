@@ -9,6 +9,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
@@ -16,17 +17,59 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account, profile }) {
+      try {
+        // PrismaAdapter handles user creation automatically
+        // Just ensure the user has required fields initialized
+        if (user.email) {
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email },
+          });
+
+          // If user was just created by adapter, initialize their fields
+          if (existingUser && existingUser.points === 0 && !existingUser.lastActivityAt) {
+            await prisma.user.update({
+              where: { email: user.email },
+              data: {
+                points: 0,
+                clicks: 0,
+                dailyEarnings: 0,
+                lifetimePoints: 0,
+                pointsFromAds: 0,
+                pointsFromTasks: 0,
+                lastActivityAt: new Date(),
+                lastDailyReset: new Date(),
+                streakDays: 0,
+                totalSessionTime: 0,
+                adWatchCount: 0,
+              },
+            });
+          }
+        }
+        return true;
+      } catch (error) {
+        console.error('Sign in error:', error);
+        return true; // Still allow sign in even if initialization fails
+      }
+    },
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
+        token.email = user.email;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).id = token.id as string;
+        session.user.email = token.email as string;
       }
       return session;
     },
   },
+  pages: {
+    signIn: '/login',
+    error: '/login',
+  },
+  debug: process.env.NODE_ENV === 'development',
 };

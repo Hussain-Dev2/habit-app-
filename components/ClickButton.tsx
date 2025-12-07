@@ -25,6 +25,7 @@ interface FloatingPoint {
 
 export default function ClickButton({ onSuccess, onError }: ClickButtonProps) {
   const [loading, setLoading] = useState(false);
+  const [isAdBreak, setIsAdBreak] = useState(false);
   const [ripple, setRipple] = useState<{ x: number; y: number } | null>(null);
   const [achievement, setAchievement] = useState<{ name: string; reward: number } | null>(null);
   const [floatingPoints, setFloatingPoints] = useState<FloatingPoint[]>([]);
@@ -90,8 +91,12 @@ export default function ClickButton({ onSuccess, onError }: ClickButtonProps) {
     } finally {
       // Check if this is every 20th click
       const isEvery20thClick = data && data.user.clicks % 20 === 0;
+      setIsAdBreak(isEvery20thClick);
       const cooldown = isEvery20thClick ? 1500 : 10;
-      setTimeout(() => setLoading(false), cooldown);
+      setTimeout(() => {
+        setLoading(false);
+        setIsAdBreak(false);
+      }, cooldown);
     }
   };
 
@@ -100,25 +105,25 @@ export default function ClickButton({ onSuccess, onError }: ClickButtonProps) {
       {/* Combo counter */}
       {comboCount > 1 && (
         <div className="text-center animate-bounce">
-          <div className="text-4xl font-bold text-yellow-400">
-            🔥 {comboCount} COMBO!
+          <div className="text-6xl font-extrabold bg-gradient-smooth-4 bg-clip-text text-transparent drop-shadow-lg animate-gradient">
+            🔥 {comboCount}x COMBO!
           </div>
-          <div className="text-xs text-yellow-300">Keep clicking to maintain combo!</div>
+          <div className="text-base text-accent-sunset dark:text-accent-peach font-bold mt-3">Keep going for bigger rewards! 🎯</div>
         </div>
       )}
 
       <button
         onClick={handleClick}
         disabled={loading}
-        className={`relative w-56 h-56 rounded-full text-6xl font-bold transition-all duration-150 transform shadow-2xl ${
+        className={`relative w-72 h-72 rounded-full text-8xl font-bold transition-all duration-300 transform shadow-2xl ${
           shake ? 'animate-bounce' : ''
         } ${
           loading
-            ? 'bg-slate-500/50 cursor-not-allowed opacity-60'
+            ? 'bg-gradient-to-br from-gray-300 via-gray-200 to-gray-300 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 cursor-wait opacity-80 animate-pulse'
             : comboCount > 1
-            ? 'bg-gradient-to-br from-orange-400 via-red-500 to-pink-600 hover:from-orange-500 hover:via-red-600 hover:to-pink-700 text-white hover:shadow-red-500/50 hover:scale-110 active:scale-95'
-            : 'bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500 hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 text-white hover:shadow-pink-500/50 hover:scale-110 active:scale-95'
-        } overflow-hidden cursor-pointer border-2 ${comboCount > 1 ? 'border-yellow-300' : 'border-transparent'}`}
+            ? 'bg-gradient-smooth-4 hover:shadow-glow-coral text-white hover:scale-110 active:scale-95 border-4 border-warm-300 dark:border-warm-400 animate-pulse-soft'
+            : 'bg-gradient-smooth-1 hover:shadow-glow text-white hover:scale-110 active:scale-95 border-4 border-primary-300/50 dark:border-primary-600/50 animate-pulse-soft'
+        } overflow-hidden cursor-pointer`}
       >
         {/* Ripple effect */}
         {ripple && (
@@ -140,27 +145,41 @@ export default function ClickButton({ onSuccess, onError }: ClickButtonProps) {
         {particles.map((particle) => (
           <div
             key={particle.id}
-            className="absolute w-2 h-2 bg-yellow-300 rounded-full pointer-events-none"
+            className="absolute w-3 h-3 rounded-full pointer-events-none"
             style={{
               left: '50%',
               top: '50%',
+              background: comboCount > 1 ? 'linear-gradient(135deg, #FA709A 0%, #FEE140 100%)' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               transform: `translate(-50%, -50%) translate(${particle.x}px, ${particle.y}px)`,
               animation: `burst 0.6s ease-out forwards`,
-              opacity: 0.8,
+              opacity: 0.9,
             }}
           />
         ))}
 
         {/* Content */}
-        <span className={`transition-all duration-200 block text-5xl ${loading ? 'scale-0' : 'scale-100'}`}>
-          {comboCount > 1 ? '🔥' : '👆'}
+        <span className={`transition-all duration-300 block text-7xl ${loading ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}>
+          {comboCount > 1 ? '🔥' : '✨'}
         </span>
-        <span className={`absolute transition-all duration-200 ${loading ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}>
-          ⏳
-        </span>
+        
+        {/* Loading spinner */}
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="relative">
+              <div className="w-20 h-20 rounded-full border-8 border-gray-300 dark:border-gray-600 border-t-primary-500 dark:border-t-primary-400 animate-spin"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-4xl">✨</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Glow effect */}
-        <div className={`absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 blur-xl ${comboCount > 1 ? 'bg-orange-400/40 opacity-100' : 'bg-white/10 hover:opacity-100'}`}></div>
+        <div className={`absolute inset-0 rounded-full opacity-0 transition-opacity duration-500 blur-3xl ${
+          comboCount > 1 
+            ? 'bg-gradient-smooth-4 opacity-60' 
+            : 'bg-gradient-smooth-1 hover:opacity-50'
+        }`}></div>
       </button>
 
       {/* Floating points */}
@@ -168,47 +187,53 @@ export default function ClickButton({ onSuccess, onError }: ClickButtonProps) {
         {floatingPoints.map(point => (
           <div
             key={point.id}
-            className={`absolute text-2xl font-bold animate-float ${
-              point.type === 'combo' ? 'text-orange-400' : 
-              point.type === 'bonus' ? 'text-green-400' : 
-              'text-yellow-400'
+            className={`absolute text-3xl font-extrabold ${
+              point.type === 'combo' ? 'text-accent-sunset' : 
+              point.type === 'bonus' ? 'text-accent-mint' : 
+              'text-warm-400'
             }`}
             style={{
               left: '50%',
               top: '50%',
               transform: 'translate(-50%, -50%)',
-              animation: `float 2s ease-out forwards`,
+              animation: `floatUp 2s ease-out forwards`,
               fontWeight: point.type === 'combo' ? 'bold' : 'semibold',
             }}
           >
-            {point.type === 'combo' ? '🔥' : point.type === 'bonus' ? '💎' : '+'}{point.points}
+            {point.type === 'combo' ? '🔥' : point.type === 'bonus' ? '💰' : '⭐'}+{point.points}
           </div>
         ))}
       </div>
 
       {/* Achievement notification */}
       {achievement && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-8 py-4 rounded-xl shadow-xl animate-bounce z-50 border-2 border-yellow-200">
-          <p className="font-bold text-lg">🏆 Achievement Unlocked!</p>
-          <p className="text-sm">{achievement.name} (+{achievement.reward} pts)</p>
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 glass bg-gradient-smooth-4 text-white px-10 py-6 rounded-3xl shadow-glow-coral animate-bounce z-50 border-2 border-warm-200">
+          <p className="font-extrabold text-2xl flex items-center gap-2">
+            <span className="animate-pulse-soft">🏆</span> Achievement Unlocked!
+          </p>
+          <p className="text-lg mt-1">{achievement.name} <span className="font-bold">(+{achievement.reward} pts)</span></p>
         </div>
       )}
 
       {/* Status text */}
-      <div className="h-6">
+      <div className="h-8">
         {loading && (
-          <p className="text-sm text-slate-600 dark:text-slate-400 animate-pulse font-semibold">
-            Processing click...
+          <p className="text-base text-gray-600 dark:text-gray-400 animate-pulse font-bold">
+            {isAdBreak ? (
+              <>🎬 Ad Break! Preparing reward... 💰</>
+            ) : (
+              <>Processing your click... ✨</>
+            )}
           </p>
         )}
       </div>
 
       {/* Info text */}
-      <div className="text-center">
-        <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+      <div className="text-center max-w-lg">
+        <p className="text-base text-gray-700 dark:text-gray-300 mb-3 font-bold">
           🎮 Build combos for multiplier bonuses!
         </p>
-        <p className="text-xs text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
           Every 20 clicks = 🎬 Ad Break | Maintain streak = 🔥 Bonus multiplier
         </p>
       </div>

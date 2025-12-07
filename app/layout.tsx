@@ -15,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gradient-to-br from-white via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 text-slate-900 dark:text-white transition-colors duration-300">
+      <body className="bg-gradient-to-br from-primary-50 via-secondary-50 to-primary-100 dark:from-gray-900 dark:via-primary-900 dark:to-secondary-900 text-gray-900 dark:text-gray-50 transition-all duration-500 ease-in-out">
         <Providers>
           <Header />
           {children}

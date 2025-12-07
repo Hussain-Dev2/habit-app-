@@ -14,15 +14,34 @@ export default function Toast({ message, type, onClose }: ToastProps) {
     return () => clearTimeout(timer);
   }, [onClose]);
 
-  const bgColor = {
-    success: 'bg-green-500',
-    error: 'bg-red-500',
-    info: 'bg-blue-500',
+  const styles = {
+    success: {
+      bg: 'bg-gradient-to-r from-green-500 to-emerald-600',
+      border: 'border-green-400',
+      icon: '✅',
+    },
+    error: {
+      bg: 'bg-gradient-to-r from-red-500 to-pink-600',
+      border: 'border-red-400',
+      icon: '❌',
+    },
+    info: {
+      bg: 'bg-gradient-to-r from-blue-500 to-purple-600',
+      border: 'border-blue-400',
+      icon: 'ℹ️',
+    },
   }[type];
 
   return (
-    <div className={`fixed bottom-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg animate-pulse z-50`}>
-      {message}
+    <div className={`fixed bottom-6 right-6 ${styles.bg} text-white px-8 py-4 rounded-2xl shadow-2xl backdrop-blur-xl border-2 ${styles.border} z-50 animate-fade-in flex items-center gap-3 min-w-[300px]`}>
+      <span className="text-2xl drop-shadow-lg">{styles.icon}</span>
+      <span className="font-semibold text-base flex-1">{message}</span>
+      <button
+        onClick={onClose}
+        className="text-white/80 hover:text-white transition-colors ml-2 text-xl font-bold"
+      >
+        ×
+      </button>
     </div>
   );
 }

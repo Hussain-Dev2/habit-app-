@@ -7,9 +7,10 @@ export const dynamic = 'force-dynamic';
 
 export async function PUT(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const session = await getServerSession(authOptions);
         
         if (!session || !session.user?.email) {
@@ -34,7 +35,7 @@ export async function PUT(
         }
 
         const product = await prisma.product.update({
-            where: { id: params.id },
+            where: { id },
             data: {
                 title,
                 description: description || "",
@@ -55,9 +56,10 @@ export async function PUT(
 
 export async function DELETE(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const session = await getServerSession(authOptions);
         
         if (!session || !session.user?.email) {
@@ -73,7 +75,7 @@ export async function DELETE(
         }
 
         await prisma.product.delete({
-            where: { id: params.id },
+            where: { id },
         });
         
         return NextResponse.json({ success: true });

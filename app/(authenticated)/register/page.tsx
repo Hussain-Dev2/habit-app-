@@ -28,41 +28,41 @@ export default function Register() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 flex items-center justify-center px-4 relative overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-br from-primary-50 via-warm-50 to-secondary-50 dark:from-gray-900 dark:via-secondary-900/50 dark:to-primary-900/50 flex items-center justify-center px-4 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-pastel-2 rounded-full mix-blend-normal filter blur-3xl opacity-40 dark:opacity-25 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-pastel-4 rounded-full mix-blend-normal filter blur-3xl opacity-40 dark:opacity-25 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-gradient-smooth-3 rounded-full mix-blend-normal filter blur-3xl opacity-35 dark:opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
       <div className="w-full max-w-md relative z-10">
-        {/* Glassmorphism card */}
-        <div className="backdrop-blur-xl bg-white/80 dark:bg-white/10 border border-blue-200/50 dark:border-white/20 rounded-2xl shadow-2xl dark:shadow-2xl p-8 hover:shadow-3xl transition-shadow duration-300">
+        {/* Modern glass card */}
+        <div className="glass backdrop-blur-2xl bg-white/80 dark:bg-gray-900/80 border-2 border-secondary-200/60 dark:border-secondary-700/60 rounded-3xl shadow-2xl p-10 hover:shadow-glow-purple transition-all duration-500 card-lift">
           {/* Logo/Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-pink-400 to-purple-500 rounded-2xl mb-4 shadow-lg">
-              <span className="text-2xl">🎮</span>
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-smooth-4 rounded-3xl mb-6 shadow-glow-coral animate-pulse-soft">
+              <span className="text-4xl">🎉</span>
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">
+            <h1 className="text-5xl font-bold bg-gradient-smooth-4 bg-clip-text text-transparent mb-3 animate-gradient">
               Join ClickerPro
             </h1>
-            <p className="text-slate-300 text-sm">Start your clicking journey today and earn amazing rewards</p>
+            <p className="text-gray-600 dark:text-gray-300 text-base">Start your rewarding journey today! 🚀✨</p>
           </div>
 
           {/* Info section */}
-          <div className="grid grid-cols-3 gap-3 mb-8">
-            <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-center">
-              <p className="text-2xl mb-1">⚡</p>
-              <p className="text-xs text-slate-300">Fast</p>
+          <div className="grid grid-cols-3 gap-4 mb-10">
+            <div className="glass bg-white/50 dark:bg-gray-800/50 border-2 border-primary-200/50 dark:border-primary-700/50 rounded-2xl p-4 text-center hover-scale transition-all duration-300">
+              <p className="text-3xl mb-2 animate-float">⚡</p>
+              <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">Fast</p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-center">
-              <p className="text-2xl mb-1">🎯</p>
-              <p className="text-xs text-slate-300">Fun</p>
+            <div className="glass bg-white/50 dark:bg-gray-800/50 border-2 border-secondary-200/50 dark:border-secondary-700/50 rounded-2xl p-4 text-center hover-scale transition-all duration-300">
+              <p className="text-3xl mb-2 animate-float animation-delay-2000">✨</p>
+              <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">Beautiful</p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-center">
-              <p className="text-2xl mb-1">🏆</p>
-              <p className="text-xs text-slate-300">Rewarding</p>
+            <div className="glass bg-white/50 dark:bg-gray-800/50 border-2 border-warm-200/50 dark:border-warm-700/50 rounded-2xl p-4 text-center hover-scale transition-all duration-300">
+              <p className="text-3xl mb-2 animate-float animation-delay-4000">🏆</p>
+              <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">Rewarding</p>
             </div>
           </div>
 
@@ -70,7 +70,7 @@ export default function Register() {
           <button
             type="button"
             onClick={() => signIn('google', { redirect: true, callbackUrl: '/' })}
-            className="w-full py-3 px-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-xl font-semibold text-white shadow-lg hover:shadow-pink-500/50 transition-all duration-200 flex items-center justify-center gap-3 group active:scale-95"
+            className="w-full py-4 px-6 bg-gradient-smooth-4 hover:shadow-glow-coral rounded-2xl font-bold text-base text-white shadow-lg transition-all duration-300 flex items-center justify-center gap-3 group hover-scale active:scale-95"
           >
             <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -82,26 +82,26 @@ export default function Register() {
           </button>
 
           {/* Features list */}
-          <div className="mt-8 space-y-3 text-sm">
-            <div className="flex items-center gap-3">
-              <span className="text-green-400">✓</span>
-              <p className="text-slate-300">One-click signup with Google</p>
+          <div className="mt-10 space-y-4 text-base">
+            <div className="flex items-center gap-4 glass bg-white/40 dark:bg-gray-800/40 rounded-2xl p-4 hover-scale transition-all duration-300">
+              <span className="text-2xl">✅</span>
+              <p className="text-gray-700 dark:text-gray-300 font-medium">One-click signup with Google</p>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-green-400">✓</span>
-              <p className="text-slate-300">Instant rewards & bonuses</p>
+            <div className="flex items-center gap-4 glass bg-white/40 dark:bg-gray-800/40 rounded-2xl p-4 hover-scale transition-all duration-300">
+              <span className="text-2xl">🎁</span>
+              <p className="text-gray-700 dark:text-gray-300 font-medium">Instant rewards & bonuses</p>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-green-400">✓</span>
-              <p className="text-slate-300">Join thousands of players</p>
+            <div className="flex items-center gap-4 glass bg-white/40 dark:bg-gray-800/40 rounded-2xl p-4 hover-scale transition-all duration-300">
+              <span className="text-2xl">👥</span>
+              <p className="text-gray-700 dark:text-gray-300 font-medium">Join thousands of players</p>
             </div>
           </div>
 
           {/* Footer */}
-          <p className="text-center text-slate-300 text-sm mt-8">
-            Already a clicker?{' '}
-            <Link href="/login" className="font-semibold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
-              Sign In
+          <p className="text-center text-gray-600 dark:text-gray-400 text-base mt-10">
+            Already have an account?{' '}
+            <Link href="/login" className="font-bold bg-gradient-smooth-1 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
+              Sign In →
             </Link>
           </p>
         </div>

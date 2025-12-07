@@ -82,19 +82,22 @@ export default function Shop() {
 
         <div className="max-w-7xl mx-auto px-4 py-12 relative z-10">
           {/* Header */}
-          <div className="mb-12 animate-fade-in">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-5xl">🏪</span>
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+          <div className="mb-16 animate-fade-in">
+            <div className="flex items-center gap-4 mb-6">
+              <span className="text-7xl drop-shadow-lg">🏪</span>
+              <h1 className="text-6xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent animate-gradient drop-shadow-md">
                 Shop
               </h1>
             </div>
-            <p className="text-slate-300 text-lg mb-6">Spend your points on exclusive rewards</p>
+            <p className="text-slate-700 dark:text-slate-300 text-xl mb-8 font-semibold">Spend your points on exclusive rewards</p>
 
             {/* Points Card */}
-            <div className="inline-block backdrop-blur-xl bg-white/60 dark:bg-white/10 border border-blue-200/50 dark:border-white/20 rounded-2xl px-8 py-4 shadow-lg dark:shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <p className="text-slate-300 text-sm mb-1">Available Points</p>
-              <p className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-pink-400 bg-clip-text text-transparent">
+            <div className="inline-block backdrop-blur-xl bg-gradient-to-br from-yellow-100/80 to-amber-100/70 dark:from-yellow-900/40 dark:to-amber-800/30 border-2 border-yellow-300/70 dark:border-yellow-400/50 rounded-3xl px-10 py-6 shadow-xl hover:shadow-2xl hover:shadow-yellow-500/30 transition-all duration-300 card-hover">
+              <p className="text-slate-700 dark:text-slate-300 text-sm mb-2 font-bold flex items-center gap-2">
+                <span className="text-xl">💰</span>
+                Available Points
+              </p>
+              <p className="text-5xl font-extrabold bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">
                 {userPoints.toLocaleString()}
               </p>
             </div>
@@ -122,10 +125,10 @@ export default function Shop() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-20">
-              <p className="text-6xl mb-4">📭</p>
-              <p className="text-slate-300 text-xl">No products available</p>
-              <p className="text-slate-400 text-sm mt-2">Check back soon for amazing deals!</p>
+            <div className="flex flex-col items-center justify-center py-24 backdrop-blur-xl bg-white/60 dark:bg-white/5 border-2 border-slate-200 dark:border-white/10 rounded-3xl">
+              <p className="text-8xl mb-6 animate-bounce-soft drop-shadow-lg">📭</p>
+              <p className="text-slate-700 dark:text-slate-300 text-2xl font-bold mb-2">No products available</p>
+              <p className="text-slate-600 dark:text-slate-400 text-base font-medium">Check back soon for amazing deals!</p>
             </div>
           )}
         </div>
