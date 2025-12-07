@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(
     req: Request,
-    { params }: { params: { userId: string } }
+    { params }: { params: Promise<{ userId: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions);
@@ -33,8 +33,10 @@ export async function POST(
             );
         }
 
+        const { userId } = await params;
+
         const user = await prisma.user.update({
-            where: { id: params.userId },
+            where: { id: userId },
             data: {
                 points: {
                     increment: points,

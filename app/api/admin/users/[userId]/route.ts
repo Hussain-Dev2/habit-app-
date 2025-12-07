@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export async function PUT(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   const session = await getServerSession(authOptions);
 
@@ -26,8 +26,10 @@ export async function PUT(
   try {
     const { isAdmin } = await request.json();
 
+    const { userId } = await params;
+
     const updatedUser = await prisma.user.update({
-      where: { id: params.userId },
+      where: { id: userId },
       data: { isAdmin },
       select: {
         id: true,
