@@ -6,9 +6,10 @@ import { prisma } from '@/lib/prisma';
 // Get codes for a product
 export async function GET(
   request: Request,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
+    const { productId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -23,7 +24,7 @@ export async function GET(
     }
 
     const codes = await prisma.redemptionCode.findMany({
-      where: { productId: params.productId },
+      where: { productId },
       orderBy: [
         { isUsed: 'asc' },
         { createdAt: 'desc' },
