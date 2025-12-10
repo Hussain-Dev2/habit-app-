@@ -1,16 +1,28 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import Toast from '@/components/Toast';
 
 export default function Register() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' } | null>(null);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Get referral code from URL
+    const ref = searchParams.get('ref');
+    if (ref) {
+      setReferralCode(ref);
+      // Store in session storage for after OAuth redirect
+      sessionStorage.setItem('referralCode', ref);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -65,6 +77,21 @@ export default function Register() {
               <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">Rewarding</p>
             </div>
           </div>
+
+          {/* Referral Code Banner */}
+          {referralCode && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-400 rounded-2xl">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">🎁</span>
+                <div>
+                  <p className="font-bold text-gray-900 dark:text-white">Referral Code Applied!</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Referred by: <span className="font-mono font-bold">{referralCode}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Google Sign Up */}
           <button

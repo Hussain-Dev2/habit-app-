@@ -32,6 +32,7 @@ import { useState, useEffect } from 'react';
 import Loader from '@/components/Loader';
 import SpinWheelModal from '@/components/SpinWheelModal';
 import AdWatchModal from '@/components/AdWatchModal';
+import ShareEarnModal from '@/components/ShareEarnModal';
 import { apiFetch } from '@/lib/client';
 import { calculateLevel } from '@/lib/level-system';
 
@@ -136,6 +137,7 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
   const [spinReward, setSpinReward] = useState<number | null>(null);
   const [showAdWatch, setShowAdWatch] = useState(false);
   const [adReward, setAdReward] = useState<number>(0);
+  const [showShareEarn, setShowShareEarn] = useState(false);
 
   // Calculate user's level
   const level = calculateLevel(lifetimePoints);
@@ -234,6 +236,12 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
     if (activity.id === 'watch_ad') {
       setAdReward(getActivityReward(activity));
       setShowAdWatch(true);
+      return;
+    }
+
+    // Special handling for share & earn
+    if (activity.id === 'share_reward') {
+      setShowShareEarn(true);
       return;
     }
 
@@ -454,6 +462,12 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
         </p>
       </div>
       </div>
+
+      {/* Share & Earn Modal */}
+      <ShareEarnModal 
+        isOpen={showShareEarn}
+        onClose={() => setShowShareEarn(false)}
+      />
     </>
   );
 }

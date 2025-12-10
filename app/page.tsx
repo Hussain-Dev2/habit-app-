@@ -366,29 +366,6 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Footer Section */}
-          <footer className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 animate-fade-in" style={{ animationDelay: '550ms' }}>
-            <div className="text-center space-y-4">
-              {/* Referral Links */}
-              <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
-                <a 
-                  href="https://beta.publishers.adsterra.com/referral/TrFeRtUeQH" 
-                  rel="nofollow noopener noreferrer"
-                  target="_blank"
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold hover:shadow-glow transition-all duration-300 hover:scale-105"
-                >
-                  📢 Earn with Adsterra
-                </a>
-              </div>
-              
-              {/* Copyright & Info */}
-              <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                <p>© 2025 ClickVault. All rights reserved.</p>
-                <p className="text-[10px]">Monetized with Google AdSense & Adsterra</p>
-              </div>
-            </div>
-          </footer>
-
           {toast && (
             <Toast
               message={toast.message}

@@ -43,6 +43,14 @@ model User {
   lastAdWatch       DateTime?
   adWatchCount      Int       @default(0)
 
+  // Referral System
+  referralCode      String?   @unique // User's unique referral code
+  referredBy        String?   // Referral code of who referred this user
+  referredByUser    User?     @relation("Referrals", fields: [referredBy], references: [referralCode])
+  referrals         User[]    @relation("Referrals")
+  totalReferrals    Int       @default(0)
+  referralEarnings  Int       @default(0)
+
   accounts          Account[]
   sessions          Session[]
   orders            Order[]
