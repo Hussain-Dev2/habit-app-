@@ -1,16 +1,24 @@
 import { getServerSession } from 'next-auth/next';
 import { prisma } from '@/lib/prisma';
 import { authOptions } from '@/lib/auth-config';
+import { calculateLevel } from '@/lib/level-system';
 
 export const dynamic = 'force-dynamic';
 
 const ACTIVITIES = {
   daily_bonus: { reward: 100, cooldown: 86400 },
   watch_ad: { reward: 50, cooldown: 300 },
-  spin_wheel: { reward: 200, cooldown: 3600 },
+  spin_wheel: { reward: 200, cooldown: 21600 }, // 6 hours
   complete_task: { reward: 75, cooldown: 600 },
   share_reward: { reward: 30, cooldown: 1800 },
 };
+
+// Spin wheel possible rewards
+const SPIN_REWARDS = [50, 75, 100, 125, 150, 175, 200];
+
+function getRandomSpinReward(): number {
+  return SPIN_REWARDS[Math.floor(Math.random() * SPIN_REWARDS.length)];
+}
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -29,37 +37,104 @@ export async function POST(request: Request) {
     const activity = ACTIVITIES[activityId as keyof typeof ACTIVITIES];
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true, points: true },
+      select: { id: true, points: true, lifetimePoints: true },
     });
 
     if (!user) {
       return Response.json({ error: 'User not found' }, { status: 404 });
     }
 
+    // Check if activity was recently completed (cooldown check)
+    const lastCompletion = await prisma.activityCompletion.findUnique({
+      where: {
+        userId_activityId: {
+          userId: user.id,
+          activityId: activityId,
+        },
+      },
+    });
+
+    if (lastCompletion) {
+      const now = Date.now();
+      const lastTime = lastCompletion.completedAt.getTime();
+      const cooldownMs = activity.cooldown * 1000;
+      const timeRemaining = cooldownMs - (now - lastTime);
+
+      if (timeRemaining > 0) {
+        const hoursRemaining = Math.ceil(timeRemaining / (1000 * 60 * 60));
+        return Response.json(
+          { 
+            error: `Activity on cooldown. Available in ${hoursRemaining}h`,
+            cooldownRemaining: Math.floor(timeRemaining / 1000),
+          },
+          { status: 429 }
+        );
+      }
+    }
+
+    // Calculate level and apply multipliers
+    const level = calculateLevel(user.lifetimePoints);
+    let finalReward = activity.reward;
+
+    // Apply level multipliers based on activity type
+    if (activityId === 'daily_bonus') {
+      finalReward = Math.floor(activity.reward * level.dailyBonusMultiplier);
+    } else if (activityId === 'watch_ad') {
+      finalReward = level.adReward;
+    } else if (activityId === 'spin_wheel') {
+      // Random reward for spin wheel
+      const randomReward = getRandomSpinReward();
+      finalReward = Math.floor(randomReward * level.clickMultiplier);
+    } else {
+      // For other activities, apply click multiplier as general bonus
+      finalReward = Math.floor(activity.reward * level.clickMultiplier);
+    }
+
     // Award points
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: {
-        points: user.points + activity.reward,
-        lifetimePoints: { increment: activity.reward },
+        points: user.points + finalReward,
+        lifetimePoints: { increment: finalReward },
         lastActivityAt: new Date(),
       },
-      select: { id: true, points: true },
+      select: { id: true, points: true, lifetimePoints: true },
+    });
+
+    // Update or create activity completion record
+    await prisma.activityCompletion.upsert({
+      where: {
+        userId_activityId: {
+          userId: user.id,
+          activityId: activityId,
+        },
+      },
+      update: {
+        completedAt: new Date(),
+        reward: finalReward,
+      },
+      create: {
+        userId: user.id,
+        activityId: activityId,
+        reward: finalReward,
+      },
     });
 
     // Record activity (non-blocking)
     prisma.pointsHistory.create({
       data: {
         userId: user.id,
-        amount: activity.reward,
+        amount: finalReward,
         source: activityId,
-        description: `Earned ${activity.reward} points from ${activityId}`,
+        description: `Earned ${finalReward} points from ${activityId} (Level ${level.level} bonus)`,
       },
     }).catch(console.error);
 
     return Response.json({
       success: true,
-      reward: activity.reward,
+      reward: finalReward,
+      baseReward: activity.reward,
+      levelBonus: level.level,
       user: updatedUser,
     });
   } catch (error) {

@@ -1,7 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Loader from '@/components/Loader';
+import SpinWheelModal from '@/components/SpinWheelModal';
+import AdWatchModal from '@/components/AdWatchModal';
 import { apiFetch } from '@/lib/client';
+import { calculateLevel } from '@/lib/level-system';
 
 interface Activity {
   id: string;
@@ -38,8 +42,8 @@ const ACTIVITIES: Activity[] = [
     description: 'Try your luck for big rewards!',
     icon: '🎡',
     reward: 200,
-    cooldown: 3600, // 1 hour
-    energyCost: 10,
+    cooldown: 21600, // 6 hours
+    energyCost: 0,
   },
   {
     id: 'complete_task',
@@ -65,13 +69,71 @@ interface ActivityTimestamp {
   [key: string]: number; // timestamp of last completion
 }
 
-export default function ActivitiesPanel() {
+interface ActivitiesPanelProps {
+  onPointsEarned?: () => void;
+  lifetimePoints?: number;
+}
+
+export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0 }: ActivitiesPanelProps = {}) {
   const [loading, setLoading] = useState<string | null>(null);
   const [lastActivity, setLastActivity] = useState<ActivityTimestamp>({});
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' }>({
     text: '',
     type: 'success',
   });
+  const [showSpinWheel, setShowSpinWheel] = useState(false);
+  const [spinReward, setSpinReward] = useState<number | null>(null);
+  const [showAdWatch, setShowAdWatch] = useState(false);
+  const [adReward, setAdReward] = useState<number>(0);
+
+  // Calculate user's level
+  const level = calculateLevel(lifetimePoints);
+
+  // Fetch activity status from server
+  useEffect(() => {
+    const fetchActivityStatus = async () => {
+      try {
+        const response = await apiFetch<{ 
+          activityStatus: Record<string, { canComplete: boolean; remainingSeconds: number }> 
+        }>('/points/activity-status');
+        
+        // Convert to timestamp format
+        const now = Math.floor(Date.now() / 1000);
+        const timestamps: ActivityTimestamp = {};
+        
+        for (const [activityId, status] of Object.entries(response.activityStatus)) {
+          if (!status.canComplete) {
+            // Calculate when it was last completed
+            const activity = ACTIVITIES.find(a => a.id === activityId);
+            if (activity) {
+              timestamps[activityId] = now - (activity.cooldown - status.remainingSeconds);
+            }
+          }
+        }
+        
+        setLastActivity(timestamps);
+      } catch (error) {
+        console.error('Failed to fetch activity status:', error);
+      }
+    };
+
+    fetchActivityStatus();
+    
+    // Refresh status every minute
+    const interval = setInterval(fetchActivityStatus, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Calculate actual rewards based on level
+  const getActivityReward = (activity: Activity): number => {
+    if (activity.id === 'daily_bonus') {
+      return Math.floor(activity.reward * level.dailyBonusMultiplier);
+    } else if (activity.id === 'watch_ad') {
+      return level.adReward;
+    } else {
+      return Math.floor(activity.reward * level.clickMultiplier);
+    }
+  };
 
   const canComplete = (activity: Activity): boolean => {
     const lastTime = lastActivity[activity.id] || 0;
@@ -99,14 +161,38 @@ export default function ActivitiesPanel() {
       return;
     }
 
+    // Special handling for spin wheel
+    if (activity.id === 'spin_wheel') {
+      setSpinReward(null);
+      setShowSpinWheel(true);
+      return;
+    }
+
+    // Special handling for watch ad
+    if (activity.id === 'watch_ad') {
+      setAdReward(getActivityReward(activity));
+      setShowAdWatch(true);
+      return;
+    }
+
     setLoading(activity.id);
     try {
       // Call the activity endpoint
-      const response = await apiFetch<{ success: boolean; reward: number }>('/points/activity', {
+      const response = await apiFetch<{ 
+        success: boolean; 
+        reward: number; 
+        user: { points: number };
+        error?: string;
+        cooldownRemaining?: number;
+      }>('/points/activity', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ activityId: activity.id }),
       });
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
 
       setLastActivity({
         ...lastActivity,
@@ -114,14 +200,20 @@ export default function ActivitiesPanel() {
       });
 
       setMessage({
-        text: `+${activity.reward} points! ${activity.icon}`,
+        text: `+${response.reward} points! ${activity.icon}`,
         type: 'success',
       });
 
+      // Refresh parent component's user data
+      if (onPointsEarned) {
+        onPointsEarned();
+      }
+
       setTimeout(() => setMessage({ text: '', type: 'success' }), 2000);
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Activity failed';
       setMessage({
-        text: error instanceof Error ? error.message : 'Activity failed',
+        text: errorMessage,
         type: 'error',
       });
       setTimeout(() => setMessage({ text: '', type: 'error' }), 3000);
@@ -130,9 +222,100 @@ export default function ActivitiesPanel() {
     }
   };
 
+  const handleSpin = async (): Promise<number> => {
+    try {
+      const response = await apiFetch<{ 
+        success: boolean; 
+        reward: number; 
+        user: { points: number };
+      }>('/points/activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activityId: 'spin_wheel' }),
+      });
+
+      setLastActivity({
+        ...lastActivity,
+        spin_wheel: Math.floor(Date.now() / 1000),
+      });
+
+      // Refresh parent component's user data
+      if (onPointsEarned) {
+        onPointsEarned();
+      }
+
+      return response.reward;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Spin failed';
+      setMessage({
+        text: errorMessage,
+        type: 'error',
+      });
+      setShowSpinWheel(false);
+      throw error;
+    }
+  };
+
+  const handleWatchAd = async (): Promise<number> => {
+    try {
+      const response = await apiFetch<{ 
+        success: boolean; 
+        reward: number; 
+        user: { points: number };
+      }>('/points/activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activityId: 'watch_ad' }),
+      });
+
+      setLastActivity({
+        ...lastActivity,
+        watch_ad: Math.floor(Date.now() / 1000),
+      });
+
+      setMessage({
+        text: `+${response.reward} points from ad! 📺`,
+        type: 'success',
+      });
+
+      // Refresh parent component's user data
+      if (onPointsEarned) {
+        onPointsEarned();
+      }
+
+      setTimeout(() => setMessage({ text: '', type: 'success' }), 2000);
+      setShowAdWatch(false);
+      return response.reward;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Ad watch failed';
+      setMessage({
+        text: errorMessage,
+        type: 'error',
+      });
+      setTimeout(() => setMessage({ text: '', type: 'error' }), 3000);
+      setShowAdWatch(false);
+      throw error;
+    }
+  };
+
   return (
-    <div className="w-full max-w-4xl mx-auto p-6">
-      <h2 className="text-3xl font-bold mb-6 text-center text-slate-800 dark:text-white">
+    <>
+      <SpinWheelModal
+        isOpen={showSpinWheel}
+        onClose={() => setShowSpinWheel(false)}
+        onSpin={handleSpin}
+        reward={spinReward}
+      />
+
+      <AdWatchModal
+        isOpen={showAdWatch}
+        onClose={() => setShowAdWatch(false)}
+        onComplete={handleWatchAd}
+        reward={adReward}
+      />
+
+      <div className="w-full max-w-4xl mx-auto p-6">
+        <h2 className="text-3xl font-bold mb-6 text-center text-slate-800 dark:text-white">
         🎮 Earn More Points
       </h2>
 
@@ -163,7 +346,7 @@ export default function ActivitiesPanel() {
               <div className="text-4xl">{activity.icon}</div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-yellow-500">
-                  +{activity.reward}
+                  +{getActivityReward(activity)}
                 </div>
                 <div className="text-xs text-slate-600 dark:text-slate-400">
                   points
@@ -194,10 +377,9 @@ export default function ActivitiesPanel() {
             </div>
 
             {loading === activity.id && (
-              <div className="mt-2 text-center">
-                <div className="text-sm text-slate-600 dark:text-slate-400 animate-pulse">
-                  Processing...
-                </div>
+              <div className="mt-3 flex justify-center items-center gap-2">
+                <Loader size="sm" color="emerald" />
+                <span className="text-sm text-slate-600 dark:text-slate-400 font-semibold">Processing...</span>
               </div>
             )}
           </div>
@@ -209,6 +391,7 @@ export default function ActivitiesPanel() {
           💡 <strong>Pro Tips:</strong> Mix up your activities to stay engaged and earn bonus multipliers. Build streaks for bigger rewards!
         </p>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

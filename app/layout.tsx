@@ -5,8 +5,8 @@ import './globals.css';
 import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
-  title: 'ClickerPro - Click & Earn',
-  description: 'Incremental clicker game with upgrades and shop',
+  title: 'ClickVault - Earn Rewards',
+  description: 'Transform your clicks into rewards with our modern earning platform',
 };
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gradient-to-br from-primary-50 via-secondary-50 to-primary-100 dark:from-gray-900 dark:via-primary-900 dark:to-secondary-900 text-gray-900 dark:text-gray-50 transition-all duration-500 ease-in-out">
+      <body className="bg-gradient-to-br from-cyan-50 via-orange-50 to-cyan-100 dark:from-gray-900 dark:via-cyan-900 dark:to-orange-950 text-gray-900 dark:text-gray-50 transition-all duration-500 ease-in-out">
         <Providers>
           <Header />
           {children}

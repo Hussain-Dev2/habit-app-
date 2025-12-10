@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Loader from '@/components/Loader';
 import { apiFetch } from '@/lib/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ClickResponse {
   user: { id: string; points: number; clicks: number };
@@ -24,6 +26,7 @@ interface FloatingPoint {
 }
 
 export default function ClickButton({ onSuccess, onError }: ClickButtonProps) {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [isAdBreak, setIsAdBreak] = useState(false);
   const [ripple, setRipple] = useState<{ x: number; y: number } | null>(null);
@@ -106,7 +109,7 @@ export default function ClickButton({ onSuccess, onError }: ClickButtonProps) {
       {comboCount > 1 && (
         <div className="text-center animate-bounce">
           <div className="text-6xl font-extrabold bg-gradient-smooth-4 bg-clip-text text-transparent drop-shadow-lg animate-gradient">
-            🔥 {comboCount}x COMBO!
+            🔥 {comboCount}x {t.combo.toUpperCase()}!
           </div>
           <div className="text-base text-accent-sunset dark:text-accent-peach font-bold mt-3">Keep going for bigger rewards! 🎯</div>
         </div>
@@ -165,12 +168,7 @@ export default function ClickButton({ onSuccess, onError }: ClickButtonProps) {
         {/* Loading spinner */}
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative">
-              <div className="w-20 h-20 rounded-full border-8 border-gray-300 dark:border-gray-600 border-t-primary-500 dark:border-t-primary-400 animate-spin"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-4xl">✨</span>
-              </div>
-            </div>
+            <Loader size="lg" color="cyan" />
           </div>
         )}
 

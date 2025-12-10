@@ -63,11 +63,11 @@ export default function Header() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-smooth-1 rounded-2xl flex items-center justify-center shadow-glow group-hover:shadow-glow-lg transition-all duration-500 group-hover:scale-110 animate-pulse-soft">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-aurora rounded-2xl flex items-center justify-center shadow-glow group-hover:shadow-glow-lg transition-all duration-500 group-hover:scale-110 animate-pulse-soft">
             <span className="text-2xl sm:text-3xl">✨</span>
           </div>
-          <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-smooth-1 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300 animate-gradient">
-            ClickerPro
+          <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-aurora bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300 animate-gradient">
+            ClickVault
           </span>
         </Link>
 
@@ -75,7 +75,7 @@ export default function Header() {
         <div className="hidden lg:flex items-center gap-3 xl:gap-4">
           <button
             onClick={() => setSettingsOpen(true)}
-            className="px-5 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-100/80 dark:hover:bg-purple-900/50 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-300 hover-scale"
+            className="px-5 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-cyan-100/80 dark:hover:bg-cyan-900/50 border-2 border-transparent hover:border-cyan-300 dark:hover:border-cyan-600 transition-all duration-300 hover-scale"
           >
             ⚙️ {t.settings}
           </button>
@@ -84,9 +84,9 @@ export default function Header() {
             <>
               <Link
                 href="/inbox"
-                className="relative px-5 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 border-2 border-transparent hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 hover-scale"
+                className="relative px-5 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-100/80 dark:hover:bg-orange-900/50 border-2 border-transparent hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-300 hover-scale"
               >
-                📬 {t.inbox}
+                🔔 {t.inbox}
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
                     {unreadCount}
@@ -95,7 +95,7 @@ export default function Header() {
               </Link>
               <Link
                 href="/stats"
-                className="px-5 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-secondary-600 dark:hover:text-secondary-400 hover:bg-secondary-100/80 dark:hover:bg-secondary-900/50 border-2 border-transparent hover:border-secondary-300 dark:hover:border-secondary-600 transition-all duration-300 hover-scale"
+                className="px-5 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50 border-2 border-transparent hover:border-emerald-300 dark:hover:border-emerald-600 transition-all duration-300 hover-scale"
               >
                 📊 {t.stats}
               </Link>
@@ -110,14 +110,14 @@ export default function Header() {
                   href="/admin"
                   className="px-5 py-3 rounded-xl font-bold text-sm glass bg-warm-100/80 dark:bg-warm-900/50 text-warm-700 dark:text-warm-400 hover:text-warm-800 dark:hover:text-warm-300 hover:bg-warm-200/80 dark:hover:bg-warm-800/50 border-2 border-warm-300/50 dark:border-warm-600/50 hover:border-warm-500 transition-all duration-300 hover-scale"
                 >
-                  ⚙️ {t.admin}
+                  🛡️ {t.admin}
                 </Link>
               )}
               <button
                 onClick={handleLogout}
                 className="px-5 py-3 rounded-xl font-bold text-sm bg-gradient-smooth-4 text-white shadow-lg hover:shadow-xl hover-scale active:scale-95 transition-all duration-300"
               >
-                🚪 {t.logout}
+                👋 {t.logout}
               </button>
             </>
           ) : (
@@ -130,7 +130,7 @@ export default function Header() {
               </Link>
               <Link
                 href="/register"
-                className="px-5 py-3 rounded-xl font-bold text-sm bg-gradient-smooth-1 hover:shadow-glow text-white shadow-lg hover:shadow-xl hover-scale active:scale-95 transition-all duration-300"
+                className="px-5 py-3 rounded-xl font-bold text-sm bg-gradient-aurora hover:shadow-glow text-white shadow-lg hover:shadow-xl hover-scale active:scale-95 transition-all duration-300"
               >
                 ✨ {t.register}
               </Link>

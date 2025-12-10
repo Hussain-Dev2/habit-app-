@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
 import { apiFetch } from '@/lib/client';
 
 interface Notification {
@@ -90,8 +89,7 @@ export default function InboxPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-        <Header />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900">
         <div className="container mx-auto p-8">
           <div className="text-white text-center">Loading...</div>
         </div>
@@ -100,15 +98,14 @@ export default function InboxPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-      <Header />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
-                📬 Inbox
+                🔔 Inbox
               </h1>
               <p className="text-slate-300 text-sm sm:text-base">
                 {unreadCount > 0
@@ -119,7 +116,7 @@ export default function InboxPage() {
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base rounded-lg transition-colors"
+                className="w-full sm:w-auto px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm sm:text-base rounded-lg transition-colors"
               >
                 Mark all as read
               </button>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import ScratchCardModal from '@/components/ScratchCardModal';
+import Loader from '@/components/Loader';
 import Link from 'next/link';
 
 interface Purchase {
@@ -72,10 +73,10 @@ export default function PurchasesPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
-          <p className="text-slate-300">Loading your purchases...</p>
+      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-6">
+          <Loader size="lg" color="emerald" />
+          <p className="text-slate-300 text-lg font-semibold">Loading your purchases...</p>
         </div>
       </main>
     );
@@ -83,7 +84,7 @@ export default function PurchasesPage() {
 
   return (
     <ProtectedRoute>
-      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
           {/* Header */}
           <div className="mb-6 sm:mb-8">

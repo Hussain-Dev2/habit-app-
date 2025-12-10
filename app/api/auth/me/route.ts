@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: { email: session.user.email },
       select: { 
         id: true, 
@@ -28,11 +28,26 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // Auto-create user if they don't exist (OAuth users)
     if (!user) {
-      return NextResponse.json(
-        { message: 'User not found' },
-        { status: 404 }
-      );
+      user = await prisma.user.create({
+        data: {
+          email: session.user.email,
+          name: session.user.name || session.user.email.split('@')[0],
+          image: session.user.image,
+          points: 0,
+          clicks: 0,
+          lifetimePoints: 0,
+        },
+        select: { 
+          id: true, 
+          email: true, 
+          points: true, 
+          clicks: true, 
+          lifetimePoints: true,
+          createdAt: true 
+        },
+      });
     }
 
     return NextResponse.json({ user });

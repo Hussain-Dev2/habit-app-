@@ -51,6 +51,7 @@ model User {
   achievements      UserAchievement[]
   tasks             Task[]
   notifications     Notification[]
+  activityCompletions ActivityCompletion[]
 }
 
 model Account {
@@ -224,4 +225,18 @@ model Notification {
 
   @@index([userId, isRead])
   @@index([createdAt])
+}
+
+// Activity Completion Tracking
+model ActivityCompletion {
+  id          String   @id @default(cuid())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  activityId  String   // daily_bonus, watch_ad, etc.
+  completedAt DateTime @default(now())
+  reward      Int      // Points earned from this completion
+  
+  @@unique([userId, activityId])
+  @@index([userId])
+  @@index([activityId])
 }

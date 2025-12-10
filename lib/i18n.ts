@@ -13,7 +13,7 @@ export const translations = {
     settings: 'Settings',
     
     // Dashboard
-    dashboard: 'ClickerPro Dashboard',
+    dashboard: 'ClickVault Dashboard',
     dashboardSubtitle: 'Your journey to rewards begins here — enjoy every click! 🚀',
     smartTips: 'Smart Tips',
     smartTipsDesc: 'Click to earn points — build combos for amazing multipliers! ⚡',
@@ -21,6 +21,43 @@ export const translations = {
     levelUpDesc: 'Explore activities to boost earnings and unlock achievements! 🎯',
     rewards: 'Rewards',
     rewardsDesc: 'Complete tasks and visit the Shop for exclusive items! 🛍️',
+    clickToEarn: 'Click to Earn!',
+    tapToEarn: 'Tap to earn points and build your combo!',
+    combo: 'Combo',
+    lifetimeClicks: 'Lifetime Clicks',
+    todayClicks: 'Today\'s Clicks',
+    currentStreak: 'Current Streak',
+    days: 'days',
+    earnMorePoints: 'Earn More Points',
+    completeActivities: 'Complete activities below to boost your earnings',
+    
+    // Level System
+    level: 'Level',
+    clickPower: 'Click Power',
+    dailyBonus: 'Daily Bonus',
+    comboBonus: 'Combo Bonus',
+    adReward: 'Ad Reward',
+    progressTo: 'Progress to',
+    next: 'Next',
+    pointsToGo: 'points to go',
+    maxLevelAchieved: 'MAX LEVEL ACHIEVED!',
+    youAreLegend: 'You are an absolute LEGEND!',
+    lifetimePoints: 'Lifetime Points',
+    
+    // Activities
+    dailyBonusActivity: 'Daily Bonus',
+    dailyBonusDesc: 'Claim your free daily reward',
+    watchAdActivity: 'Watch Ad',
+    watchAdDesc: 'Watch a short video for bonus points',
+    spinWheelActivity: 'Spin Wheel',
+    spinWheelDesc: 'Try your luck on the fortune wheel',
+    miniTaskActivity: 'Mini Task',
+    miniTaskDesc: 'Complete a quick task for points',
+    shareActivity: 'Share App',
+    shareDesc: 'Share with friends and earn bonus',
+    energy: 'energy',
+    availableIn: 'Available in',
+    claimReward: 'Claim Reward',
     
     // Shop
     digitalStore: 'Digital Store',
@@ -39,6 +76,7 @@ export const translations = {
     morePoints: 'more points',
     noProductsAvailable: 'No products available',
     checkBackSoon: 'Check back soon for amazing deals!',
+    categories: 'Categories',
     
     // Purchases
     myPurchasesTitle: 'My Purchases',
@@ -67,12 +105,26 @@ export const translations = {
     newBadge: 'New',
     viewOrder: 'View Order',
     
+    // Stats
+    statsTitle: 'Your Statistics',
+    viewProgress: 'View your progress and achievements',
+    totalPoints: 'Total Points',
+    todayPoints: 'Today\'s Points',
+    thisWeek: 'This Week',
+    thisMonth: 'This Month',
+    totalClicks: 'Total Clicks',
+    achievements: 'Achievements',
+    earnedToday: 'Earned Today',
+    pointsHistory: 'Points History',
+    recentActivity: 'Recent Activity',
+    
     // Admin
     adminDashboard: 'Admin Dashboard',
     manageStore: 'Manage your store and users',
     products: 'Products',
     codes: 'Codes',
     users: 'Users',
+    analytics: 'Analytics',
     
     // Settings Modal
     language: 'Language',
@@ -81,10 +133,16 @@ export const translations = {
     english: 'English',
     arabic: 'Arabic',
     close: 'Close',
+    darkMode: 'Dark Mode',
+    lightMode: 'Light Mode',
     
     // Common
     loading: 'Loading...',
     pts: 'pts',
+    points: 'points',
+    loadingDashboard: 'Loading your dashboard...',
+    sponsored: 'Sponsored',
+    footer: 'Footer',
   },
   ar: {
     // Header
@@ -99,7 +157,7 @@ export const translations = {
     settings: 'الإعدادات',
     
     // Dashboard
-    dashboard: 'لوحة التحكم ClickerPro',
+    dashboard: 'لوحة التحكم ClickVault',
     dashboardSubtitle: 'رحلتك إلى المكافآت تبدأ هنا — استمتع بكل نقرة! 🚀',
     smartTips: 'نصائح ذكية',
     smartTipsDesc: 'انقر لكسب النقاط — قم ببناء مجموعات لمضاعفات مذهلة! ⚡',
@@ -107,6 +165,43 @@ export const translations = {
     levelUpDesc: 'استكشف الأنشطة لتعزيز الأرباح وفتح الإنجازات! 🎯',
     rewards: 'المكافآت',
     rewardsDesc: 'أكمل المهام وقم بزيارة المتجر للحصول على عناصر حصرية! 🛍️',
+    clickToEarn: 'انقر للربح!',
+    tapToEarn: 'اضغط لكسب النقاط وبناء المجموعة!',
+    combo: 'المجموعة',
+    lifetimeClicks: 'إجمالي النقرات',
+    todayClicks: 'نقرات اليوم',
+    currentStreak: 'السلسلة الحالية',
+    days: 'أيام',
+    earnMorePoints: 'اكسب المزيد من النقاط',
+    completeActivities: 'أكمل الأنشطة أدناه لتعزيز أرباحك',
+    
+    // Level System
+    level: 'المستوى',
+    clickPower: 'قوة النقر',
+    dailyBonus: 'المكافأة اليومية',
+    comboBonus: 'مكافأة المجموعة',
+    adReward: 'مكافأة الإعلان',
+    progressTo: 'التقدم إلى',
+    next: 'التالي',
+    pointsToGo: 'نقطة متبقية',
+    maxLevelAchieved: 'تم الوصول للمستوى الأقصى!',
+    youAreLegend: 'أنت أسطورة حقيقية!',
+    lifetimePoints: 'النقاط الإجمالية',
+    
+    // Activities
+    dailyBonusActivity: 'المكافأة اليومية',
+    dailyBonusDesc: 'احصل على مكافأتك اليومية المجانية',
+    watchAdActivity: 'مشاهدة إعلان',
+    watchAdDesc: 'شاهد فيديو قصير للحصول على نقاط إضافية',
+    spinWheelActivity: 'دوران العجلة',
+    spinWheelDesc: 'جرب حظك في عجلة الحظ',
+    miniTaskActivity: 'مهمة صغيرة',
+    miniTaskDesc: 'أكمل مهمة سريعة للحصول على نقاط',
+    shareActivity: 'مشاركة التطبيق',
+    shareDesc: 'شارك مع الأصدقاء واحصل على مكافأة',
+    energy: 'طاقة',
+    availableIn: 'متاح في',
+    claimReward: 'احصل على المكافأة',
     
     // Shop
     digitalStore: 'المتجر الرقمي',
@@ -125,6 +220,7 @@ export const translations = {
     morePoints: 'نقطة إضافية',
     noProductsAvailable: 'لا توجد منتجات متاحة',
     checkBackSoon: 'تحقق قريبًا للحصول على صفقات رائعة!',
+    categories: 'الفئات',
     
     // Purchases
     myPurchasesTitle: 'مشترياتي',
@@ -153,12 +249,26 @@ export const translations = {
     newBadge: 'جديد',
     viewOrder: 'عرض الطلب',
     
+    // Stats
+    statsTitle: 'إحصائياتك',
+    viewProgress: 'اعرض تقدمك وإنجازاتك',
+    totalPoints: 'إجمالي النقاط',
+    todayPoints: 'نقاط اليوم',
+    thisWeek: 'هذا الأسبوع',
+    thisMonth: 'هذا الشهر',
+    totalClicks: 'إجمالي النقرات',
+    achievements: 'الإنجازات',
+    earnedToday: 'تم كسبها اليوم',
+    pointsHistory: 'سجل النقاط',
+    recentActivity: 'النشاط الأخير',
+    
     // Admin
     adminDashboard: 'لوحة المسؤول',
     manageStore: 'إدارة متجرك والمستخدمين',
     products: 'المنتجات',
     codes: 'الأكواد',
     users: 'المستخدمون',
+    analytics: 'التحليلات',
     
     // Settings Modal
     language: 'اللغة',
@@ -167,10 +277,16 @@ export const translations = {
     english: 'الإنجليزية',
     arabic: 'العربية',
     close: 'إغلاق',
+    darkMode: 'الوضع الداكن',
+    lightMode: 'الوضع الفاتح',
     
     // Common
     loading: 'جارٍ التحميل...',
     pts: 'نقطة',
+    points: 'نقاط',
+    loadingDashboard: 'جارٍ تحميل لوحة التحكم...',
+    sponsored: 'برعاية',
+    footer: 'التذييل',
   },
 };
 

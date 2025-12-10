@@ -1,11 +1,14 @@
 'use client';
 
+import { useLanguage } from '@/contexts/LanguageContext';
+
 interface UserCardProps {
   points: number;
   clicks: number;
 }
 
 export default function UserCard({ points, clicks }: UserCardProps) {
+  const { t } = useLanguage();
   const pointsPercentage = Math.min((clicks / 100) * 100, 100); // Progress to next milestone at 100 clicks
   const nextMilestone = Math.ceil((clicks + 1) / 100) * 100;
   const milestonesReached = Math.floor(clicks / 100);
@@ -17,10 +20,10 @@ export default function UserCard({ points, clicks }: UserCardProps) {
         <div className="flex items-center justify-between mb-3">
           <p className="text-slate-700 dark:text-slate-400 text-sm font-semibold flex items-center gap-2">
             <span className="text-lg">⭐</span>
-            Total Points
+            {t.totalPoints}
           </p>
           <span className="text-xs bg-purple-100 dark:bg-purple-500/30 border-2 border-purple-300 dark:border-purple-400/50 px-3 py-1.5 rounded-full text-purple-700 dark:text-purple-300 font-bold shadow-sm">
-            Level {Math.floor(points / 1000) + 1}
+            {t.level} {Math.floor(points / 1000) + 1}
           </span>
         </div>
         <p className="text-6xl font-extrabold bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-500 bg-clip-text text-transparent drop-shadow-sm">
@@ -33,7 +36,7 @@ export default function UserCard({ points, clicks }: UserCardProps) {
         <div className="flex items-center justify-between mb-3">
           <p className="text-slate-700 dark:text-slate-400 text-sm font-semibold flex items-center gap-2">
             <span className="text-lg">🔥</span>
-            Total Clicks
+            {t.totalClicks}
           </p>
           <span className="text-xs bg-pink-100 dark:bg-pink-500/30 border-2 border-pink-300 dark:border-pink-400/50 px-3 py-1.5 rounded-full text-pink-700 dark:text-pink-300 font-bold shadow-sm">
             {milestonesReached} 🏆

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import Toast from '@/components/Toast';
+import Loader from '@/components/Loader';
 
 interface LoginResponse {
   token: string;
@@ -143,7 +144,7 @@ export default function Login() {
           >
             {loading ? (
               <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <Loader size="sm" color="cyan" />
                 <span>Signing in...</span>
               </>
             ) : (

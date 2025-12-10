@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { prisma } from '@/lib/prisma';
 import { authOptions } from '@/lib/auth-config';
 import { calculateClickReward, getDailyBonus, checkAchievements } from '@/lib/points-utils';
+import { calculateLevel } from '@/lib/level-system';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,12 +22,16 @@ export async function POST(request: Request) {
         clicks: true,
         points: true,
         streakDays: true,
+        lifetimePoints: true,
       },
     });
 
     if (!user) {
       return Response.json({ error: 'User not found' }, { status: 404 });
     }
+
+    // Calculate user's level
+    const level = calculateLevel(user.lifetimePoints);
 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -67,9 +72,10 @@ export async function POST(request: Request) {
       });
     }
 
-    // Calculate reward
-    const clickReward = calculateClickReward(user.streakDays, dailyStat.clicksToday);
-    const dailyBonus = dailyStat.clicksToday === 99 ? getDailyBonus(100) : 0;
+    // Calculate reward with level multiplier
+    const baseClickReward = calculateClickReward(user.streakDays, dailyStat.clicksToday);
+    const clickReward = Math.floor(baseClickReward * level.clickMultiplier);
+    const dailyBonus = dailyStat.clicksToday === 99 ? Math.floor(getDailyBonus(100) * level.dailyBonusMultiplier) : 0;
     const totalReward = clickReward + dailyBonus;
 
     // Update user - minimal fields

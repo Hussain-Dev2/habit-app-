@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Loader from '@/components/Loader';
 import { apiFetch } from '@/lib/client';
 
 interface StoreItemProps {
@@ -97,7 +98,7 @@ export default function StoreItem({
             </>
           ) : loading ? (
             <>
-              <span className="inline-block animate-spin">⏳</span>
+              <Loader size="sm" color="white" />
               <span>Processing...</span>
             </>
           ) : (
