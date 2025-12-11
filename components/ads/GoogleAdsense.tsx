@@ -38,20 +38,25 @@ export default function GoogleAdsense({
   const isLoaded = useRef(false);
 
   useEffect(() => {
-    // Only load once per mount
+    // Only load once per mount and wait for script to be ready
     if (isLoaded.current) return;
     
-    try {
-      if (typeof window !== 'undefined') {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-        isLoaded.current = true;
+    const loadAd = () => {
+      try {
+        if (typeof window !== 'undefined' && window.adsbygoogle) {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          isLoaded.current = true;
+        }
+      } catch (error) {
+        console.error('AdSense error:', error);
       }
-    } catch (error) {
-      console.error('AdSense error:', error);
-    }
+    };
 
-    // Cleanup
+    // Delay ad loading slightly to ensure script is ready
+    const timeout = setTimeout(loadAd, 100);
+
     return () => {
+      clearTimeout(timeout);
       isLoaded.current = false;
     };
   }, []);
@@ -63,6 +68,7 @@ export default function GoogleAdsense({
         className="adsbygoogle"
         style={{
           display: 'block',
+          minHeight: '90px',
           ...style
         }}
         data-ad-client="ca-pub-4681103183883079"

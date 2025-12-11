@@ -9,40 +9,54 @@
 
 import { useEffect, useRef } from 'react';
 
+// Global flag to prevent duplicate script loading
+let scriptLoaded = false;
+
 export default function AdsterraSocialBar() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const scriptLoadedRef = useRef(false);
 
   useEffect(() => {
-    // Only run on client side and load script once
-    if (typeof window === 'undefined' || scriptLoadedRef.current) return;
+    // Only run on client side and load script once globally
+    if (typeof window === 'undefined' || scriptLoaded || !containerRef.current) return;
+
+    // Check if script already exists
+    const existingScript = document.querySelector(
+      'script[src*="c4060cbdd4dfbfe5344b0066a43948ca"]'
+    );
+    
+    if (existingScript) {
+      scriptLoaded = true;
+      return;
+    }
 
     // Create and inject the Adsterra script
     const script = document.createElement('script');
     script.type = 'text/javascript';
+    script.async = true;
     script.src = 'https://pl28232294.effectivegatecpm.com/c4/06/0c/c4060cbdd4dfbfe5344b0066a43948ca.js';
 
-    // Append script to container
-    if (containerRef.current) {
-      containerRef.current.appendChild(script);
-      scriptLoadedRef.current = true;
-    }
-
-    // Cleanup function
-    return () => {
-      if (containerRef.current) {
-        containerRef.current.innerHTML = '';
-      }
-      scriptLoadedRef.current = false;
+    script.onerror = () => {
+      console.warn('Adsterra Social Bar ad failed to load');
+      scriptLoaded = false;
     };
+    
+    script.onload = () => {
+      scriptLoaded = true;
+    };
+
+    // Append script to body (not container)
+    document.body.appendChild(script);
   }, []);
 
   return (
     <div className="w-full flex justify-center items-center py-4">
       <div 
         ref={containerRef} 
-        className="w-full min-h-[90px] flex items-center justify-center"
-      />
+        className="w-full min-h-[90px] flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg"
+      >
+        {/* Fallback content while ad loads */}
+        <span className="text-xs text-gray-400">Advertisement</span>
+      </div>
     </div>
   );
 }
