@@ -414,7 +414,7 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
     setTimeout(() => setMessage({ text: '', type: 'error' }), 3000);
   };
 
-  const handleWatchAd = async () => {
+  const handleWatchAd = async (): Promise<number> => {
     try {
       // Close the modal
       setShowAdWatch(false);
@@ -436,12 +436,15 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
       }
 
       setTimeout(() => setMessage({ text: '', type: 'success' }), 3000);
+      
+      return adReward;
     } catch (error) {
       setMessage({
         text: 'Failed to complete ad watch',
         type: 'error',
       });
       setTimeout(() => setMessage({ text: '', type: 'error' }), 3000);
+      throw error;
     }
   };
 
