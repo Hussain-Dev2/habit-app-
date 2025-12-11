@@ -68,8 +68,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Apply referral bonus
-    const REFERRAL_BONUS = 200; // Points for referrer
-    const WELCOME_BONUS = 500;  // Points for new user
+    const REFERRAL_BONUS = 100; // Points for referrer
+    const WELCOME_BONUS = 250;  // Points for new user
 
     await prisma.$transaction([
       // Update NEW USER

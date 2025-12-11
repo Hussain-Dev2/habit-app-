@@ -9,7 +9,7 @@
  * Activities Available:
  * 1. Daily Bonus (24h cooldown) - Regular daily reward scaled by level
  * 2. Watch Ad (5min cooldown) - Watch advertisement for quick points
- * 3. Spin Wheel (6h cooldown) - Random reward between 50-200 points
+ * 3. Spin Wheel (6h cooldown) - Random reward between 10-50 points
  * 4. Mini Task (10min cooldown) - Complete quick challenges
  * 5. Share & Earn (30min cooldown) - Social sharing rewards
  * 
@@ -32,6 +32,7 @@ import { useState, useEffect } from 'react';
 import Loader from '@/components/Loader';
 import SpinWheelModal from '@/components/SpinWheelModal';
 import AdWatchModal from '@/components/AdWatchModal';
+import AdsterraRewarded from '@/components/ads/AdsterraRewarded';
 import ShareEarnModal from '@/components/ShareEarnModal';
 import InterstitialAd from '@/components/ads/InterstitialAd';
 import { apiFetch } from '@/lib/client';
@@ -60,7 +61,7 @@ const ACTIVITIES: Activity[] = [
     name: 'Daily Bonus',
     description: 'Claim your daily reward',
     icon: '🎁',
-    reward: 100, // Multiplied by dailyBonusMultiplier
+    reward: 50, // Multiplied by dailyBonusMultiplier
     cooldown: 86400, // 24 hours
     energyCost: 0,
   },
@@ -69,7 +70,7 @@ const ACTIVITIES: Activity[] = [
     name: 'Watch Ad',
     description: 'Watch a short ad for points',
     icon: '📺',
-    reward: 50, // Replaced by level.adReward
+    reward: 25, // Replaced by level.adReward
     cooldown: 300, // 5 minutes
     energyCost: 0,
   },
@@ -78,7 +79,7 @@ const ACTIVITIES: Activity[] = [
     name: 'Spin Wheel',
     description: 'Try your luck for big rewards!',
     icon: '🎡',
-    reward: 200, // Random between 50-200, multiplied by level
+    reward: 100, // Random between 10-50, multiplied by level
     cooldown: 21600, // 6 hours
     energyCost: 0,
   },
@@ -87,7 +88,7 @@ const ACTIVITIES: Activity[] = [
     name: 'Mini Task',
     description: 'Complete quick challenges',
     icon: '✅',
-    reward: 75, // Multiplied by clickMultiplier
+    reward: 40, // Multiplied by clickMultiplier
     cooldown: 600, // 10 minutes
     energyCost: 5, // Future energy system
   },
@@ -96,7 +97,7 @@ const ACTIVITIES: Activity[] = [
     name: 'Share & Earn',
     description: 'Share with friends for bonus',
     icon: '🔗',
-    reward: 30, // Multiplied by clickMultiplier
+    reward: 20, // Multiplied by clickMultiplier
     cooldown: 1800, // 30 minutes
     energyCost: 0,
   },
@@ -116,13 +117,14 @@ interface ActivitiesPanelProps {
   onPointsEarned?: () => void; // Callback to refresh parent component
   lifetimePoints?: number; // User's lifetime points for level calculation
   isAuthenticated?: boolean; // Whether user is signed in
+  isAdmin?: boolean; // Whether user is admin (no ads)
 }
 
 /**
  * ActivitiesPanel Component
  * Main component for displaying and managing bonus earning activities
  */
-export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, isAuthenticated = true }: ActivitiesPanelProps = {}) {
+export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, isAuthenticated = true, isAdmin = false }: ActivitiesPanelProps = {}) {
   // Loading state - tracks which activity is currently being processed
   const [loading, setLoading] = useState<string | null>(null);
   
@@ -136,10 +138,11 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
   });
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [spinReward, setSpinReward] = useState<number | null>(null);
-  const [showAdWatch, setShowAdWatch] = useState(false);
-  const [adReward, setAdReward] = useState<number>(0);
   const [showShareEarn, setShowShareEarn] = useState(false);
   const [showInterstitial, setShowInterstitial] = useState(false);
+  const [showAdsterraRewarded, setShowAdsterraRewarded] = useState(false);
+  const [showAdWatch, setShowAdWatch] = useState(false);
+  const [adReward, setAdReward] = useState(0);
 
   // Calculate user's level
   const level = calculateLevel(lifetimePoints);
@@ -237,10 +240,14 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
       return;
     }
 
-    // Special handling for watch ad
+    // Special handling for watch ad - Show Adsterra rewarded ad (skip for admins)
     if (activity.id === 'watch_ad') {
-      setAdReward(getActivityReward(activity));
-      setShowAdWatch(true);
+      if (isAdmin) {
+        // Admins get instant reward without watching ad
+        await completeActivity('watch_ad');
+      } else {
+        setShowAdsterraRewarded(true);
+      }
       return;
     }
 
@@ -338,25 +345,47 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
     }
   };
 
-  const handleWatchAd = async (): Promise<number> => {
-    try {
-      const response = await apiFetch<{ 
-        success: boolean; 
-        reward: number; 
-        user: { points: number };
-      }>('/points/activity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ activityId: 'watch_ad' }),
-      });
+  const handleAdsterraReward = (user: any, reward: number) => {
+    setLastActivity({
+      ...lastActivity,
+      watch_ad: Math.floor(Date.now() / 1000),
+    });
 
+    setMessage({
+      text: `+${reward} points from ad! 📺`,
+      type: 'success',
+    });
+
+    // Refresh parent component's user data
+    if (onPointsEarned) {
+      onPointsEarned();
+    }
+
+    setTimeout(() => setMessage({ text: '', type: 'success' }), 3000);
+    setShowAdsterraRewarded(false);
+  };
+
+  const handleAdsterraError = (errorMessage: string) => {
+    setMessage({
+      text: errorMessage,
+      type: 'error',
+    });
+    setTimeout(() => setMessage({ text: '', type: 'error' }), 3000);
+  };
+
+  const handleWatchAd = async () => {
+    try {
+      // Close the modal
+      setShowAdWatch(false);
+      
+      // Update last activity timestamp
       setLastActivity({
         ...lastActivity,
         watch_ad: Math.floor(Date.now() / 1000),
       });
 
       setMessage({
-        text: `+${response.reward} points from ad! 📺`,
+        text: `+${adReward} points from ad! 📺`,
         type: 'success',
       });
 
@@ -365,18 +394,13 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
         onPointsEarned();
       }
 
-      setTimeout(() => setMessage({ text: '', type: 'success' }), 2000);
-      setShowAdWatch(false);
-      return response.reward;
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Ad watch failed';
+      setTimeout(() => setMessage({ text: '', type: 'success' }), 3000);
+    } catch (error) {
       setMessage({
-        text: errorMessage,
+        text: 'Failed to complete ad watch',
         type: 'error',
       });
       setTimeout(() => setMessage({ text: '', type: 'error' }), 3000);
-      setShowAdWatch(false);
-      throw error;
     }
   };
 
@@ -485,6 +509,24 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
         isOpen={showShareEarn}
         onClose={() => setShowShareEarn(false)}
       />
+
+      {/* Adsterra Rewarded Ad Modal */}
+      {showAdsterraRewarded && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
+            <button
+              onClick={() => setShowAdsterraRewarded(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl font-bold"
+            >
+              ✕
+            </button>
+            <AdsterraRewarded 
+              onReward={handleAdsterraReward}
+              onError={handleAdsterraError}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

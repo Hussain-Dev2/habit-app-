@@ -6,24 +6,24 @@ import { calculateLevel } from '@/lib/level-system';
 export const dynamic = 'force-dynamic';
 
 const ACTIVITIES = {
-  daily_bonus: { reward: 100, cooldown: 86400 },
-  watch_ad: { reward: 50, cooldown: 300 },
-  spin_wheel: { reward: 200, cooldown: 21600 }, // 6 hours
-  complete_task: { reward: 75, cooldown: 600 },
-  share_reward: { reward: 30, cooldown: 1800 },
+  daily_bonus: { reward: 50, cooldown: 86400 },
+  watch_ad: { reward: 25, cooldown: 300 },
+  spin_wheel: { reward: 100, cooldown: 21600 }, // 6 hours
+  complete_task: { reward: 40, cooldown: 600 },
+  share_reward: { reward: 20, cooldown: 1800 },
 };
 
 // Spin wheel possible rewards with weighted probabilities
 // Smaller rewards have higher chances (duplicated more in array)
 const SPIN_REWARDS = [
-  20, 20, 20, 20, 20,  // 25% chance (5/20)
-  30, 30, 30, 30,      // 20% chance (4/20)
-  40, 40, 40,          // 15% chance (3/20)
-  50, 50, 50,          // 15% chance (3/20)
-  60, 60,              // 10% chance (2/20)
-  70, 70,              // 10% chance (2/20)
-  80,                  // 5% chance (1/20)
-  100                  // 5% chance (1/20)
+  10, 10, 10, 10, 10,  // 25% chance (5/20)
+  15, 15, 15, 15,      // 20% chance (4/20)
+  20, 20, 20,          // 15% chance (3/20)
+  25, 25, 25,          // 15% chance (3/20)
+  30, 30,              // 10% chance (2/20)
+  35, 35,              // 10% chance (2/20)
+  40,                  // 5% chance (1/20)
+  50                   // 5% chance (1/20)
 ];
 
 function getRandomSpinReward(): number {

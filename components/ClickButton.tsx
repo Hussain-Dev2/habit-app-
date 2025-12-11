@@ -56,6 +56,7 @@ interface ClickButtonProps {
   onSuccess: (points: number, clicks: number, lifetimePoints: number, milestone: boolean) => void;
   onError: (message: string) => void;
   isAuthenticated?: boolean;
+  isAdmin?: boolean;
 }
 
 /**
@@ -71,7 +72,7 @@ interface FloatingPoint {
  * ClickButton Component
  * Main interactive button with animations and game logic
  */
-export default function ClickButton({ onSuccess, onError, isAuthenticated = true }: ClickButtonProps) {
+export default function ClickButton({ onSuccess, onError, isAuthenticated = true, isAdmin = false }: ClickButtonProps) {
   // Internationalization
   const { t } = useLanguage();
   
@@ -166,9 +167,11 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
 
     // ===== API CALL =====
     
-    setLoading(true);
     let data: ClickResponse | null = null;
     try {
+      // Set loading only during the actual API call
+      setLoading(true);
+      
       // Call smart points API with level bonuses and achievements
       data = await apiFetch<ClickResponse>('/points/click', { method: 'POST' });
       
@@ -222,17 +225,17 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
     } finally {
       // ===== AD BREAK COOLDOWN =====
       
-      // Every 50th click triggers an interstitial ad (reduced frequency)
-      const isEvery50thClick = data && data.user.clicks % 50 === 0;
+      // Every 50th click triggers an interstitial ad (reduced frequency) - Skip for admins
+      const isEvery50thClick = data && data.user.clicks % 50 === 0 && !isAdmin;
       setIsAdBreak(isEvery50thClick);
       
       if (isEvery50thClick) {
         // Show interstitial ad
         setShowInterstitial(true);
-        setTimeout(() => setLoading(false), 1500);
+        setTimeout(() => setLoading(false), 300);
       } else {
-        // Minimal cooldown for regular clicks
-        setTimeout(() => setLoading(false), 10);
+        // Immediate unlock for regular clicks
+        setLoading(false);
       }
     }
   };

@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
         points: true, 
         clicks: true, 
         lifetimePoints: true,
+        isAdmin: true,
         createdAt: true 
       },
     });
@@ -45,6 +46,7 @@ export async function GET(request: NextRequest) {
           points: true, 
           clicks: true, 
           lifetimePoints: true,
+          isAdmin: true,
           createdAt: true 
         },
       });

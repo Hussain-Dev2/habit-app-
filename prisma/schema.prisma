@@ -248,3 +248,81 @@ model ActivityCompletion {
   @@index([userId])
   @@index([activityId])
 }
+
+// Daily Challenges - New challenges every day
+model DailyChallenge {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  type        String   // "click_count", "earn_points", "watch_ads", "play_games", etc.
+  target      Int      // How many to complete
+  reward      Int      // Points reward
+  date        DateTime @default(now())
+  icon        String?  // Emoji or icon
+  difficulty  String   @default("easy") // easy, medium, hard
+  createdAt   DateTime @default(now())
+
+  completions ChallengeCompletion[]
+
+  @@index([date])
+}
+
+model ChallengeCompletion {
+  id          String   @id @default(cuid())
+  userId      String
+  challengeId String
+  progress    Int      @default(0)
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+  reward      Int
+  createdAt   DateTime @default(now())
+  
+  challenge   DailyChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, challengeId])
+  @@index([userId])
+}
+
+// Community Posts - Social engagement
+model CommunityPost {
+  id          String   @id @default(cuid())
+  userId      String
+  content     String   @db.Text
+  likes       Int      @default(0)
+  type        String   @default("text") // text, achievement, milestone
+  metadata    String?  @db.Text // JSON data for different post types
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  
+  userLikes   CommunityPostLike[]
+  
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// Track individual user likes on posts
+model CommunityPostLike {
+  id          String   @id @default(cuid())
+  postId      String
+  userId      String
+  createdAt   DateTime @default(now())
+  
+  post        CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@unique([postId, userId])
+  @@index([userId])
+  @@index([postId])
+}
+
+// Mini Games Scores
+model GameScore {
+  id          String   @id @default(cuid())
+  userId      String
+  gameType    String   // "memory", "reaction", "number_guess"
+  score       Int
+  pointsEarned Int
+  createdAt   DateTime @default(now())
+
+  @@index([userId, gameType])
+  @@index([gameType, score])
+}

@@ -26,6 +26,10 @@ import UserCard from '@/components/UserCard';
 import LevelCard from '@/components/LevelCard';
 import Toast from '@/components/Toast';
 import ActivitiesPanel from '@/components/ActivitiesPanel';
+import DailyChallenges from '@/components/DailyChallenges';
+import MiniGames from '@/components/MiniGames';
+import FortuneCookie from '@/components/FortuneCookie';
+import CommunityFeed from '@/components/CommunityFeed';
 import RandomAd from '@/components/ads/RandomAd';
 import AdsterraRewarded from '@/components/ads/AdsterraRewarded';
 import AdsterraSocialBar from '@/components/ads/AdsterraSocialBar';
@@ -44,6 +48,7 @@ interface User {
   points: number; // Current spendable points
   clicks: number; // Total lifetime clicks
   lifetimePoints: number; // Total points earned (used for level calculation)
+  isAdmin?: boolean; // Whether user is an admin (no ads)
 }
 
 /**
@@ -244,6 +249,7 @@ export default function Dashboard() {
                 onSuccess={handleClickSuccess}
                 onError={handleClickError}
                 isAuthenticated={isAuthenticated}
+                isAdmin={user?.isAdmin || false}
               />
             </div>
           </div>
@@ -254,8 +260,35 @@ export default function Dashboard() {
               onPointsEarned={fetchUser} 
               lifetimePoints={displayUser.lifetimePoints || 0}
               isAuthenticated={isAuthenticated}
+              isAdmin={user?.isAdmin || false}
             />
           </div>
+
+          {/* NEW ENGAGING CONTENT - Daily Challenges */}
+          {isAuthenticated && (
+            <div className="mb-4 sm:mb-5 lg:mb-6 animate-fade-in" style={{ animationDelay: '280ms' }}>
+              <DailyChallenges onPointsEarned={fetchUser} />
+            </div>
+          )}
+
+          {/* NEW ENGAGING CONTENT - Fortune Cookie & Mini Games Grid */}
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-5 lg:gap-6 mb-4 sm:mb-5 lg:mb-6">
+            <div className="animate-fade-in" style={{ animationDelay: '310ms' }}>
+              <FortuneCookie />
+            </div>
+            {isAuthenticated && (
+              <div className="animate-fade-in" style={{ animationDelay: '340ms' }}>
+                <MiniGames onPointsEarned={fetchUser} />
+              </div>
+            )}
+          </div>
+
+          {/* NEW ENGAGING CONTENT - Community Feed */}
+          {isAuthenticated && (
+            <div className="mb-4 sm:mb-5 lg:mb-6 animate-fade-in" style={{ animationDelay: '370ms' }}>
+              <CommunityFeed />
+            </div>
+          )}
 
           {/* Info Section */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5 mb-4 sm:mb-5 lg:mb-6 animate-fade-in" style={{ animationDelay: '300ms' }}>
@@ -291,64 +324,78 @@ export default function Dashboard() {
           </div>
 
           {/* Google AdSense - Top Banner */}
-          <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '350ms' }}>
-            <GoogleAdsense 
-              adSlot="1234567890" 
-              adFormat="horizontal"
-              style={{ minHeight: '90px' }}
-            />
-          </div>
+          {!user?.isAdmin && (
+            <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '350ms' }}>
+              <GoogleAdsense 
+                adSlot="1234567890" 
+                adFormat="horizontal"
+                style={{ minHeight: '90px' }}
+              />
+            </div>
+          )}
 
           {/* Adsterra Social Bar */}
-          <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '380ms' }}>
-            <AdsterraSocialBar />
-          </div>
+          {!user?.isAdmin && (
+            <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '380ms' }}>
+              <AdsterraSocialBar />
+            </div>
+          )}
 
           {/* Google AdSense - Dual Display Ads */}
-          <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '400ms' }}>
-            <GoogleAdsense 
-              adSlot="1234567891" 
-              adFormat="rectangle"
-              style={{ minHeight: '250px' }}
-            />
-            <GoogleAdsense 
-              adSlot="1234567892" 
-              adFormat="rectangle"
-              style={{ minHeight: '250px' }}
-            />
-          </div>
+          {!user?.isAdmin && (
+            <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '400ms' }}>
+              <GoogleAdsense 
+                adSlot="1234567891" 
+                adFormat="rectangle"
+                style={{ minHeight: '250px' }}
+              />
+              <GoogleAdsense 
+                adSlot="1234567892" 
+                adFormat="rectangle"
+                style={{ minHeight: '250px' }}
+              />
+            </div>
+          )}
 
           {/* Google AdSense - In-Article Ad */}
-          <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '430ms' }}>
-            <GoogleAdsense 
-              adSlot="1234567893" 
-              adFormat="fluid"
-              style={{ minHeight: '200px' }}
-            />
-          </div>
+          {!user?.isAdmin && (
+            <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '430ms' }}>
+              <GoogleAdsense 
+                adSlot="1234567893" 
+                adFormat="fluid"
+                style={{ minHeight: '200px' }}
+              />
+            </div>
+          )}
 
           {/* Google AdSense - Display Ad */}
-          <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '460ms' }}>
-            <GoogleAdsense 
-              adSlot="1234567894" 
-              adFormat="auto"
-              style={{ minHeight: '280px' }}
-            />
-          </div>
+          {!user?.isAdmin && (
+            <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '460ms' }}>
+              <GoogleAdsense 
+                adSlot="1234567894" 
+                adFormat="auto"
+                style={{ minHeight: '280px' }}
+              />
+            </div>
+          )}
 
           {/* Adsterra Native Bar */}
-          <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '490ms' }}>
-            <AdsterraNativeBar />
-          </div>
+          {!user?.isAdmin && (
+            <div className="mb-3 sm:mb-4 lg:mb-5 animate-fade-in" style={{ animationDelay: '490ms' }}>
+              <AdsterraNativeBar />
+            </div>
+          )}
 
           {/* Google AdSense - Footer Banner */}
-          <div className="animate-fade-in" style={{ animationDelay: '520ms' }}>
-            <GoogleAdsense 
-              adSlot="1234567895" 
-              adFormat="horizontal"
-              style={{ minHeight: '90px' }}
-            />
-          </div>
+          {!user?.isAdmin && (
+            <div className="animate-fade-in" style={{ animationDelay: '520ms' }}>
+              <GoogleAdsense 
+                adSlot="1234567895" 
+                adFormat="horizontal"
+                style={{ minHeight: '90px' }}
+              />
+            </div>
+          )}
 
           {/* Sign-in prompt for non-authenticated users */}
           {!isAuthenticated && (

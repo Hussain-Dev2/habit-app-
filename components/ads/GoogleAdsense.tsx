@@ -43,17 +43,24 @@ export default function GoogleAdsense({
     
     const loadAd = () => {
       try {
-        if (typeof window !== 'undefined' && window.adsbygoogle) {
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-          isLoaded.current = true;
+        if (typeof window !== 'undefined' && window.adsbygoogle && adRef.current) {
+          // Check if container has width before loading ad
+          const width = adRef.current.offsetWidth;
+          if (width > 0) {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+            isLoaded.current = true;
+          } else {
+            // Retry after a short delay if width is 0
+            setTimeout(loadAd, 200);
+          }
         }
       } catch (error) {
         console.error('AdSense error:', error);
       }
     };
 
-    // Delay ad loading slightly to ensure script is ready
-    const timeout = setTimeout(loadAd, 100);
+    // Delay ad loading to ensure container is rendered with dimensions
+    const timeout = setTimeout(loadAd, 300);
 
     return () => {
       clearTimeout(timeout);

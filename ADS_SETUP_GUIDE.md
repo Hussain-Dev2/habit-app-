@@ -61,9 +61,39 @@ Current ad locations in [page.tsx](app/page.tsx):
 ## Adsterra Setup
 
 ### Current Configuration
-Your Adsterra ads are configured with these IDs:
+
+#### Display Ads (Working)
+Your Adsterra display ads are configured with these IDs:
 - **Native Bar**: `233a167aa950834c2307f2f53e2c8726`
 - **Social Bar**: `c4060cbdd4dfbfe5344b0066a43948ca`
+
+#### Rewarded Ads (Needs Configuration) ⚠️
+The "Watch to Earn" feature uses **Adsterra Rewarded Ads** but requires setup:
+
+**Why It's Not Working:**
+- Missing environment variable: `NEXT_PUBLIC_ADSTERRA_REWARDED_KEY`
+- The component needs your Adsterra Rewarded Ad zone key
+
+**How to Fix:**
+
+1. **Log into Adsterra Dashboard**: https://publishers.adsterra.com
+2. **Create a Rewarded Ad Zone**:
+   - Go to "Websites & Apps"
+   - Click "Add New Zone"
+   - Select "Rewarded Video" format
+   - Follow the setup wizard
+3. **Get Your Key**: Copy the zone key (looks like: `a1b2c3d4e5f6g7h8`)
+4. **Create `.env.local` file** in your project root:
+   ```bash
+   NEXT_PUBLIC_ADSTERRA_REWARDED_KEY="your-key-here"
+   ```
+5. **Restart your development server**: `npm run dev`
+
+**Alternative Method (Custom Script):**
+If you have a custom script URL instead:
+```bash
+NEXT_PUBLIC_ADSTERRA_REWARDED_SCRIPT_URL="https://your-script-url.com/script.js"
+```
 
 ### Verify These Are Correct
 1. Log into your Adsterra account

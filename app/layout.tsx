@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Theme Script - Runs before page renders to prevent flash */}
         <script
@@ -57,11 +57,16 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              (adsbygoogle = window.adsbygoogle || []).push({
-                google_ad_client: "ca-pub-4681103183883079",
-                enable_page_level_ads: true,
-                overlays: {bottom: true}
-              });
+              (function() {
+                if (!window._adsenseInitialized) {
+                  window._adsenseInitialized = true;
+                  (adsbygoogle = window.adsbygoogle || []).push({
+                    google_ad_client: "ca-pub-4681103183883079",
+                    enable_page_level_ads: true,
+                    overlays: {bottom: true}
+                  });
+                }
+              })();
             `,
           }}
         />

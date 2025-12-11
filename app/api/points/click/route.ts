@@ -191,6 +191,10 @@ export async function POST(request: Request) {
       },
     }).catch(console.error);
 
+    // Update daily challenges progress
+    updateChallengeProgress(user.id, 'click_count', 1).catch(console.error);
+    updateChallengeProgress(user.id, 'earn_points', totalReward).catch(console.error);
+
     // Check achievements
     const achievementIds = checkAchievements(
       updatedUser.clicks,
@@ -267,3 +271,48 @@ async function processAchievements(userId: string, achievementIds: string[]) {
     console.error('Error processing achievements:', error);
   }
 }
+
+// Update daily challenge progress
+async function updateChallengeProgress(userId: string, challengeType: string, increment: number) {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const challenge = await prisma.dailyChallenge.findFirst({
+      where: {
+        type: challengeType,
+        date: { gte: today },
+      },
+      include: {
+        completions: {
+          where: { userId },
+        },
+      },
+    });
+
+    if (!challenge) return;
+
+    const completion = challenge.completions[0];
+
+    if (completion && !completion.completed) {
+      await prisma.challengeCompletion.update({
+        where: { id: completion.id },
+        data: {
+          progress: { increment },
+        },
+      });
+    } else if (!completion) {
+      await prisma.challengeCompletion.create({
+        data: {
+          userId,
+          challengeId: challenge.id,
+          progress: increment,
+          reward: challenge.reward,
+        },
+      });
+    }
+  } catch (error) {
+    console.error('Error updating challenge progress:', error);
+  }
+}
+

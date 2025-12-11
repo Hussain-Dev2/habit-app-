@@ -60,7 +60,7 @@ export default function HowItWorks() {
                 <div className="bg-pink-50 dark:bg-pink-900/20 p-4 rounded-xl">
                   <h3 className="font-bold text-lg mb-2 text-pink-700 dark:text-pink-400">👥 Referrals</h3>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    Share your link and earn 200 points per referral!
+                    Share your link and earn 100 points per referral!
                   </p>
                 </div>
               </div>

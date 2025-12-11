@@ -179,7 +179,7 @@ export default function AdsterraRewarded({ onReward, onError }: AdsterraRewarded
           </div>
         </div>
         <div className="text-xs bg-white/70 dark:bg-slate-800/60 border border-amber-200/70 dark:border-amber-700/50 rounded-full px-3 py-1 text-amber-700 dark:text-amber-200">
-          +150 points
+          +25 points
         </div>
       </div>
 

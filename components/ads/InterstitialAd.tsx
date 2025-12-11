@@ -18,12 +18,12 @@ export default function InterstitialAd({ onClose }: InterstitialAdProps) {
     if (hasLoaded.current) return;
     hasLoaded.current = true;
 
-    // Adsterra Interstitial Ad
+    // Adsterra Popunder/Interstitial Ad - ID: 28139013
     const script = document.createElement('script');
     script.type = 'text/javascript';
     script.innerHTML = `
       atOptions = {
-        'key' : 'YOUR_ADSTERRA_KEY',
+        'key' : '28139013',
         'format' : 'iframe',
         'height' : 600,
         'width' : 160,
@@ -34,7 +34,7 @@ export default function InterstitialAd({ onClose }: InterstitialAdProps) {
 
     const invokeScript = document.createElement('script');
     invokeScript.type = 'text/javascript';
-    invokeScript.src = '//www.topcreativeformat.com/YOUR_ADSTERRA_KEY/invoke.js';
+    invokeScript.src = '//www.topcreativeformat.com/28139013/invoke.js';
     document.body.appendChild(invokeScript);
 
     // Auto close after 5 seconds
@@ -44,8 +44,8 @@ export default function InterstitialAd({ onClose }: InterstitialAdProps) {
 
     return () => {
       clearTimeout(timer);
-      document.body.removeChild(script);
-      document.body.removeChild(invokeScript);
+      if (script.parentNode) document.body.removeChild(script);
+      if (invokeScript.parentNode) document.body.removeChild(invokeScript);
     };
   }, [onClose]);
 

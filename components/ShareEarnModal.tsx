@@ -4,7 +4,7 @@
  * Share & Earn Modal
  * 
  * Allows users to share their referral link and track referrals.
- * Users earn 200 points for each person who signs up using their link.
+ * Users earn 100 points for each person who signs up using their link.
  */
 
 import { useEffect, useState } from 'react';
@@ -130,7 +130,7 @@ export default function ShareEarnModal({ isOpen, onClose }: ShareEarnModalProps)
               <div className="flex items-center gap-3">
                 <span className="text-3xl">💰</span>
                 <div>
-                  <p className="font-bold text-gray-900 dark:text-white">Earn 200 Points</p>
+                  <p className="font-bold text-gray-900 dark:text-white">Earn 100 Points</p>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
                     For every friend who signs up!
                   </p>
@@ -236,7 +236,7 @@ export default function ShareEarnModal({ isOpen, onClose }: ShareEarnModalProps)
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-bold text-cyan-500">3.</span>
-                  <span>You earn 200 points instantly!</span>
+                  <span>You earn 100 points instantly!</span>
                 </li>
               </ol>
             </div>

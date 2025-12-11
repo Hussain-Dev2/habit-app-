@@ -12,14 +12,14 @@ interface SpinWheelModalProps {
 }
 
 const SEGMENTS = [
-  { color: '#FF6B6B', points: 20, label: '20' },
-  { color: '#4ECDC4', points: 30, label: '30' },
-  { color: '#FFE66D', points: 40, label: '40' },
-  { color: '#95E1D3', points: 50, label: '50' },
-  { color: '#F38181', points: 60, label: '60' },
-  { color: '#AA96DA', points: 70, label: '70' },
-  { color: '#FCBAD3', points: 80, label: '80' },
-  { color: '#A8E6CF', points: 100, label: '100' },
+  { color: '#FF6B6B', points: 10, label: '10' },
+  { color: '#4ECDC4', points: 15, label: '15' },
+  { color: '#FFE66D', points: 20, label: '20' },
+  { color: '#95E1D3', points: 25, label: '25' },
+  { color: '#F38181', points: 30, label: '30' },
+  { color: '#AA96DA', points: 35, label: '35' },
+  { color: '#FCBAD3', points: 40, label: '40' },
+  { color: '#A8E6CF', points: 50, label: '50' },
 ];
 
 export default function SpinWheelModal({ isOpen, onClose, onSpin, reward }: SpinWheelModalProps) {

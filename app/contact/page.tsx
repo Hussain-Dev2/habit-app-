@@ -76,7 +76,7 @@ export default function Contact() {
                 </summary>
                 <p className="mt-2 text-sm">
                   Share your unique referral link with friends. When they sign up using your link,
-                  you earn 200 points and they receive a 500 point welcome bonus!
+                  you earn 100 points and they receive a 250 point welcome bonus!
                 </p>
               </details>
             </div>
