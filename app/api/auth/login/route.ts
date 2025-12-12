@@ -1,42 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { verifyPassword, generateToken } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
+// JWT authentication has been removed
+// App now uses NextAuth with Google OAuth exclusively
+// This endpoint is no longer used - clients should use NextAuth signIn()
+
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { message: 'Email and password required' },
-        { status: 400 }
-      );
-    }
-
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return NextResponse.json(
-        { message: 'Invalid credentials' },
-        { status: 401 }
-      );
-    }
-
-    const valid = await verifyPassword(password, user.passwordHash);
-    if (!valid) {
-      return NextResponse.json(
-        { message: 'Invalid credentials' },
-        { status: 401 }
-      );
-    }
-
-    const token = generateToken(user.id);
-
-    return NextResponse.json({
-      token,
-      user: { id: user.id, email: user.email, points: user.points, clicks: user.clicks },
-    });
+    return NextResponse.json(
+      { message: 'Login endpoint deprecated. Use NextAuth with Google OAuth.' },
+      { status: 410 }
+    );
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(

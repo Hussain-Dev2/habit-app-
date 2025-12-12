@@ -36,15 +36,3 @@ export default function Login() {
     </main>
   );
 }
-
-  return (
-    <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-orange-50/30 to-cyan-100 dark:from-gray-900 dark:via-cyan-950/50 dark:to-orange-950/50 flex items-center justify-center px-4">
-      <div className="flex flex-col items-center gap-6">
-        <Loader size="lg" color="cyan" />
-        <p className="text-gray-600 dark:text-gray-300 text-lg font-semibold">
-          Redirecting to Google Sign-In...
-        </p>
-      </div>
-    </main>
-  );
-}
