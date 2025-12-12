@@ -33,7 +33,7 @@ export default function AdBlockDetector() {
 
         // Method 2: Check if AdSense script loaded
         const adSenseBlocked = typeof window.adsbygoogle === 'undefined' || 
-                               !window.adsbygoogle?.loaded;
+                               !(window.adsbygoogle as any)?.loaded;
 
         setAdBlockDetected(isBlocked || adSenseBlocked);
       } catch (error) {
