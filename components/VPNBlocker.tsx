@@ -34,7 +34,11 @@ export default function VPNBlocker({ children }: VPNBlockerProps) {
       });
       const data = await response.json();
       
-      setIsVPN(data.isVPN || data.isProxy || data.isDatacenter);
+      // Only block if VPN is detected AND risk score is high
+      // This prevents false positives from blocking legitimate users
+      const shouldBlock = (data.isVPN || data.isProxy) && data.riskScore > 0.7;
+      
+      setIsVPN(shouldBlock);
       setVpnInfo({
         provider: data.provider,
         riskScore: data.riskScore,

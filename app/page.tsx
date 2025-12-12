@@ -30,6 +30,7 @@ import DailyChallenges from '@/components/DailyChallenges';
 import MiniGames from '@/components/MiniGames';
 import FortuneCookie from '@/components/FortuneCookie';
 import CommunityFeed from '@/components/CommunityFeed';
+import AdBlockDetector from '@/components/AdBlockDetector';
 import RandomAd from '@/components/ads/RandomAd';
 import AdsterraRewarded from '@/components/ads/AdsterraRewarded';
 import AdsterraSocialBar from '@/components/ads/AdsterraSocialBar';
@@ -420,6 +421,9 @@ export default function Dashboard() {
               onClose={() => setToast(null)}
             />
           )}
+
+          {/* Ad Block Detector - Show to all users */}
+          <AdBlockDetector />
         </div>
       </main>
   );
