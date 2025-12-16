@@ -11,13 +11,13 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.id) {
+    if (!(session?.user as any)?.id) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const data = await req.json();
 
-    const habit = await createHabit(session.user.id, data);
+    const habit = await createHabit((session!.user as any).id, data);
 
     return Response.json(habit);
   } catch (error: any) {

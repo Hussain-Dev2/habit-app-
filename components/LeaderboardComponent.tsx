@@ -58,7 +58,7 @@ interface LeaderboardResponse {
 }
 
 type LeaderboardType = 'global' | 'weekly' | 'monthly';
-type RankBy = 'points' | 'level';
+type RankBy = 'points' | 'level' | 'clicks';
 
 export default function LeaderboardComponent() {
   const [data, setData] = useState<LeaderboardResponse | null>(null);

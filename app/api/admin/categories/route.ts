@@ -61,7 +61,7 @@ export async function GET() {
            name: category,
            icon: '📌',
            count: count,
-           key: category
+           key: category as any
        });
     });
 

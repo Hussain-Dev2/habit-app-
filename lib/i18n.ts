@@ -11,6 +11,8 @@ export const translations = {
     login: 'Login',
     register: 'Register',
     settings: 'Settings',
+    templates: 'Templates',
+    notifications: 'Notifications',
     
     // Dashboard
     dashboard: 'ClickVault Dashboard',
@@ -161,6 +163,8 @@ export const translations = {
     login: 'تسجيل الدخول',
     register: 'إنشاء حساب',
     settings: 'الإعدادات',
+    templates: 'القوالب',
+    notifications: 'الإشعارات',
     
     // Dashboard
     dashboard: 'لوحة التحكم ClickVault',

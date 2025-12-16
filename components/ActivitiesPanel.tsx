@@ -194,7 +194,7 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
     } else if (activity.id === 'watch_ad') {
       return level.adReward;
     } else {
-      return Math.floor(activity.reward * level.clickMultiplier);
+      return Math.floor(activity.reward * level.xpMultiplier);
     }
   };
 

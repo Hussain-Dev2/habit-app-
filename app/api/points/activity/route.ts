@@ -94,10 +94,10 @@ export async function POST(request: Request) {
     } else if (activityId === 'spin_wheel') {
       // Random reward for spin wheel
       const randomReward = getRandomSpinReward();
-      finalReward = Math.floor(randomReward * level.clickMultiplier);
+      finalReward = Math.floor(randomReward * level.xpMultiplier);
     } else {
       // For other activities, apply click multiplier as general bonus
-      finalReward = Math.floor(activity.reward * level.clickMultiplier);
+      finalReward = Math.floor(activity.reward * level.xpMultiplier);
     }
 
     // Award points

@@ -48,13 +48,6 @@ export default function LevelCard({ lifetimePoints }: LevelCardProps) {
           </div>
           <div className="text-xs text-slate-700 dark:text-slate-300 font-semibold mt-1">{t.dailyBonus}</div>
         </div>
-        <div className="text-center p-3 bg-blue-50/70 dark:bg-blue-900/20 rounded-lg border border-blue-300/50 dark:border-blue-600/30 hover:scale-105 transition-transform">
-          <div className="text-2xl mb-1">🔥</div>
-          <div className="text-3xl font-extrabold text-blue-600 dark:text-blue-400">
-            +{level.comboBonus}%
-          </div>
-          <div className="text-xs text-slate-700 dark:text-slate-300 font-semibold mt-1">{t.comboBonus}</div>
-        </div>
         <div className="text-center p-3 bg-orange-50/70 dark:bg-orange-900/20 rounded-lg border border-orange-300/50 dark:border-orange-600/30 hover:scale-105 transition-transform">
           <div className="text-2xl mb-1">📺</div>
           <div className="text-3xl font-extrabold text-orange-600 dark:text-orange-400">

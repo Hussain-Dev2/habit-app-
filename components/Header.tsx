@@ -212,10 +212,6 @@ export default function Header() {
                 icon="📬"
               />
             </KnockErrorBoundary>
-              className="relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 transition-all w-full text-left"
-              badgeClassName="ml-auto bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full"
-              icon="📬"
-            />
             <Link
               href="/templates"
               onClick={() => setMobileMenuOpen(false)}

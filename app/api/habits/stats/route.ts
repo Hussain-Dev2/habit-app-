@@ -11,11 +11,11 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.id) {
+    if (!(session?.user as any)?.id) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const stats = await getHabitStats(session.user.id);
+    const stats = await getHabitStats((session!.user as any).id);
 
     return Response.json(stats);
   } catch (error: any) {
