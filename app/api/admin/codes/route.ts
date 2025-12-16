@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-config';
 import { prisma } from '@/lib/prisma';
+import knockClient from '@/lib/knock';
 
 // Add new codes
 export async function POST(request: Request) {
@@ -199,6 +200,19 @@ async function processPendingOrders(productId: string) {
           },
         }),
       ]);
+
+      // Trigger Knock workflow
+      try {
+        await knockClient.workflows.trigger('f_app', {
+          recipients: [order.userId],
+          data: {
+            type: 'order-delivered',
+            product: order.product.title,
+            message: `Your ${order.product.title} has been delivered!`,
+            orderId: order.id,
+          },
+        });
+      } catch (e) { console.error('Knock error:', e); }
     }
   } catch (error) {
     console.error('Process pending orders error:', error);

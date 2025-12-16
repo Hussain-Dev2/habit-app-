@@ -60,6 +60,8 @@ model User {
   tasks             Task[]
   notifications     Notification[]
   activityCompletions ActivityCompletion[]
+  habits            Habit[]
+  notificationSettings NotificationSettings?
 }
 
 model Account {
@@ -325,4 +327,102 @@ model GameScore {
 
   @@index([userId, gameType])
   @@index([gameType, score])
+}
+
+// Habits System - Gamified Habit Tracker
+model Habit {
+  id              String   @id @default(cuid())
+  userId          String
+  name            String
+  description     String?
+  icon            String?  @default("📌")
+  category        String   @default("Health") // Health, Fitness, Learning, Productivity, Social
+  difficulty      String   @default("easy") // easy (10 XP), medium (25 XP), hard (50 XP)
+  streak          Int      @default(0)
+  maxStreak       Int      @default(0)
+  totalCompleted  Int      @default(0)
+  lastCompletedAt DateTime?
+  isActive        Boolean  @default(true)
+  freezeCount     Int      @default(0) // عدد الـ Freeze المتاحة لتجميد Streak
+  lastFrozenAt    DateTime? // آخر يوم تم تجميده
+  isCurrentlyFrozen Boolean @default(false) // هل الـ Streak مجمد اليوم؟
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completions     HabitCompletion[]
+  reminders       HabitReminder[]
+
+  @@index([userId])
+  @@index([userId, isActive])
+  @@index([userId, category])
+}
+
+model HabitCompletion {
+  id          String   @id @default(cuid())
+  habitId     String
+  userId      String
+  completedAt DateTime @default(now())
+  pointsEarned Int     @default(0)
+
+  habit       Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, completedAt])
+  @@index([userId, completedAt])
+  @@index([habitId])
+}
+
+// Notification Settings - User preferences for reminders
+model NotificationSettings {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  enabled     Boolean  @default(true)
+  reminderTime String  @default("21:00") // Time in HH:MM format (9 PM)
+  reminderDays String  @default("Mon,Tue,Wed,Thu,Fri,Sat,Sun") // Days to remind
+  pushEnabled Boolean  @default(true)
+  emailEnabled Boolean @default(false)
+  timezone    String   @default("UTC")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Habit Reminders - Track sent reminders
+model HabitReminder {
+  id          String   @id @default(cuid())
+  habitId     String
+  userId      String
+  sentAt      DateTime @default(now())
+  type        String   @default("push") // push, email, sms
+  status      String   @default("sent") // sent, failed, clicked
+  message     String?
+  createdAt   DateTime @default(now())
+
+  habit       Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sentAt])
+  @@index([habitId, sentAt])
+  @@index([status])
+}
+
+model HabitTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  category    String   // health, productivity, fitness, learning, mindfulness
+  icon        String
+  color       String   @default("#3B82F6")
+  habits      Json     // Array of {name, description, difficulty, targetDays}
+  isActive    Boolean  @default(true)
+  featured    Boolean  @default(false)
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([featured])
+  @@index([isActive])
 }

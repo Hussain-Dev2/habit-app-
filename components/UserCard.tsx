@@ -4,14 +4,14 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 interface UserCardProps {
   points: number;
-  clicks: number;
+  habitsCompleted: number;
 }
 
-export default function UserCard({ points, clicks }: UserCardProps) {
+export default function UserCard({ points, habitsCompleted }: UserCardProps) {
   const { t } = useLanguage();
-  const pointsPercentage = Math.min((clicks / 100) * 100, 100); // Progress to next milestone at 100 clicks
-  const nextMilestone = Math.ceil((clicks + 1) / 100) * 100;
-  const milestonesReached = Math.floor(clicks / 100);
+  const pointsPercentage = Math.min((habitsCompleted / 100) * 100, 100); // Progress to next milestone at 100 habits
+  const nextMilestone = Math.ceil((habitsCompleted + 1) / 100) * 100;
+  const milestonesReached = Math.floor(habitsCompleted / 100);
 
   return (
     <div className="group backdrop-blur-xl bg-white/70 dark:bg-white/10 border-2 border-blue-200/50 dark:border-white/20 rounded-3xl p-8 hover:border-purple-400/70 dark:hover:border-purple-400/60 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 card-hover">
@@ -31,26 +31,26 @@ export default function UserCard({ points, clicks }: UserCardProps) {
         </p>
       </div>
 
-      {/* Clicks Section */}
+      {/* Habits Completed Section */}
       <div className="mb-8 pb-8 border-b border-blue-200/50 dark:border-white/10">
         <div className="flex items-center justify-between mb-3">
           <p className="text-slate-700 dark:text-slate-400 text-sm font-semibold flex items-center gap-2">
-            <span className="text-lg">🔥</span>
-            {t.totalClicks}
+            <span className="text-lg">✅</span>
+            Habits Completed
           </p>
           <span className="text-xs bg-pink-100 dark:bg-pink-500/30 border-2 border-pink-300 dark:border-pink-400/50 px-3 py-1.5 rounded-full text-pink-700 dark:text-pink-300 font-bold shadow-sm">
             {milestonesReached} 🏆
           </span>
         </div>
         <p className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 mb-5">
-          {clicks.toLocaleString()}
+          {habitsCompleted.toLocaleString()}
         </p>
 
         {/* Progress to next milestone */}
         <div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs text-slate-700 dark:text-slate-400 font-semibold">Milestone Progress</span>
-            <span className="text-xs text-slate-700 dark:text-slate-300 font-bold">{clicks % 100}/100</span>
+            <span className="text-xs text-slate-700 dark:text-slate-300 font-bold">{habitsCompleted % 100}/100</span>
           </div>
           <div className="w-full h-3 bg-blue-100 dark:bg-white/10 border-2 border-blue-200/50 dark:border-white/20 rounded-full overflow-hidden shadow-inner">
             <div
@@ -75,7 +75,7 @@ export default function UserCard({ points, clicks }: UserCardProps) {
 
       {/* Info */}
       <p className="text-xs text-slate-700 dark:text-slate-400 mt-6 text-center leading-relaxed font-medium px-2">
-        ⚡ Earn <span className="text-yellow-500 dark:text-yellow-400 font-bold">10 points</span> per click | 🏆 Milestones at <span className="text-pink-500 dark:text-pink-400 font-bold">100 clicks</span>
+        ⚡ Earn <span className="text-yellow-500 dark:text-yellow-400 font-bold">XP</span> by completing habits | 🏆 Milestones at <span className="text-pink-500 dark:text-pink-400 font-bold">100 habits</span>
       </p>
     </div>
   );

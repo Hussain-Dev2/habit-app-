@@ -35,7 +35,14 @@ interface PurchaseResponse {
   };
 }
 
-export default function Shop() {
+/**
+ * Rewards Marketplace Page
+ * 
+ * Users can browse and purchase rewards using their earned points.
+ * Points are spent to acquire rewards, but level is NOT affected by purchases.
+ * Level is determined solely by lifetimePoints (earned points), not current points.
+ */
+export default function RewardsMarketplace() {
   const { data: session, status } = useSession();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +54,7 @@ export default function Shop() {
 
   useEffect(() => {
     // Always fetch products, fetch user points only if authenticated
+    seedFreezeProduct();
     fetchProducts();
     if (isAuthenticated) {
       fetchUserPoints();
@@ -54,6 +62,14 @@ export default function Shop() {
       setLoading(false);
     }
   }, [status]);
+
+  const seedFreezeProduct = async () => {
+    try {
+      await fetch('/api/store/seed-freeze', { method: 'GET' });
+    } catch (error) {
+      console.error('Failed to seed freeze product:', error);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -139,7 +155,7 @@ export default function Shop() {
       <main className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900 flex items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <Loader size="lg" color="orange" />
-          <p className="text-slate-300 text-lg font-semibold">Loading amazing products...</p>
+          <p className="text-slate-300 text-lg font-semibold">Loading amazing rewards...</p>
         </div>
       </main>
     );
@@ -160,12 +176,12 @@ export default function Shop() {
           <div className="mb-8 sm:mb-10 lg:mb-12 animate-fade-in">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-3 sm:gap-4">
-                <span className="text-5xl sm:text-6xl lg:text-7xl drop-shadow-lg">🛍️</span>
+                <span className="text-5xl sm:text-6xl lg:text-7xl drop-shadow-lg">🎁</span>
                 <div>
                   <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white drop-shadow-md">
-                    Rewards Store
+                    Rewards Marketplace
                   </h1>
-                  <p className="text-slate-300 text-sm sm:text-base lg:text-lg xl:text-xl mt-1 sm:mt-2">Exchange your points for premium rewards</p>
+                  <p className="text-slate-300 text-sm sm:text-base lg:text-lg xl:text-xl mt-1 sm:mt-2">Spend your earned points to claim amazing rewards</p>
                 </div>
               </div>
 
@@ -181,15 +197,49 @@ export default function Shop() {
             {/* Points Card */}
             <div className="w-full sm:inline-block backdrop-blur-xl bg-gradient-to-br from-yellow-600/30 to-amber-600/20 border-2 border-yellow-400/50 rounded-2xl sm:rounded-3xl px-6 sm:px-8 lg:px-10 py-4 sm:py-5 lg:py-6 shadow-xl">
               <p className="text-slate-300 text-xs sm:text-sm mb-1 sm:mb-2 font-bold flex items-center gap-2">
-                <span className="text-lg sm:text-xl">💰</span>
-                Available Points
+                <span className="text-lg sm:text-xl">�</span>
+                Spendable Points
               </p>
               <p className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white drop-shadow-sm">
                 {userPoints.toLocaleString()}
               </p>
             </div>
           </div>
-
+          {/* Featured: Streak Freeze */}
+          {products.find(p => p.title.includes('Streak Freeze')) && (
+            <div className="mb-8 sm:mb-10 lg:mb-12 animate-fade-in">
+              <div className="backdrop-blur-xl bg-gradient-to-r from-blue-600/40 to-cyan-600/40 border-2 border-cyan-400/60 rounded-3xl sm:rounded-4xl p-6 sm:p-8 lg:p-10 shadow-2xl shadow-cyan-500/20">
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-5xl sm:text-6xl">🧊</span>
+                  <div className="flex-1">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
+                      Streak Freeze - Premium Power-Up!
+                    </h2>
+                    <p className="text-slate-200 text-sm sm:text-base lg:text-lg">
+                      ⚡ Skip a day without losing your streak. Perfect for when life gets busy!
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                  <div className="flex items-center gap-2 bg-black/30 px-4 sm:px-6 py-2 sm:py-3 rounded-xl">
+                    <span className="text-2xl sm:text-3xl">⭐</span>
+                    <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-cyan-300">50 Points</span>
+                  </div>
+                  <button
+                    onClick={() => handlePurchase(products.find(p => p.title.includes('Streak Freeze'))?.id || '')}
+                    disabled={userPoints < 50}
+                    className={`px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-white text-sm sm:text-base lg:text-lg transition-all ${
+                      userPoints < 50
+                        ? 'bg-gray-600 cursor-not-allowed opacity-50'
+                        : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:shadow-xl hover:shadow-cyan-500/50 active:scale-95'
+                    }`}
+                  >
+                    {userPoints < 50 ? 'Need More Points' : '💎 Get Freeze Now'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Category Filter */}
           {categories.length > 1 && (
             <div className="mb-6 sm:mb-8 flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide">
@@ -250,7 +300,7 @@ export default function Shop() {
                            category === 'Shopping' ? '🛍️' : 
                            category === 'Food' ? '🍕' : '🎁'}
                         </span>
-                        {category}
+                        {category} Rewards
                       </h2>
                       <button
                         onClick={() => setSelectedCategory(category)}
@@ -305,7 +355,7 @@ export default function Shop() {
         {/* Sign-in prompt for non-authenticated users */}
         {!isAuthenticated && (
           <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 glass backdrop-blur-xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-2 border-purple-400 dark:border-purple-600 rounded-2xl p-4 text-center animate-fade-in shadow-glow max-w-md mx-4">
-            <p className="text-white font-semibold mb-2">🔐 Sign in to purchase items!</p>
+            <p className="text-white font-semibold mb-2">🔐 Sign in to claim rewards!</p>
             <a
               href="/login"
               className="inline-block px-6 py-2 bg-gradient-ocean text-white font-semibold rounded-lg hover:shadow-glow transition-all duration-300 text-sm"

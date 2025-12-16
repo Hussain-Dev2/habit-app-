@@ -58,7 +58,7 @@ interface LeaderboardResponse {
 }
 
 type LeaderboardType = 'global' | 'weekly' | 'monthly';
-type RankBy = 'points' | 'clicks' | 'level';
+type RankBy = 'points' | 'level';
 
 export default function LeaderboardComponent() {
   const [data, setData] = useState<LeaderboardResponse | null>(null);
@@ -103,8 +103,6 @@ export default function LeaderboardComponent() {
 
   const getDisplayValue = (entry: LeaderboardEntry) => {
     switch (rankBy) {
-      case 'clicks':
-        return entry.clicks.toLocaleString();
       case 'level':
         return `${entry.levelIcon} Lv.${entry.level}`;
       case 'points':
@@ -170,16 +168,6 @@ export default function LeaderboardComponent() {
             }`}
           >
             💎 Points
-          </button>
-          <button
-            onClick={() => setRankBy('clicks')}
-            className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${
-              rankBy === 'clicks'
-                ? 'bg-purple-500 text-white'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            👆 Clicks
           </button>
           <button
             onClick={() => setRankBy('level')}

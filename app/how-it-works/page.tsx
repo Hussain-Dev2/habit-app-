@@ -3,7 +3,7 @@ export default function HowItWorks() {
     <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-orange-50 to-cyan-100 dark:from-gray-900 dark:via-cyan-900 dark:to-orange-950 p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-5xl font-bold mb-6 text-cyan-600 dark:text-cyan-400 text-center">
-          How RECKON Works
+          How Gamified Habit Tracker Works
         </h1>
         
         <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-2xl mb-8">
@@ -13,88 +13,83 @@ export default function HowItWorks() {
                 <span className="text-4xl">1️⃣</span> Getting Started
               </h2>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                RECKON is a rewards platform where you can earn points through various engaging activities. 
-                Simply sign up with your Google account to get started instantly - no complicated registration process!
+                Build better habits with our gamified habit tracker! Simply sign up with your Google account to get started instantly - no complicated registration process!
               </p>
               <div className="bg-cyan-50 dark:bg-cyan-900/20 p-4 rounded-xl">
                 <h3 className="font-bold mb-2 text-cyan-700 dark:text-cyan-400">What you get:</h3>
                 <ul className="list-disc ml-6 space-y-1 text-gray-700 dark:text-gray-300">
                   <li>Instant account creation with Google OAuth</li>
-                  <li>Starting points to begin your journey</li>
-                  <li>Access to all earning activities</li>
-                  <li>Personalized dashboard to track progress</li>
+                  <li>Starting XP points to begin your journey</li>
+                  <li>Access to create and track habits</li>
+                  <li>Personalized dashboard to monitor progress</li>
                 </ul>
               </div>
             </section>
 
             <section>
               <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-3">
-                <span className="text-4xl">2️⃣</span> Earning Points
+                <span className="text-4xl">2️⃣</span> Creating Habits
               </h2>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                There are multiple ways to earn points on RECKON. Each activity offers different rewards and has its own cooldown period to ensure fair play.
+                Create habits with difficulty levels to match your goals. Each difficulty level rewards different amounts of XP when completed:
               </p>
               
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-xl">
-                  <h3 className="font-bold text-lg mb-2 text-orange-700 dark:text-orange-400">🖱️ Clicking</h3>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    Simple clicks earn you base points. Build combos for multipliers!
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl">
+                  <h3 className="font-bold text-lg mb-2 text-green-700 dark:text-green-400">🟢 Easy</h3>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                    Simple daily habits
                   </p>
+                  <div className="text-center font-bold text-green-600 dark:text-green-400">+10 XP</div>
                 </div>
                 
-                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl">
-                  <h3 className="font-bold text-lg mb-2 text-emerald-700 dark:text-emerald-400">📺 Watching Ads</h3>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    Watch rewarded videos to earn substantial points quickly.
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl">
+                  <h3 className="font-bold text-lg mb-2 text-yellow-700 dark:text-yellow-400">🟡 Medium</h3>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                    Moderate commitment
                   </p>
+                  <div className="text-center font-bold text-yellow-600 dark:text-yellow-400">+25 XP</div>
                 </div>
                 
-                <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl">
-                  <h3 className="font-bold text-lg mb-2 text-purple-700 dark:text-purple-400">🎡 Spin Wheel</h3>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    Test your luck with the spin wheel for random rewards!
+                <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-xl">
+                  <h3 className="font-bold text-lg mb-2 text-red-700 dark:text-red-400">🔴 Hard</h3>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                    Challenging goals
                   </p>
-                </div>
-                
-                <div className="bg-pink-50 dark:bg-pink-900/20 p-4 rounded-xl">
-                  <h3 className="font-bold text-lg mb-2 text-pink-700 dark:text-pink-400">👥 Referrals</h3>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    Share your link and earn 100 points per referral!
-                  </p>
+                  <div className="text-center font-bold text-red-600 dark:text-red-400">+50 XP</div>
                 </div>
               </div>
             </section>
 
             <section>
               <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-3">
-                <span className="text-4xl">3️⃣</span> Level System
+                <span className="text-4xl">3️⃣</span> Earning XP & Building Streaks
               </h2>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                As you earn lifetime points, you progress through 12 levels. Each level unlocks better multipliers and bonuses:
+                Complete your habits daily to earn XP points and build streaks. The more consistent you are, the more rewarding the experience:
               </p>
               <div className="space-y-3">
                 <div className="flex items-center gap-4 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 p-4 rounded-xl">
-                  <span className="text-3xl">🌱</span>
+                  <span className="text-3xl">⭐</span>
                   <div>
-                    <p className="font-bold text-gray-900 dark:text-white">Level 1-3: Beginner</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Start building your foundation</p>
+                    <p className="font-bold text-gray-900 dark:text-white">Earn XP Points</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">10-50 XP per habit completion based on difficulty</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-4 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 p-4 rounded-xl">
-                  <span className="text-3xl">⚡</span>
+                  <span className="text-3xl">🔥</span>
                   <div>
-                    <p className="font-bold text-gray-900 dark:text-white">Level 4-7: Intermediate</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Unlock powerful multipliers</p>
+                    <p className="font-bold text-gray-900 dark:text-white">Build Streaks</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Complete habits daily to maintain consecutive day streaks</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-4 rounded-xl">
-                  <span className="text-3xl">👑</span>
+                  <span className="text-3xl">📈</span>
                   <div>
-                    <p className="font-bold text-gray-900 dark:text-white">Level 8-12: Expert</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Maximum rewards and bonuses</p>
+                    <p className="font-bold text-gray-900 dark:text-white">Level Up</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Every 100 XP earned gives you 1 level</p>
                   </div>
                 </div>
               </div>
@@ -105,7 +100,7 @@ export default function HowItWorks() {
                 <span className="text-4xl">4️⃣</span> Redeeming Rewards
               </h2>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                Visit the Shop to browse available digital products and rewards. Use your hard-earned points to redeem:
+                Visit the Rewards Marketplace to browse available digital products. Use your hard-earned XP to redeem:
               </p>
               <ul className="space-y-2 text-gray-700 dark:text-gray-300">
                 <li className="flex items-start gap-2">
@@ -135,23 +130,23 @@ export default function HowItWorks() {
                 <ul className="space-y-3 text-gray-700 dark:text-gray-300">
                   <li className="flex items-start gap-3">
                     <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
-                    <span><strong>Check daily:</strong> Don`t miss your daily bonus for consistent progress</span>
+                    <span><strong>Be consistent:</strong> Daily completions build momentum and increase streaks</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
-                    <span><strong>Plan activities:</strong> Understand cooldown times to maximize efficiency</span>
+                    <span><strong>Start small:</strong> Create achievable habits before tackling challenging ones</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
-                    <span><strong>Build combos:</strong> Rapid clicking gives bonus multipliers</span>
+                    <span><strong>Track progress:</strong> Use the stats dashboard to monitor your achievements</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
-                    <span><strong>Share your link:</strong> Referrals give you AND your friends bonus points</span>
+                    <span><strong>Mix difficulties:</strong> Combine easy, medium, and hard habits for balanced XP</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
-                    <span><strong>Level up:</strong> Higher levels unlock better rewards automatically</span>
+                    <span><strong>Celebrate wins:</strong> Redeem rewards when you reach milestones!</span>
                   </li>
                 </ul>
               </div>

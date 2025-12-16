@@ -35,11 +35,11 @@ export default function LevelCard({ lifetimePoints }: LevelCardProps) {
       {/* Level Benefits Grid */}
       <div className="grid grid-cols-2 gap-3 mb-6 p-4 bg-gradient-to-br from-white/80 to-cyan-50/80 dark:from-white/5 dark:to-cyan-900/20 rounded-xl border-2 border-cyan-200/50 dark:border-cyan-500/20 shadow-lg">
         <div className="text-center p-3 bg-yellow-50/70 dark:bg-yellow-900/20 rounded-lg border border-yellow-300/50 dark:border-yellow-600/30 hover:scale-105 transition-transform">
-          <div className="text-2xl mb-1">👆</div>
+          <div className="text-2xl mb-1">⚡</div>
           <div className="text-3xl font-extrabold text-yellow-600 dark:text-yellow-400">
-            {(level.clickMultiplier * 100).toFixed(0)}%
+            {(level.xpMultiplier * 100).toFixed(0)}%
           </div>
-          <div className="text-xs text-slate-700 dark:text-slate-300 font-semibold mt-1">{t.clickPower}</div>
+          <div className="text-xs text-slate-700 dark:text-slate-300 font-semibold mt-1">XP Boost</div>
         </div>
         <div className="text-center p-3 bg-green-50/70 dark:bg-green-900/20 rounded-lg border border-green-300/50 dark:border-green-600/30 hover:scale-105 transition-transform">
           <div className="text-2xl mb-1">🎁</div>

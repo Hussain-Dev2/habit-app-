@@ -6,8 +6,8 @@ import './globals.css';
 import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
-  title: 'RECKON - Earn Rewards',
-  description: 'Transform your clicks into rewards with RECKON earning platform',
+  title: 'Gamified Habit Tracker - Track Habits, Earn Rewards',
+  description: 'Build better habits with gamification. Track daily habits, earn XP points, level up, and redeem rewards!',
   icons: {
     icon: [
       { url: '/RECKON.jpg', sizes: 'any' },
@@ -61,13 +61,17 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                if (!window._adsenseInitialized) {
+                if (typeof window !== 'undefined' && window.adsbygoogle && !window._adsenseInitialized) {
                   window._adsenseInitialized = true;
-                  (adsbygoogle = window.adsbygoogle || []).push({
-                    google_ad_client: "ca-pub-4681103183883079",
-                    enable_page_level_ads: true,
-                    overlays: {bottom: true}
-                  });
+                  try {
+                    (window.adsbygoogle = window.adsbygoogle || []).push({
+                      google_ad_client: "ca-pub-4681103183883079",
+                      enable_page_level_ads: true,
+                      overlays: {bottom: true}
+                    });
+                  } catch (e) {
+                    console.log('AdSense initialization:', e);
+                  }
                 }
               })();
             `,

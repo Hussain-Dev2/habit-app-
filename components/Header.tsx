@@ -6,13 +6,14 @@ import { useSession, signOut } from 'next-auth/react';
 import SettingsModal from './SettingsModal';
 import { apiFetch } from '@/lib/client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import NotificationBell from './NotificationBell';
+import { KnockErrorBoundary } from './KnockErrorBoundary';
 
 export default function Header() {
   const { data: session, status } = useSession();
   const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -33,24 +34,8 @@ export default function Header() {
         }
       };
       checkAdmin();
-      
-      // Fetch unread notifications count
-      fetchUnreadCount();
-      
-      // Poll for new notifications every 30 seconds
-      const interval = setInterval(fetchUnreadCount, 30000);
-      return () => clearInterval(interval);
     }
   }, [session]);
-
-  const fetchUnreadCount = async () => {
-    try {
-      const notifications = await apiFetch<any[]>('/notifications');
-      setUnreadCount(notifications.filter(n => !n.isRead).length);
-    } catch (error) {
-      // Silently fail
-    }
-  };
 
   const handleLogout = async () => {
     await signOut({ redirect: true, callbackUrl: '/' });
@@ -83,21 +68,38 @@ export default function Header() {
           {session ? (
             <>
               <Link
-                href="/inbox"
-                className="relative px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-100/80 dark:hover:bg-orange-900/50 border-2 border-transparent hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-300 hover-scale"
+                href="/habits"
+                className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 border-2 border-transparent hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 hover-scale"
               >
-                🔔 {t.inbox}
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
-                    {unreadCount}
-                  </span>
-                )}
+                📌 Habits
+              </Link>
+              <Link
+                href="/templates"
+                className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-100/80 dark:hover:bg-purple-900/50 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-300 hover-scale"
+              >
+                🎁 {t.templates || 'Templates'}
+              </Link>
+              <KnockErrorBoundary fallback={
+                <Link
+                  href="/inbox"
+                  className="relative px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-100/80 dark:hover:bg-orange-900/50 border-2 border-transparent hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-300 hover-scale"
+                >
+                  🔔 {t.inbox || 'Inbox'}
+                </Link>
+              }>
+                <NotificationBell />
+              </KnockErrorBoundary>
+              <Link
+                href="/habit-analytics"
+                className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-100/80 dark:hover:bg-purple-900/50 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-300 hover-scale"
+              >
+                📊 Analytics
               </Link>
               <Link
                 href="/stats"
                 className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50 border-2 border-transparent hover:border-emerald-300 dark:hover:border-emerald-600 transition-all duration-300 hover-scale"
               >
-                📊 {t.stats}
+                📈 {t.stats}
               </Link>
               <Link
                 href="/leaderboard"
@@ -110,6 +112,12 @@ export default function Header() {
                 className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-100/80 dark:hover:bg-primary-900/50 border-2 border-transparent hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-300 hover-scale"
               >
                 🛍️ {t.shop}
+              </Link>
+              <Link
+                href="/notifications-settings"
+                className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 border-2 border-transparent hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 hover-scale"
+              >
+                🔔 {t.notifications || 'Notifications'}
               </Link>
               {isAdmin && (
                 <Link
@@ -189,17 +197,31 @@ export default function Header() {
       {session && mobileMenuOpen && (
         <div className="lg:hidden glass backdrop-blur-2xl bg-white/95 dark:bg-gray-900/95 border-t border-primary-200/60 dark:border-primary-700/60">
           <div className="px-4 py-4 space-y-2">
+            <KnockErrorBoundary fallback={
+              <Link
+                href="/inbox"
+                onClick={() => setMobileMenuOpen(false)}
+                className="relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 transition-all"
+              >
+                📬 {t.inbox || 'Inbox'}
+              </Link>
+            }>
+              <NotificationBell
+                className="relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 transition-all w-full text-left"
+                badgeClassName="ml-auto bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full"
+                icon="📬"
+              />
+            </KnockErrorBoundary>
+              className="relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 transition-all w-full text-left"
+              badgeClassName="ml-auto bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full"
+              icon="📬"
+            />
             <Link
-              href="/inbox"
+              href="/templates"
               onClick={() => setMobileMenuOpen(false)}
-              className="relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 transition-all"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-purple-100/80 dark:hover:bg-purple-900/50 transition-all"
             >
-              📬 {t.inbox}
-              {unreadCount > 0 && (
-                <span className="ml-auto bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                  {unreadCount}
-                </span>
-              )}
+              🎁 {t.templates || 'Templates'}
             </Link>
             <Link
               href="/stats"
@@ -221,6 +243,13 @@ export default function Header() {
               className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-primary-100/80 dark:hover:bg-primary-900/50 transition-all"
             >
               🛍️ {t.shop}
+            </Link>
+            <Link
+              href="/notifications-settings"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 transition-all"
+            >
+              🔔 {t.notifications || 'Notifications'}
             </Link>
             <Link
               href="/purchases"

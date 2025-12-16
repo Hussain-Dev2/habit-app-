@@ -56,7 +56,7 @@ export default function AchievementsComponent() {
       
       {achievements.length === 0 ? (
         <p className="text-slate-600 dark:text-slate-400">
-          No achievements unlocked yet. Keep clicking and completing tasks!
+          No achievements unlocked yet. Keep completing habits and tasks!
         </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -35,6 +35,8 @@ export default function AdminProductManager() {
     isDigital: true,
   });
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -44,8 +46,11 @@ export default function AdminProductManager() {
     try {
       const data = await apiFetch<Product[]>('/admin/products', { method: 'GET' });
       setProducts(data);
-    } catch (error) {
+      setError(null);
+    } catch (error: any) {
+      const errorMsg = error.message || 'Failed to fetch products';
       console.error('Failed to fetch products:', error);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -70,6 +75,8 @@ export default function AdminProductManager() {
   const handleCancel = () => {
     setShowForm(false);
     setEditingId(null);
+    setError(null);
+    setSuccess(null);
     setFormData({
       title: '',
       description: '',
@@ -85,12 +92,27 @@ export default function AdminProductManager() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate title
+    if (!formData.title.trim()) {
+      setError('Product title is required');
+      return;
+    }
+    
+    // Validate cost points
+    if (formData.costPoints <= 0) {
+      setError('Cost points must be greater than 0');
+      return;
+    }
+
     setSubmitting(true);
+    setError(null);
+    setSuccess(null);
 
     try {
       const body = JSON.stringify({
-        title: formData.title,
-        description: formData.description,
+        title: formData.title.trim(),
+        description: formData.description.trim(),
         costPoints: formData.costPoints,
         stock: formData.stock,
         imageUrl: formData.imageUrl || null,
@@ -107,6 +129,7 @@ export default function AdminProductManager() {
           body,
         });
         setProducts(products.map((p) => (p.id === editingId ? updated : p)));
+        setSuccess('Product updated successfully! ✅');
       } else {
         // Create new product
         const newProduct = await apiFetch<Product>('/admin/products', {
@@ -114,11 +137,14 @@ export default function AdminProductManager() {
           body,
         });
         setProducts([newProduct, ...products]);
+        setSuccess('Product created successfully! ✅');
       }
 
-      handleCancel();
-    } catch (error) {
+      setTimeout(() => handleCancel(), 1500);
+    } catch (error: any) {
+      const errorMsg = error.message || 'Failed to save product';
       console.error('Failed to save product:', error);
+      setError(errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -130,29 +156,68 @@ export default function AdminProductManager() {
     try {
       await apiFetch(`/admin/products/${productId}`, { method: 'DELETE' });
       setProducts(products.filter((p) => p.id !== productId));
-    } catch (error) {
+      setSuccess('Product deleted successfully! ✅');
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (error: any) {
+      const errorMsg = error.message || 'Failed to delete product';
       console.error('Failed to delete product:', error);
+      setError(errorMsg);
     }
   };
 
   return (
     <div className="space-y-6">
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4 text-red-300">
+          <p className="font-semibold">❌ Error</p>
+          <p className="text-sm mt-1">{error}</p>
+        </div>
+      )}
+
+      {/* Success Message */}
+      {success && (
+        <div className="bg-green-500/20 border border-green-500/50 rounded-xl p-4 text-green-300">
+          <p className="font-semibold">{success}</p>
+        </div>
+      )}
+
       {/* Add/Edit Product Form */}
       <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-8 border border-slate-700">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-white">
-            {editingId ? '✏️ Edit Product' : '➕ Add New Product'}
+            {editingId ? '✏️ Edit Product' : '📦 Product Manager'}
           </h2>
-          <button
-            onClick={handleCancel}
-            className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition-colors"
-          >
-            {showForm ? '✕ Cancel' : ''}
-          </button>
+          <div className="flex gap-2">
+            {!showForm && !editingId && (
+              <button
+                onClick={() => setShowForm(true)}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-bold text-base shadow-lg hover:shadow-xl"
+              >
+                ➕ Add New Product
+              </button>
+            )}
+            {showForm && (
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors font-semibold"
+              >
+                ✕ Cancel
+              </button>
+            )}
+            {editingId && (
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors font-semibold"
+              >
+                ✕ Cancel Edit
+              </button>
+            )}
+          </div>
         </div>
 
         {showForm && (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 bg-slate-700/30 p-6 rounded-xl border border-blue-500/30">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -342,15 +407,6 @@ export default function AdminProductManager() {
               </button>
             </div>
           </form>
-        )}
-
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-semibold"
-          >
-            + Add New Product
-          </button>
         )}
       </div>
 

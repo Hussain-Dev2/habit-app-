@@ -77,9 +77,6 @@ export async function GET(request: NextRequest) {
     // Determine order by field
     let orderBy: any;
     switch (rankBy) {
-      case 'clicks':
-        orderBy = { clicks: 'desc' };
-        break;
       case 'level':
         orderBy = { lifetimePoints: 'desc' }; // Level is based on lifetime points
         break;

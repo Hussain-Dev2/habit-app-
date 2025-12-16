@@ -22,85 +22,68 @@ export async function GET() {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Get analytics data
+    // Get habit system analytics data
     const [
       totalUsers,
-      totalClicks,
-      totalPoints,
-      totalProducts,
-      totalOrders,
-      totalAdViews,
-      topUsers,
-      activeUsers,
-      pointsToday,
+      totalHabits,
+      totalCompletions,
+      averageXpPerUser,
+      totalXpDistributed,
     ] = await Promise.all([
       // Total users
       prisma.user.count(),
 
-      // Total clicks
+      // Total habits
+      prisma.habit.count(),
+
+      // Total completions
+      prisma.habitCompletion.count(),
+
+      // Average XP per user
       prisma.user.aggregate({
-        _sum: { clicks: true },
+        _avg: { points: true },
       }),
 
-      // Total points
+      // Total XP distributed
       prisma.user.aggregate({
         _sum: { points: true },
       }),
-
-      // Total products
-      prisma.product.count(),
-
-      // Total orders
-      prisma.order.count(),
-
-      // Total ad views
-      prisma.user.aggregate({
-        _sum: { adWatchCount: true },
-      }),
-
-      // Top 5 users by points
-      prisma.user.findMany({
-        take: 5,
-        orderBy: { points: 'desc' },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          points: true,
-          clicks: true,
-        },
-      }),
-
-      // Active users (last 24 hours)
-      prisma.user.count({
-        where: {
-          lastActivityAt: {
-            gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
-          },
-        },
-      }),
-
-      // Points distributed today
-      prisma.user.aggregate({
-        _sum: { dailyEarnings: true },
-        where: {
-          lastDailyReset: {
-            gte: new Date(new Date().setHours(0, 0, 0, 0)),
-          },
-        },
-      }),
     ]);
+
+    // Calculate active users in last 24 hours by counting distinct users with completions
+    const activeUsersToday = await prisma.habitCompletion.findMany({
+      where: {
+        completedAt: {
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        },
+      },
+      select: {
+        userId: true,
+      },
+      distinct: ['userId'],
+    });
+
+    // Calculate completion rate
+    const totalUsersWithHabits = await prisma.user.count({
+      where: {
+        habits: {
+          some: {},
+        },
+      },
+    });
+
+    const completionRate = totalHabits > 0 
+      ? Math.round((totalCompletions / (totalHabits * Math.max(totalUsersWithHabits, 1))) * 100)
+      : 0;
 
     return Response.json({
       totalUsers,
-      totalClicks: totalClicks._sum.clicks || 0,
-      totalPoints: totalPoints._sum.points || 0,
-      totalProducts,
-      totalOrders,
-      totalAdViews: totalAdViews._sum.adWatchCount || 0,
-      topUsers,
-      activeUsers,
-      pointsToday: pointsToday._sum.dailyEarnings || 0,
+      totalHabits,
+      totalCompletions,
+      completionRate,
+      averageXpPerUser: Math.round(averageXpPerUser._avg.points || 0),
+      activeUsersToday: activeUsersToday.length,
+      totalXpDistributed: totalXpDistributed._sum.points || 0,
     });
   } catch (error) {
     console.error('Failed to fetch analytics:', error);

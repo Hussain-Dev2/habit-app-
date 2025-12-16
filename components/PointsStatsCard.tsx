@@ -55,12 +55,6 @@ function PointsStatsCard() {
         </div>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between text-slate-600 dark:text-slate-400">
-            <span>Total Clicks:</span>
-            <span className="font-semibold text-slate-700 dark:text-slate-300">
-              {formatPoints(pointsData.clicks)}
-            </span>
-          </div>
-          <div className="flex justify-between text-slate-600 dark:text-slate-400">
             <span>Session Time:</span>
             <span className="font-semibold text-slate-700 dark:text-slate-300">
               {formatSessionTime(pointsData.totalSessionTime)}
@@ -75,7 +69,7 @@ function PointsStatsCard() {
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
             <div className="flex items-center gap-2">
-              <span>👆 Clicks</span>
+              <span>✅ Habits & Activity</span>
             </div>
             <span className="font-semibold text-slate-700 dark:text-slate-300">
               {formatPoints(pointsData.lifetimePoints - pointsData.pointsFromAds - pointsData.pointsFromTasks)}

@@ -155,7 +155,7 @@ export async function POST(req: Request) {
         }
 
         // Step 3: Parse and validate request body
-        const { title, description, costPoints, stock, imageUrl, category, value, region } = await req.json();
+        const { title, description, costPoints, stock, imageUrl, category, value, region, isDigital } = await req.json();
         
         // Validate required fields
         if (!title || !costPoints) {
@@ -183,13 +183,14 @@ export async function POST(req: Request) {
         const product = await prisma.product.create({
             data: {
                 title,
-                description,
+                description: description || '',
                 costPoints,
                 stock: stock ?? null,
                 imageUrl: imageUrl ?? null,
                 category: category ?? null,
                 value: value ?? null,
                 region: region ?? null,
+                isDigital: isDigital !== undefined ? isDigital : true,
             },
         });
         

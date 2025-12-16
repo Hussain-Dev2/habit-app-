@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-config';
 import { prisma } from '@/lib/prisma';
+import knockClient from '@/lib/knock';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,6 +71,9 @@ export async function POST(request: NextRequest) {
     const deliveredAt = hasCode ? new Date() : null;
 
     // Create purchase and update user
+    // IMPORTANT: Only decrement "points" (spendable points), NOT "lifetimePoints"
+    // User level is based on lifetimePoints earned, not current points spent
+    // This ensures buying rewards doesn't reduce the user's level
     const updates: any[] = [
       prisma.user.update({
         where: { id: user.id },
@@ -123,6 +127,19 @@ export async function POST(request: NextRequest) {
           orderId: order.id,
         },
       });
+
+      try {
+        await knockClient.workflows.trigger('f_app', {
+          recipients: [user.id],
+          data: {
+            type: 'purchase-successful',
+            product: product.title,
+            message: `You've purchased ${product.title}!\n\nYour code is ready. Go to Purchases to reveal it.`,
+            orderId: order.id,
+          },
+        });
+      } catch (e) { console.error('Knock error:', e); }
+
     } else {
       await prisma.notification.create({
         data: {
@@ -133,6 +150,19 @@ export async function POST(request: NextRequest) {
           orderId: order.id,
         },
       });
+
+      try {
+        await knockClient.workflows.trigger('f_app', {
+          recipients: [user.id],
+          data: {
+            type: 'order-pending',
+            product: product.title,
+            message: `Thank you for purchasing ${product.title}!\n\nYour order will be delivered in less than 2 days. You'll receive a notification when your code is ready.`,
+            orderId: order.id,
+          },
+
+        });
+      } catch (e) { console.error('Knock error:', e); }
     }
 
     return NextResponse.json({

@@ -250,7 +250,7 @@ export default function DigitalProductCard({ product, userPoints, onPurchase }: 
                     : 'bg-slate-700 text-slate-400 cursor-not-allowed'
                 }`}
               >
-                {isOutOfStock ? '❌ Sold Out' : canAfford ? '🛒 Buy Now' : '⚠️ Not Enough Points'}
+                {isOutOfStock ? '❌ Sold Out' : canAfford ? '� Buy' : '⚠️ Not Enough Points'}
               </button>
 
               {/* Insufficient Points Warning */}
