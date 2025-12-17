@@ -261,9 +261,41 @@ export async function createHabit(
     userId,
   };
 
-  return prisma.habit.create({
+  const habit = await prisma.habit.create({
     data: habitData,
   });
+
+  // Create notification
+  const message = `🎉 New habit created: ${habit.name}! Difficulty: ${habit.difficulty}. Good luck on your journey!`;
+  
+  await prisma.notification.create({
+    data: {
+      userId,
+      type: 'system',
+      title: 'New Habit Created',
+      message,
+    },
+  });
+
+  // Trigger Knock workflow
+  try {
+    if (process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY) {
+      await knockClient.workflows.trigger('f_app', {
+        recipients: [userId],
+        data: {
+          type: 'habit-created',
+          habitId: habit.id,
+          habitName: habit.name,
+          difficulty: habit.difficulty,
+          message,
+        },
+      });
+    }
+  } catch (e) {
+    console.error('Knock notification error:', e);
+  }
+
+  return habit;
 }
 
 export async function getUserHabits(userId: string, activeOnly = true) {

@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Header from '@/components/Header';
-import VPNBlocker from '@/components/VPNBlocker';
 import { Providers } from './providers';
 import './globals.css';
 import { Analytics } from "@vercel/analytics/next"
@@ -80,7 +79,6 @@ export default function RootLayout({
       </head>
       <body className="bg-gradient-to-br from-cyan-50 via-orange-50 to-cyan-100 dark:from-gray-900 dark:via-cyan-900 dark:to-orange-950 text-gray-900 dark:text-gray-50 transition-all duration-500 ease-in-out">
         <Providers>
-          <VPNBlocker>
             <Header />
             {children}
             
@@ -114,7 +112,6 @@ export default function RootLayout({
             </footer>
             
             <Analytics />
-          </VPNBlocker>
         </Providers>
       </body>
     </html>

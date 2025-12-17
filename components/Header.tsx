@@ -7,7 +7,6 @@ import SettingsModal from './SettingsModal';
 import { apiFetch } from '@/lib/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import NotificationBell from './NotificationBell';
-import { KnockErrorBoundary } from './KnockErrorBoundary';
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -79,16 +78,7 @@ export default function Header() {
               >
                 🎁 {t.templates || 'Templates'}
               </Link>
-              <KnockErrorBoundary fallback={
-                <Link
-                  href="/inbox"
-                  className="relative px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-100/80 dark:hover:bg-orange-900/50 border-2 border-transparent hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-300 hover-scale"
-                >
-                  🔔 {t.inbox || 'Inbox'}
-                </Link>
-              }>
-                <NotificationBell />
-              </KnockErrorBoundary>
+              <NotificationBell />
               <Link
                 href="/habit-analytics"
                 className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-100/80 dark:hover:bg-purple-900/50 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-300 hover-scale"
@@ -197,7 +187,23 @@ export default function Header() {
       {session && mobileMenuOpen && (
         <div className="lg:hidden glass backdrop-blur-2xl bg-white/95 dark:bg-gray-900/95 border-t border-primary-200/60 dark:border-primary-700/60">
           <div className="px-4 py-4 space-y-2">
-            <KnockErrorBoundary fallback={
+            {hasKnock ? (
+              <KnockErrorBoundary fallback={
+                <Link
+                  href="/inbox"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 transition-all"
+                >
+                  📬 {t.inbox || 'Inbox'}
+                </Link>
+              }>
+                <NotificationBell
+                  className="relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 transition-all w-full text-left"
+                  badgeClassName="ml-auto bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full"
+                  icon="📬"
+                />
+              </KnockErrorBoundary>
+            ) : (
               <Link
                 href="/inbox"
                 onClick={() => setMobileMenuOpen(false)}
@@ -205,13 +211,7 @@ export default function Header() {
               >
                 📬 {t.inbox || 'Inbox'}
               </Link>
-            }>
-              <NotificationBell
-                className="relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 transition-all w-full text-left"
-                badgeClassName="ml-auto bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full"
-                icon="📬"
-              />
-            </KnockErrorBoundary>
+            )}
             <Link
               href="/templates"
               onClick={() => setMobileMenuOpen(false)}

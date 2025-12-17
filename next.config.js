@@ -20,7 +20,7 @@ const nextConfig = {
               "img-src 'self' data: blob: https: http:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' data: https://fonts.gstatic.com",
-              "connect-src 'self' https://pagead2.googlesyndication.com https://*.google-analytics.com https://*.effectivegatecpm.com https://*.topcreativeformat.com https://*.highperformanceformat.com",
+              "connect-src 'self' https://pagead2.googlesyndication.com https://*.google-analytics.com https://*.effectivegatecpm.com https://*.topcreativeformat.com https://*.highperformanceformat.com https://api.knock.app wss://api.knock.app",
             ].join('; '),
           },
           {

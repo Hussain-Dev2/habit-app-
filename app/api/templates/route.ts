@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-config';
 import { prisma } from '@/lib/prisma';
+import { createHabit } from '@/lib/habit-service';
 
 export async function GET() {
   try {
@@ -74,17 +75,10 @@ export async function POST(request: Request) {
 
     const createdHabits = await Promise.all(
       habits.map(habit =>
-        prisma.habit.create({
-          data: {
-            userId: user.id,
-            name: habit.name,
-            description: habit.description,
-            difficulty: habit.difficulty,
-            streak: 0,
-            maxStreak: 0,
-            totalCompleted: 0,
-            isActive: true
-          }
+        createHabit(user.id, {
+          name: habit.name,
+          description: habit.description,
+          difficulty: habit.difficulty,
         })
       )
     );

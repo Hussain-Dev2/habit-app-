@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/client';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface Notification {
   id: string;
@@ -21,6 +22,7 @@ export default function InboxPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const { isSupported, subscription, subscribeToNotifications } = usePushNotifications();
   const isAuthenticated = status === 'authenticated';
 
   useEffect(() => {
@@ -118,6 +120,14 @@ export default function InboxPage() {
                 className="w-full sm:w-auto px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm sm:text-base rounded-lg transition-colors"
               >
                 Mark all as read
+              </button>
+            )}
+            {isAuthenticated && isSupported && !subscription && (
+              <button
+                onClick={subscribeToNotifications}
+                className="w-full sm:w-auto px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm sm:text-base rounded-lg transition-colors"
+              >
+                🔔 Enable Push Notifications
               </button>
             )}
           </div>
