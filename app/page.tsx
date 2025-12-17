@@ -147,30 +147,94 @@ export default function Dashboard() {
   /**
    * Complete a habit and award XP
    */
+  /*
+   * Complete a habit and award XP (Optimistic UI)
+   */
   const handleCompleteHabit = async (habitId: string) => {
     if (completingHabit) return;
+
+    // 1. Snapshot previous state for rollback
+    const previousHabits = [...habits];
+    const previousUser = user ? { ...user } : null;
+    const previousStats = stats ? { ...stats } : null;
     
+    const habitIndex = habits.findIndex(h => h.id === habitId);
+    if (habitIndex === -1) return;
+    const habit = habits[habitIndex];
+
+    // 2. Optimistic Update
     setCompletingHabit(habitId);
+    
+    // Calculate predicted XP
+    const pointsMap: Record<string, number> = { easy: 10, medium: 25, hard: 50 };
+    const xpEarned = pointsMap[habit.difficulty] || 10;
+    
+    // Update Habits List
+    const newHabits = [...habits];
+    newHabits[habitIndex] = {
+      ...habit,
+      isCompleted: true,
+      streak: habit.streak + 1
+    };
+    setHabits(newHabits);
+
+    // Update User Points
+    if (user) {
+      setUser({
+        ...user,
+        points: user.points + xpEarned,
+        lifetimePoints: user.lifetimePoints + xpEarned
+      });
+    }
+
+    // Update Stats (Estimate)
+    if (stats) {
+      setStats({
+        ...stats,
+        todayCompletions: stats.todayCompletions + 1,
+        totalCompletions: stats.totalCompletions + 1,
+        activeHabits: stats.activeHabits, // unchanged
+        totalHabits: stats.totalHabits, // unchanged
+        weekCompletions: stats.weekCompletions + 1,
+        longestStreak: Math.max(stats.longestStreak, habit.streak + 1),
+        habitsCompleted: stats.habitsCompleted + 1
+      });
+    }
+
+    // Show Immediate Feedback
+    setToast({
+      message: `✅ +${xpEarned} XP earned!`,
+      type: 'success',
+    });
+
     try {
+      // 3. Perform Server Request in Background
       const response = await apiFetch<any>('/habits/complete', {
         method: 'POST',
         body: JSON.stringify({ habitId }),
       });
 
-      // Award XP feedback
-      const xpEarned = response.pointsEarned;
-      const levelUp = response.leveledUp;
+      // 4. Handle Level Up or corrections
+      // If server returns different points or level up, update UI
+      if (response.leveledUp) {
+         setToast({
+          message: `✅ +${response.pointsEarned} XP earned! 🎉 Level Up!`,
+          type: 'success',
+        });
+        // If leveled up, we should probably fetchUser to make sure level cap/progress is correct
+        fetchUser(); 
+      }
       
-      setToast({
-        message: `✅ +${xpEarned} XP earned!${levelUp ? ' 🎉 Level Up!' : ''}`,
-        type: 'success',
-      });
-
-      // Refresh user and habits
-      await fetchUser();
-      await fetchHabits();
-      await fetchStats();
+      // We can skip the full re-fetch if we trust our math, 
+      // but doing it silently doesn't hurt as long as UI is already unblocked.
+      
     } catch (error: any) {
+      // 5. Rollback on Error
+      console.error('Optimistic update failed:', error);
+      setHabits(previousHabits);
+      if (previousUser) setUser(previousUser);
+      if (previousStats) setStats(previousStats);
+      
       setToast({
         message: error.message || 'Failed to complete habit',
         type: 'error',
@@ -211,10 +275,10 @@ export default function Dashboard() {
             <div className="flex items-center gap-2 sm:gap-3 mb-2">
               <span className="text-2xl sm:text-4xl animate-float">📌</span>
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-aurora bg-clip-text text-transparent animate-gradient">
-                Daily Habits
+                {t.dailyHabits}
               </h1>
             </div>
-            <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-300">Complete habits to earn XP, build streaks, and level up!</p>
+            <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-300">{t.dailyHabitsDesc}</p>
           </div>
 
           {/* User Stats Grid - Responsive */}
@@ -233,11 +297,11 @@ export default function Dashboard() {
             <div className="glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-purple-200/50 dark:border-purple-700/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 card-lift" style={{ animationDelay: '150ms' }}>
               <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                 <span className="text-2xl sm:text-3xl">⭐</span>
-                <h3 className="font-bold text-sm sm:text-lg">XP Progress</h3>
+                <h3 className="font-bold text-sm sm:text-lg">{t.xpProgress}</h3>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-xs sm:text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">This Level</span>
+                  <span className="text-gray-600 dark:text-gray-400">{t.thisLevel}</span>
                   <span className="font-bold text-purple-600 dark:text-purple-400">
                     {(displayUser.lifetimePoints || 0) % 100}/100 XP
                   </span>
@@ -257,20 +321,20 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-3 sm:mb-4">
               <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
                 <span>✅</span>
-                <span>Your Habits</span>
+                <span>{t.yourHabits}</span>
               </h2>
               {isAuthenticated && (
                 <Link href="/habits" className="px-3 sm:px-4 py-2 bg-gradient-ocean text-white rounded-lg font-semibold hover:shadow-glow transition-all duration-300 text-xs sm:text-base w-full sm:w-auto text-center">
-                  Create New Habit →
+                  {t.createNewHabit} →
                 </Link>
               )}
             </div>
 
             {habits.length === 0 ? (
               <div className="glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl sm:rounded-2xl p-6 sm:p-8 text-center">
-                <p className="text-xs sm:text-base text-gray-600 dark:text-gray-300 mb-3 sm:mb-4">No habits yet. Create your first habit to start earning XP!</p>
+                <p className="text-xs sm:text-base text-gray-600 dark:text-gray-300 mb-3 sm:mb-4">{t.noHabitsYet}</p>
                 <Link href="/habits" className="inline-block px-4 sm:px-6 py-2 sm:py-3 bg-gradient-ocean text-white rounded-lg font-semibold hover:shadow-glow transition-all duration-300 text-sm sm:text-base">
-                  Create First Habit
+                  {t.createFirstHabit}
                 </Link>
               </div>
             ) : (
@@ -297,7 +361,7 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between mb-3 sm:mb-4">
                       <div className="flex items-center gap-1">
                         <span className="text-lg sm:text-xl">🔥</span>
-                        <span className="font-bold text-orange-600 dark:text-orange-400 text-sm sm:text-base">{habit.streak} day streak</span>
+                        <span className="font-bold text-orange-600 dark:text-orange-400 text-sm sm:text-base">{habit.streak} {t.dayStreak}</span>
                       </div>
                     </div>
 
@@ -310,7 +374,7 @@ export default function Dashboard() {
                           : 'bg-gradient-ocean text-white hover:shadow-glow active:scale-95'
                       } ${completingHabit === habit.id ? 'opacity-50' : ''}`}
                     >
-                      {completingHabit === habit.id ? 'Completing...' : habit.isCompleted ? '✓ Completed Today' : 'Complete Now'}
+                      {completingHabit === habit.id ? t.completing : habit.isCompleted ? t.completedToday : t.completeNow}
                     </button>
                   </div>
                 ))}
@@ -324,34 +388,35 @@ export default function Dashboard() {
               <div className="glass backdrop-blur-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:border-cyan-400 dark:hover:border-cyan-500 transition-all">
                 <h3 className="font-bold text-sm sm:text-lg mb-2 flex items-center gap-2">
                   <span className="text-lg sm:text-2xl">📊</span>
-                  <span>Track Progress</span>
+                  <span>{t.statsAndAnalytics}</span>
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-3 sm:mb-4">View detailed analytics and performance insights</p>
-                <Link href="/habit-analytics" className="inline-block px-3 sm:px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 hover:shadow-lg">
-                  View Analytics →
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-3 sm:mb-4">{t.statsDesc}</p>
+                <Link href="/stats" className="inline-block px-3 sm:px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 hover:shadow-lg">
+                  {t.viewDashboard} →
                 </Link>
               </div>
 
               <div className="glass backdrop-blur-xl bg-gradient-to-br from-emerald-500/20 to-green-500/20 border-2 border-emerald-300 dark:border-emerald-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:border-emerald-400 dark:hover:border-emerald-500 transition-all">
                 <h3 className="font-bold text-sm sm:text-lg mb-2 flex items-center gap-2">
                   <span className="text-lg sm:text-2xl">🛍️</span>
-                  <span>Rewards</span>
+                  <span>{t.rewards}</span>
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-3 sm:mb-4">Redeem XP points for exclusive digital products</p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-3 sm:mb-4">{t.rewardsPanelDesc}</p>
                 <Link href="/shop" className="inline-block px-3 sm:px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 hover:shadow-lg">
-                  View Rewards →
+                  {t.viewRewards} →
                 </Link>
               </div>
             </div>
           )}
 
-          {/* Google AdSense */}
+          {/* Google AdSense - Tiny Banner */}
           {!user?.isAdmin && (
-            <div className="mb-4 sm:mb-6 animate-fade-in" style={{ animationDelay: '300ms' }}>
+            <div className="mb-4 sm:mb-6 animate-fade-in flex justify-center" style={{ animationDelay: '300ms' }}>
               <GoogleAdsense 
                 adSlot="1234567890" 
-                adFormat="auto"
-                style={{ minHeight: '200px' }}
+                adFormat="horizontal"
+                style={{ height: '90px', width: '100%', maxWidth: '728px' }}
+                className="bg-gray-100/50 dark:bg-gray-800/50 rounded-lg overflow-hidden"
               />
             </div>
           )}

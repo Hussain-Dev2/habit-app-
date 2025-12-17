@@ -6,7 +6,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import knockClient from '@/lib/knock';
+import { sendPushNotification as sendWebPush } from '@/lib/web-push';
 
 
 interface ReminderOptions {
@@ -127,14 +127,14 @@ export async function sendHabitReminders(options: ReminderOptions = {}) {
 }
 
 /**
- * Send a push notification (mock implementation)
- * In production, integrate with Firebase Cloud Messaging, OneSignal, etc.
+ * Send a push notification
  */
 async function sendPushNotification(userId: string, habitId: string, message: string) {
   try {
     // Create in-app notification
     const user = await prisma.user.findUnique({
       where: { id: userId },
+      include: { pushSubscriptions: true }
     });
 
     if (!user) throw new Error('User not found');
@@ -148,27 +148,26 @@ async function sendPushNotification(userId: string, habitId: string, message: st
       },
     });
 
-    // Trigger Knock workflow
-    try {
-      await knockClient.workflows.trigger('f_app', {
-        recipients: [userId],
-        data: {
-          type: 'habit-reminder',
-          habitId,
-          habitName: message.split(':')[1]?.split('!')[0]?.trim() || 'Habit',
-          message,
-        },
-      });
-    } catch (e) {
-      console.error('Knock reminder error:', e);
-    }
+    // Send Web Push to all subscriptions
+    const payload = {
+      title: 'Habit Reminder',
+      body: message,
+      icon: '/icons/icon-192x192.png',
+      url: `/habits?id=${habitId}`
+    };
 
-    // TODO: Integrate with actual push notification service
-    // Example providers:
-    // - Firebase Cloud Messaging (FCM)
-    // - OneSignal
-    // - Pusher
-    // - AWS SNS
+    const promises = user.pushSubscriptions.map(sub => {
+      const subscription = {
+        endpoint: sub.endpoint,
+        keys: {
+          p256dh: sub.p256dh,
+          auth: sub.auth
+        }
+      };
+      return sendWebPush(subscription, payload);
+    });
+
+    await Promise.all(promises);
 
     console.log(`📤 Push notification sent to user ${userId}`);
   } catch (error) {

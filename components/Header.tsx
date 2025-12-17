@@ -7,7 +7,6 @@ import SettingsModal from './SettingsModal';
 import { apiFetch } from '@/lib/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import NotificationBell from './NotificationBell';
-import { KnockErrorBoundary } from './KnockErrorBoundary';
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -71,7 +70,7 @@ export default function Header() {
                 href="/habits"
                 className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 border-2 border-transparent hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 hover-scale"
               >
-                📌 Habits
+                📌 {t.habits}
               </Link>
               <Link
                 href="/templates"
@@ -79,33 +78,30 @@ export default function Header() {
               >
                 🎁 {t.templates || 'Templates'}
               </Link>
-              <KnockErrorBoundary fallback={
-                <Link
-                  href="/inbox"
-                  className="relative px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-100/80 dark:hover:bg-orange-900/50 border-2 border-transparent hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-300 hover-scale"
-                >
-                  🔔 {t.inbox || 'Inbox'}
-                </Link>
-              }>
-                <NotificationBell />
-              </KnockErrorBoundary>
-              <Link
-                href="/habit-analytics"
-                className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-100/80 dark:hover:bg-purple-900/50 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-300 hover-scale"
-              >
-                📊 Analytics
-              </Link>
+              <NotificationBell />
               <Link
                 href="/stats"
                 className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50 border-2 border-transparent hover:border-emerald-300 dark:hover:border-emerald-600 transition-all duration-300 hover-scale"
               >
-                📈 {t.stats}
+                📈 {t.statsAndAnalytics}
               </Link>
               <Link
                 href="/leaderboard"
                 className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-100/80 dark:hover:bg-yellow-900/50 border-2 border-transparent hover:border-yellow-300 dark:hover:border-yellow-600 transition-all duration-300 hover-scale"
               >
-                🏆 Leaderboard
+                🏆 {t.leaderboard}
+              </Link>
+              <Link
+                href="/community"
+                className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-100/80 dark:hover:bg-green-900/50 border-2 border-transparent hover:border-green-300 dark:hover:border-green-600 transition-all duration-300 hover-scale"
+              >
+                💬 {t.community}
+              </Link>
+              <Link
+                href="/recommendations"
+                className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-pink-100/80 dark:hover:bg-pink-900/50 border-2 border-transparent hover:border-pink-300 dark:hover:border-pink-600 transition-all duration-300 hover-scale"
+              >
+                🎯 {t.recommendations}
               </Link>
               <Link
                 href="/shop"
@@ -197,21 +193,11 @@ export default function Header() {
       {session && mobileMenuOpen && (
         <div className="lg:hidden glass backdrop-blur-2xl bg-white/95 dark:bg-gray-900/95 border-t border-primary-200/60 dark:border-primary-700/60">
           <div className="px-4 py-4 space-y-2">
-            <KnockErrorBoundary fallback={
-              <Link
-                href="/inbox"
-                onClick={() => setMobileMenuOpen(false)}
-                className="relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 transition-all"
-              >
-                📬 {t.inbox || 'Inbox'}
-              </Link>
-            }>
-              <NotificationBell
+            <NotificationBell
                 className="relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 transition-all w-full text-left"
                 badgeClassName="ml-auto bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full"
                 icon="📬"
               />
-            </KnockErrorBoundary>
             <Link
               href="/templates"
               onClick={() => setMobileMenuOpen(false)}
@@ -224,14 +210,21 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-secondary-100/80 dark:hover:bg-secondary-900/50 transition-all"
             >
-              📊 {t.stats}
+              � Stats & Analytics
             </Link>
             <Link
               href="/leaderboard"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-yellow-100/80 dark:hover:bg-yellow-900/50 transition-all"
             >
-              🏆 Leaderboard
+              🏆 {t.leaderboard}
+            </Link>
+            <Link
+              href="/community"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-green-100/80 dark:hover:bg-green-900/50 transition-all"
+            >
+              💬 {t.community}
             </Link>
             <Link
               href="/shop"

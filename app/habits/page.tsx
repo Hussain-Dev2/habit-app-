@@ -15,6 +15,7 @@ import { apiFetch } from '@/lib/client';
 import Toast from '@/components/Toast';
 import Loader from '@/components/Loader';
 import Link from 'next/link';
+import GoogleAdsense from '@/components/ads/GoogleAdsense';
 import { HABIT_CATEGORIES, HABIT_ICONS, HABIT_DIFFICULTY_REWARDS, DIFFICULTY_COLORS } from '@/lib/habit-constants';
 
 // Lazy load heavy components
@@ -673,20 +674,12 @@ export default function HabitsPage() {
           {/* CTA Cards - Responsive Grid */}
           {habits.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mt-8 sm:mt-12 animate-fade-in">
-              <Link href="/habit-analytics" className="glass backdrop-blur-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 dark:from-purple-900/30 dark:to-blue-900/30 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-purple-300 dark:border-purple-600 hover:border-purple-400 dark:hover:border-purple-500 hover:shadow-glow transition-all duration-300">
-                <h3 className="font-bold text-sm sm:text-lg flex items-center gap-2 mb-1 sm:mb-2">
-                  <span className="text-lg sm:text-xl">📊</span>
-                  <span>Analytics</span>
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Daily, weekly & monthly tracking</p>
-              </Link>
-
               <Link href="/stats" className="glass backdrop-blur-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-cyan-300 dark:border-cyan-600 hover:border-cyan-400 dark:hover:border-cyan-500 hover:shadow-glow transition-all duration-300">
                 <h3 className="font-bold text-sm sm:text-lg flex items-center gap-2 mb-1 sm:mb-2">
                   <span className="text-lg sm:text-xl">📈</span>
-                  <span>Stats</span>
+                  <span>Stats & Analytics</span>
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Track progress & achievements</p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Track progress, habits & achievements</p>
               </Link>
 
               <Link href="/shop" className="glass backdrop-blur-xl bg-gradient-to-br from-emerald-500/20 to-green-500/20 dark:from-emerald-900/30 dark:to-green-900/30 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-emerald-300 dark:border-emerald-600 hover:border-emerald-400 dark:hover:border-emerald-500 hover:shadow-glow transition-all duration-300">
@@ -698,6 +691,16 @@ export default function HabitsPage() {
               </Link>
             </div>
           )}
+
+          {/* Google AdSense - Tiny Banner */}
+          <div className="mt-8 animate-fade-in flex justify-center">
+            <GoogleAdsense 
+              adSlot="1234567890" 
+              adFormat="horizontal"
+              style={{ height: '90px', width: '100%', maxWidth: '728px' }}
+              className="bg-gray-100/50 dark:bg-gray-800/50 rounded-lg overflow-hidden"
+            />
+          </div>
 
           {toast && (
             <Toast

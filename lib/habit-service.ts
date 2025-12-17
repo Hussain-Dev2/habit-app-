@@ -9,8 +9,9 @@
  * - Habit statistics
  */
 
+import { Prisma, PrismaClient } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import knockClient from '@/lib/knock';
+import { sendPushNotification } from '@/lib/web-push';
 import { 
   HABIT_DIFFICULTY_REWARDS, 
   DIFFICULTY_BONUS_CHANCE, 
@@ -21,158 +22,160 @@ import { calculateLevel } from '@/lib/level-system';
 
 export async function completeHabit(userId: string, habitId: string) {
   try {
-    // 1. Fetch the habit with validation
-    const habit = await prisma.habit.findUnique({
-      where: { id: habitId },
-      include: {
-        completions: {
-          where: {
-            completedAt: {
-              gte: new Date(new Date().setHours(0, 0, 0, 0)),
+    return await prisma.$transaction(async (tx) => {
+      // 1. Fetch the habit with validation
+      const habit = await tx.habit.findUnique({
+        where: { id: habitId },
+        include: {
+          completions: {
+            where: {
+              completedAt: {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+              },
             },
           },
         },
-      },
-    });
+      });
 
-    if (!habit) {
-      throw new Error('Habit not found');
-    }
-
-    if (habit.userId !== userId) {
-      throw new Error('Unauthorized');
-    }
-
-    // Check if already completed today
-    if (habit.completions.length > 0) {
-      throw new Error('Already completed today');
-    }
-
-    // 2. Calculate XP reward based on difficulty with Variable Bonus
-    const difficulty = (habit.difficulty as HabitDifficulty) || 'easy';
-    const baseXp = HABIT_DIFFICULTY_REWARDS[difficulty];
-    
-    // Variable Reward Logic: Critical Success Check
-    const bonusChance = DIFFICULTY_BONUS_CHANCE[difficulty] || 0.05;
-    const isCritical = Math.random() < bonusChance;
-    
-    const finalXp = isCritical 
-      ? Math.round(baseXp * CRITICAL_SUCCESS_MULTIPLIER) 
-      : baseXp;
-
-    // 3. Create completion record
-    const completion = await prisma.habitCompletion.create({
-      data: {
-        habitId,
-        userId,
-        pointsEarned: finalXp,
-      },
-    });
-
-    // 4. Update user points
-    const user = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        points: { increment: finalXp },
-        lifetimePoints: { increment: finalXp },
-      },
-    });
-
-    // 5. Update streak
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const startOfYesterday = new Date(yesterday.setHours(0, 0, 0, 0));
-    
-    // Check if streak is continuous (completed yesterday OR today via freeze)
-    // We check 'today' as well because if a user froze the habit today, lastCompletedAt is today.
-    // If they then complete it, we shouldn't reset the streak.
-    let isContinuous = false;
-    if (habit.lastCompletedAt) {
-      const lastCompletedTime = new Date(habit.lastCompletedAt).getTime();
-      if (lastCompletedTime >= startOfYesterday.getTime()) {
-        isContinuous = true;
+      if (!habit) {
+        throw new Error('Habit not found');
       }
-    }
 
-    const newStreak = isContinuous ? habit.streak + 1 : 1;
+      if (habit.userId !== userId) {
+        throw new Error('Unauthorized');
+      }
 
-    await prisma.habit.update({
-      where: { id: habitId },
-      data: {
-        streak: newStreak,
-        lastCompletedAt: new Date(),
-        isCurrentlyFrozen: false, // Unfreeze if it was frozen
-      },
-    });
+      // Check if already completed today
+      if (habit.completions.length > 0) {
+        throw new Error('Already completed today');
+      }
 
-    // 6. Check for level up
-    const oldLevel = calculateLevel(user.lifetimePoints - finalXp).level;
-    const newLevel = calculateLevel(user.lifetimePoints).level;
+      // 2. Calculate XP reward based on difficulty with Variable Bonus
+      const difficulty = (habit.difficulty as HabitDifficulty) || 'easy';
+      const baseXp = HABIT_DIFFICULTY_REWARDS[difficulty];
+      
+      // Variable Reward Logic: Critical Success Check
+      const bonusChance = DIFFICULTY_BONUS_CHANCE[difficulty] || 0.05;
+      const isCritical = Math.random() < bonusChance;
+      
+      const finalXp = isCritical 
+        ? Math.round(baseXp * CRITICAL_SUCCESS_MULTIPLIER) 
+        : baseXp;
 
-    if (newLevel > oldLevel) {
-      // Level up! Create notification
-      await prisma.notification.create({
+      // 3. Create completion record
+      const completion = await tx.habitCompletion.create({
         data: {
+          habitId,
           userId,
-          type: 'level_up',
-          title: '🎉 Level Up!',
-          message: `Congratulations! You reached Level ${newLevel}!`,
+          pointsEarned: finalXp,
         },
       });
 
-      // Trigger Knock workflow
-      try {
-        await knockClient.workflows.trigger('f_app', {
-          recipients: [userId],
+      // 4. Update user points
+      const user = await tx.user.update({
+        where: { id: userId },
+        data: {
+          points: { increment: finalXp },
+          lifetimePoints: { increment: finalXp },
+        },
+      });
+
+      // 5. Update streak
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const startOfYesterday = new Date(yesterday.setHours(0, 0, 0, 0));
+      
+      let isContinuous = false;
+      if (habit.lastCompletedAt) {
+        const lastCompletedTime = new Date(habit.lastCompletedAt).getTime();
+        if (lastCompletedTime >= startOfYesterday.getTime()) {
+          isContinuous = true;
+        }
+      }
+
+      const newStreak = isContinuous ? habit.streak + 1 : 1;
+
+      await tx.habit.update({
+        where: { id: habitId },
+        data: {
+          streak: newStreak,
+          lastCompletedAt: new Date(),
+          isCurrentlyFrozen: false, // Unfreeze if it was frozen
+        },
+      });
+
+      // 6. Check for level up
+      const oldLevel = calculateLevel(user.lifetimePoints - finalXp).level;
+      const newLevel = calculateLevel(user.lifetimePoints).level;
+
+      if (newLevel > oldLevel) {
+        // Level up! Create notification
+        await tx.notification.create({
           data: {
-            type: 'level-up',
-            level: newLevel,
+            userId,
+            type: 'level_up',
+            title: '🎉 Level Up!',
             message: `Congratulations! You reached Level ${newLevel}!`,
           },
         });
-      } catch (error) {
-        console.error('Error triggering Knock workflow:', error);
+
+        // Send Push Notification (Async / Fire-and-forget)
+        try {
+          const subscriptions = await tx.pushSubscription.findMany({
+            where: { userId },
+          });
+
+          const payload = {
+            title: '🎉 Level Up!',
+            body: `Congratulations! You reached Level ${newLevel}!`,
+            url: '/stats',
+          };
+
+          Promise.all(subscriptions.map(sub => sendPushNotification({
+            endpoint: sub.endpoint,
+            keys: { p256dh: sub.p256dh, auth: sub.auth }
+          }, payload))).catch(console.error);
+        } catch (error) {
+          console.error('Error scheduling push notification:', error);
+        }
       }
-    }
 
-    // 7. Check Achievements
-    const newAchievements = await checkAchievements(userId, newStreak);
+      // 7. Check Achievements (passing tx)
+      const newAchievements = await checkAchievements(userId, newStreak, tx);
 
-    return {
-      completion,
-      newStreak,
-      pointsEarned: finalXp,
-      isCritical,
-      leveledUp: newLevel > oldLevel,
-      newLevel,
-      newAchievements,
-    };
+      return {
+        completion,
+        newStreak,
+        pointsEarned: finalXp,
+        isCritical,
+        leveledUp: newLevel > oldLevel,
+        newLevel,
+        newAchievements,
+      };
+    });
   } catch (error) {
     console.error('Error completing habit:', error);
     throw error;
   }
 }
 
-async function checkAchievements(userId: string, currentStreak: number) {
+// Optimized achievement check using aggregations to avoid loading full history
+async function checkAchievements(userId: string, currentStreak: number, tx: Prisma.TransactionClient | PrismaClient = prisma) {
   try {
-    // 1. Get user stats
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        habits: {
-          include: { completions: true }
-        },
-        achievements: true // UserAchievement[]
-      }
+    // 1. Get user's unlocked achievements (Lightweight)
+    const userAchievements = await tx.userAchievement.findMany({
+      where: { userId },
+      select: { achievementId: true }
+    });
+    const unlockedAchievementIds = new Set(userAchievements.map(ua => ua.achievementId));
+    
+    // 2. Get aggregated stats (Fast)
+    const totalCompletions = await tx.habitCompletion.count({
+      where: { userId }
     });
 
-    if (!user) return [];
-
-    const totalCompletions = user.habits.reduce((sum, h) => sum + h.completions.length, 0);
-    const unlockedAchievementIds = new Set(user.achievements.map(ua => ua.achievementId));
-    
-    // 2. Get all achievements
-    const allAchievements = await prisma.achievement.findMany();
+    // 3. Get all available achievements
+    const allAchievements = await tx.achievement.findMany();
     const newUnlocks = [];
 
     for (const achievement of allAchievements) {
@@ -190,7 +193,7 @@ async function checkAchievements(userId: string, currentStreak: number) {
 
       if (unlocked) {
         // Unlock it
-        await prisma.userAchievement.create({
+        await tx.userAchievement.create({
           data: {
             userId,
             achievementId: achievement.id,
@@ -198,13 +201,13 @@ async function checkAchievements(userId: string, currentStreak: number) {
         });
         
         // Award points
-        await prisma.user.update({
+        await tx.user.update({
           where: { id: userId },
           data: { points: { increment: achievement.reward } }
         });
 
         // Notify
-        await prisma.notification.create({
+        await tx.notification.create({
           data: {
             userId,
             type: 'achievement',
@@ -213,19 +216,26 @@ async function checkAchievements(userId: string, currentStreak: number) {
           }
         });
 
-        // Trigger Knock workflow
+        // Send Push Notification (Async - non-blocking)
+        // We fetch subs inside safe try/catch block
         try {
-          await knockClient.workflows.trigger('f_app', {
-            recipients: [userId],
-            data: {
-              type: 'achievement-unlocked',
-              achievement: achievement.name,
-              reward: achievement.reward,
-              message: `You unlocked: ${achievement.name} (+${achievement.reward} XP)`,
-            },
-          });
+           const subscriptions = await tx.pushSubscription.findMany({
+             where: { userId },
+           });
+
+           const payload = {
+             title: '🏆 Achievement Unlocked!',
+             body: `You unlocked: ${achievement.name} (+${achievement.reward} XP)`,
+             url: '/achievements',
+           };
+
+           // Fire and forget push notifications
+           Promise.all(subscriptions.map(sub => sendPushNotification({
+             endpoint: sub.endpoint,
+             keys: { p256dh: sub.p256dh, auth: sub.auth }
+           }, payload))).catch(console.error);
         } catch (error) {
-          console.error('Error triggering Knock workflow:', error);
+           console.error('Error sending push notification:', error);
         }
 
         newUnlocks.push(achievement);

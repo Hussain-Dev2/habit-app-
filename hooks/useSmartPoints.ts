@@ -41,7 +41,7 @@ export function useSmartPoints() {
 
     try {
       const response = await apiFetch<SmartPointsData>(
-        '/api/points/stats'
+        '/points/stats'
       );
       setPointsData(response);
       setError(null);
@@ -59,7 +59,7 @@ export function useSmartPoints() {
 
     try {
       const response = await apiFetch<DailyStat[]>(
-        '/api/points/daily-stats?days=7'
+        '/points/daily-stats?days=7'
       );
       setDailyStats(response);
     } catch (err) {

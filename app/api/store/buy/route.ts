@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-config';
 import { prisma } from '@/lib/prisma';
-import knockClient from '@/lib/knock';
+import { sendPushNotificationToUser } from '@/lib/notification-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -129,16 +129,13 @@ export async function POST(request: NextRequest) {
       });
 
       try {
-        await knockClient.workflows.trigger('f_app', {
-          recipients: [user.id],
-          data: {
-            type: 'purchase-successful',
-            product: product.title,
-            message: `You've purchased ${product.title}!\n\nYour code is ready. Go to Purchases to reveal it.`,
-            orderId: order.id,
-          },
-        });
-      } catch (e) { console.error('Knock error:', e); }
+        await sendPushNotificationToUser(
+          user.id,
+          '🎁 Purchase Successful!',
+          `You've purchased ${product.title}!\n\nYour code is ready. Go to Purchases to reveal it.`,
+          '/purchases'
+        );
+      } catch (e) { console.error('Push notification error:', e); }
 
     } else {
       await prisma.notification.create({
@@ -152,17 +149,13 @@ export async function POST(request: NextRequest) {
       });
 
       try {
-        await knockClient.workflows.trigger('f_app', {
-          recipients: [user.id],
-          data: {
-            type: 'order-pending',
-            product: product.title,
-            message: `Thank you for purchasing ${product.title}!\n\nYour order will be delivered in less than 2 days. You'll receive a notification when your code is ready.`,
-            orderId: order.id,
-          },
-
-        });
-      } catch (e) { console.error('Knock error:', e); }
+        await sendPushNotificationToUser(
+          user.id,
+          '⏳ Order Pending',
+          `Thank you for purchasing ${product.title}!\n\nYour order will be delivered in less than 2 days. You'll receive a notification when your code is ready.`,
+          '/purchases'
+        );
+      } catch (e) { console.error('Push notification error:', e); }
     }
 
     return NextResponse.json({

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-config';
 import { prisma } from '@/lib/prisma';
-import knockClient from '@/lib/knock';
+import { sendNotification, sendPushNotificationToUser } from '@/lib/notification-service';
 
 /**
  * Apply referral code for a new user
@@ -130,26 +130,20 @@ export async function POST(req: NextRequest) {
       }),
     ]);
 
-    // Trigger Knock workflows
+    // Trigger Push Notifications
     try {
-      await knockClient.workflows.trigger('f_app', {
-        recipients: [referrer.id],
-        data: {
-          type: 'referral-bonus',
-          bonus: REFERRAL_BONUS,
-          message: `You earned ${REFERRAL_BONUS} points for referring a new user!`,
-        },
-      });
+      await sendPushNotificationToUser(
+        referrer.id,
+        '🎉 Referral Bonus!',
+        `You earned ${REFERRAL_BONUS} points for referring a new user!`
+      );
 
-      await knockClient.workflows.trigger('f_app', {
-        recipients: [user.id],
-        data: {
-          type: 'welcome-bonus',
-          bonus: WELCOME_BONUS,
-          message: `You received ${WELCOME_BONUS} points for using a referral code!`,
-        },
-      });
-    } catch (e) { console.error('Knock error:', e); }
+      await sendPushNotificationToUser(
+        user.id,
+        '🎁 Welcome Bonus!',
+        `You received ${WELCOME_BONUS} points for using a referral code!`
+      );
+    } catch (e) { console.error('Push notification error:', e); }
 
     return NextResponse.json({
       success: true,

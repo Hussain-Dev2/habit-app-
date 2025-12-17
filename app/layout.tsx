@@ -107,6 +107,9 @@ export default function RootLayout({
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                       <li>© {new Date().getFullYear()} RECKON</li>
                       <li>All rights reserved</li>
+                      <li className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                        Dev: <a href="https://my-porto-eosin.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-cyan-600 dark:text-cyan-400 hover:underline font-medium">Hussain-Dev</a>
+                      </li>
                     </ul>
                   </div>
                 </div>

@@ -24,7 +24,7 @@ export default function AchievementsComponent() {
     const fetchAchievements = async () => {
       try {
         const response = await apiFetch<{ achievements: Achievement[] }>(
-          '/api/points/achievements'
+          '/points/achievements'
         );
         setAchievements(response.achievements);
       } catch (error) {

@@ -33,7 +33,7 @@ export default function PointsHistoryComponent() {
     const fetchHistory = async () => {
       try {
         const response = await apiFetch<{ history: HistoryEntry[] }>(
-          '/api/points/history?limit=20'
+          '/points/history?limit=20'
         );
         setHistory(response.history);
       } catch (error) {

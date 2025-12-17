@@ -50,41 +50,69 @@ export default function AdBlockDetector() {
   if (!adBlockDetected || !showBanner) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 left-4 md:left-auto md:w-96 z-50 animate-in slide-in-from-bottom duration-500">
-      <div className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900 dark:to-orange-900 border-l-4 border-yellow-500 dark:border-yellow-600 rounded-lg shadow-lg p-4">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center mb-2">
-              <span className="text-2xl mr-2">⚠️</span>
-              <h3 className="font-bold text-gray-900 dark:text-gray-100">
-                Ad Blocker Detected
-              </h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-200 dark:border-gray-700 animate-in zoom-in-95 duration-300">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold">Ad Blocker Detected</h3>
             </div>
-            <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-              We noticed you&apos;re using an ad blocker. Please disable it to:
+            <button
+              onClick={() => setShowBanner(false)}
+              className="text-white/80 hover:text-white hover:bg-white/10 p-1 rounded-full transition-colors"
+              aria-label="Close"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
+            We noticed that you are using an ad blocker. While we understand the desire for an ad-free experience, our platform relies entirely on advertising revenue to maintain our services and provide free features to our community.
+          </p>
+          
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-4 mb-6">
+            <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
+              Please consider disabling your ad blocker to help us:
             </p>
-            <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1 ml-4">
-              <li>✓ Support this free platform</li>
-              <li>✓ Unlock all earning features</li>
-              <li>✓ Maximize your reward potential</li>
+            <ul className="space-y-2">
+              <li className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+                <span className="text-green-500">✓</span> Keep this platform free for everyone
+              </li>
+              <li className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+                <span className="text-green-500">✓</span> Support continuous development
+              </li>
+              <li className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+                <span className="text-green-500">✓</span> Maintain server performance
+              </li>
             </ul>
           </div>
-          <button
-            onClick={() => setShowBanner(false)}
-            className="ml-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            aria-label="Close"
-          >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          </button>
+
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95"
+            >
+              I've Disabled It - Reload Page
+            </button>
+            <button
+              onClick={() => setShowBanner(false)}
+              className="w-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 font-semibold py-3 px-4 rounded-xl transition-colors"
+            >
+              Continue with Ad Blocker
+            </button>
+          </div>
         </div>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-3 w-full bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
-        >
-          I&apos;ve Disabled My Ad Blocker - Reload
-        </button>
       </div>
     </div>
   );
