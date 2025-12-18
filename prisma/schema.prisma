@@ -52,6 +52,7 @@ model User {
   referralEarnings  Int       @default(0)
 
   pushSubscriptions PushSubscription[]
+  fcmTokens         FcmToken[]
 
   accounts          Account[]
   sessions          Session[]
@@ -465,4 +466,18 @@ model Recommendation {
   updatedAt   DateTime @updatedAt
 
   @@index([category])
+}
+
+model FcmToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  deviceType String? // android, ios, web
+  lastUsedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

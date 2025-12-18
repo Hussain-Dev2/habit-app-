@@ -243,6 +243,33 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {/* Tools Section */}
+              <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-6">
+                <h3 className="text-xl font-bold text-white mb-4">🛠️ Admin Tools</h3>
+                <div className="flex gap-4">
+                  <button
+                     onClick={async () => {
+                        try {
+                            setToast({ message: 'Sending test notification...', type: 'success' });
+                            const res = await fetch('/api/notifications/test', { method: 'POST' });
+                            const data = await res.json();
+                            if (res.ok) {
+                                setToast({ message: `Success! ${data.message}`, type: 'success' });
+                            } else {
+                                setToast({ message: `Error: ${data.error}`, type: 'error' });
+                            }
+                        } catch (e) {
+                            setToast({ message: 'Failed to send request', type: 'error' });
+                        }
+                     }}
+                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all hover:shadow-lg flex items-center gap-2"
+                  >
+                    <span>🔔</span>
+                    Test Notification (To Me)
+                  </button>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-6">
                   <h3 className="text-xl font-bold text-white mb-4">🎯 Habit Categories</h3>
