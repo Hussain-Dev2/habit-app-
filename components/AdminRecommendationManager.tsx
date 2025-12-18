@@ -263,37 +263,69 @@ export default function AdminRecommendationManager() {
         ) : (
           <div className="grid gap-3">
             {recommendations.map((rec) => (
-              <div key={rec.id} className="bg-slate-700/50 rounded-lg p-4 border border-slate-600 hover:border-blue-500 transition-all flex gap-4">
+              <div key={rec.id} className="group relative bg-slate-700/30 hover:bg-slate-700/50 backdrop-blur-sm rounded-xl p-4 border border-slate-600/50 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 flex flex-col sm:flex-row gap-5">
+                
                 {/* Thumbnail */}
-                <div className="w-20 h-28 bg-slate-800 rounded-md overflow-hidden flex-shrink-0">
+                <div className="w-full sm:w-32 h-48 sm:h-40 bg-slate-800 rounded-lg overflow-hidden flex-shrink-0 shadow-md relative group-hover:shadow-cyan-500/20 transition-all">
                     {rec.imageUrl ? (
-                        <img src={rec.imageUrl} alt={rec.title} className="w-full h-full object-cover" />
+                        <img src={rec.imageUrl} alt={rec.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs text-slate-500">No Img</div>
+                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 bg-slate-800/80">
+                            <span className="text-3xl mb-2">{rec.category === 'Book' ? '📚' : '🎓'}</span>
+                            <span className="text-xs font-medium">No Image</span>
+                        </div>
                     )}
-                </div>
-
-                <div className="flex-1">
-                  <div className="flex justify-between items-start">
-                    <div>
-                        <h3 className="text-lg font-bold text-white mb-1">{rec.title}</h3>
-                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold mb-2 ${rec.category === 'Book' ? 'bg-amber-600/30 text-amber-300' : 'bg-cyan-600/30 text-cyan-300'}`}>
+                    <div className="absolute top-2 left-2">
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold shadow-sm backdrop-blur-md ${rec.category === 'Book' ? 'bg-amber-500/80 text-white' : 'bg-cyan-500/80 text-white'}`}>
                             {rec.category === 'Book' ? '📚 Book' : '🎓 Course'}
                         </span>
                     </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => handleEdit(rec)} className="px-3 py-1 bg-blue-600/20 text-blue-300 hover:bg-blue-600 hover:text-white rounded text-sm transition-colors">✏️ Edit</button>
-                      <button onClick={() => handleDelete(rec.id)} className="px-3 py-1 bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white rounded text-sm transition-colors">🗑️ Delete</button>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 flex flex-col min-w-0">
+                  <div className="flex justify-between items-start gap-4">
+                    <h3 className="text-xl font-bold text-white mb-2 line-clamp-1 group-hover:text-cyan-400 transition-colors">{rec.title}</h3>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => handleEdit(rec)} 
+                        className="p-2 bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white rounded-lg transition-all"
+                        title="Edit"
+                      >
+                        ✏️
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(rec.id)} 
+                        className="p-2 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-all"
+                        title="Delete"
+                      >
+                        🗑️
+                      </button>
                     </div>
                   </div>
                   
-                  <p className="text-sm text-slate-400 mb-2 line-clamp-2">{rec.description}</p>
+                  <p className="text-sm text-slate-300 mb-4 line-clamp-3 leading-relaxed flex-grow">
+                    {rec.description || <span className="italic text-slate-500">No description provided.</span>}
+                  </p>
                   
-                  {rec.url && (
-                    <a href={rec.url} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:text-blue-300 hover:underline">
-                        🔗 {rec.url}
-                    </a>
-                  )}
+                  <div className="mt-auto pt-2 flex items-center justify-between border-t border-slate-600/30">
+                    <span className="text-xs text-slate-500">
+                        Last updated: {new Date(rec.updatedAt || Date.now()).toLocaleDateString()}
+                    </span>
+                    
+                    {rec.url && (
+                        <a 
+                            href={rec.url} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-cyan-900/20 hover:shadow-cyan-500/30 transition-all hover:scale-105 active:scale-95"
+                        >
+                            🔗 Visit Link
+                        </a>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
