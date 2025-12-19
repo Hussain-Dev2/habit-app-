@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-config';
 import { prisma } from '@/lib/prisma';
-import { messaging } from '@/lib/firebase-admin';
+import { getMessaging } from '@/lib/firebase-admin';
 
 export async function POST(request: Request) {
   console.log('--- Push Test Started ---');
@@ -48,6 +48,10 @@ export async function POST(request: Request) {
     };
 
     try {
+      const messaging = getMessaging();
+      if (!messaging) {
+        return NextResponse.json({ error: 'Firebase messaging not initialized. Check your environment variables.' }, { status: 500 });
+      }
       const response = await messaging.sendEachForMulticast(message);
       console.log('Multicast response:', response);
       return NextResponse.json({ 

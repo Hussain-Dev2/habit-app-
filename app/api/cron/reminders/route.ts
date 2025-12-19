@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { messaging } from '@/lib/firebase-admin';
+import { getMessaging } from '@/lib/firebase-admin';
 
 export async function GET(request: Request) {
   // Verify Cron Secret to prevent public access (Optional but recommended)
@@ -74,6 +74,11 @@ export async function GET(request: Request) {
                         tokens: tokens
                     };
                     
+                    const messaging = getMessaging();
+                    if (!messaging) {
+                        console.error('Firebase messaging not initialized, skipping notification');
+                        continue;
+                    }
                     const response = await messaging.sendEachForMulticast(message);
                     sentCount += response.successCount;
                     
