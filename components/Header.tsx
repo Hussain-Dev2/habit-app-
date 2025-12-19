@@ -6,7 +6,7 @@ import { useSession, signOut } from 'next-auth/react';
 import SettingsModal from './SettingsModal';
 import { apiFetch } from '@/lib/client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import NotificationBell from './NotificationBell';
+
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -78,7 +78,7 @@ export default function Header() {
               >
                 🎁 {t.templates || 'Templates'}
               </Link>
-              <NotificationBell />
+
               <Link
                 href="/stats"
                 className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50 border-2 border-transparent hover:border-emerald-300 dark:hover:border-emerald-600 transition-all duration-300 hover-scale"
@@ -193,11 +193,7 @@ export default function Header() {
       {session && mobileMenuOpen && (
         <div className="lg:hidden glass backdrop-blur-2xl bg-white/95 dark:bg-gray-900/95 border-t border-primary-200/60 dark:border-primary-700/60">
           <div className="px-4 py-4 space-y-2">
-            <NotificationBell
-                className="relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 transition-all w-full text-left"
-                badgeClassName="ml-auto bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full"
-                icon="📬"
-              />
+
             <Link
               href="/templates"
               onClick={() => setMobileMenuOpen(false)}

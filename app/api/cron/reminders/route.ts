@@ -74,7 +74,7 @@ export async function GET(request: Request) {
                         tokens: tokens
                     };
                     
-                    const response = await messaging.sendMulticast(message);
+                    const response = await messaging.sendEachForMulticast(message);
                     sentCount += response.successCount;
                     
                     // Cleanup invalid tokens if any (Optional)
