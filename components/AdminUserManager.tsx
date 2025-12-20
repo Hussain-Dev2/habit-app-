@@ -11,14 +11,16 @@ interface User {
   clicks: number;
   isAdmin: boolean;
   createdAt: string;
+  isBanned: boolean;
+  isChatBlocked: boolean;
 }
 
 export default function AdminUserManager() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchEmail, setSearchEmail] = useState('');
-  const [banModal, setBanModal] = useState<{ userId: string; name: string } | null>(null);
-  const [banType, setBanType] = useState<'ban_app' | 'block_chat'>('block_chat');
+  const [banModal, setBanModal] = useState<{ userId: string; name: string; isBanned: boolean; isChatBlocked: boolean } | null>(null);
+  const [banType, setBanType] = useState<'ban_app' | 'block_chat' | 'lift_ban' | 'lift_block'>('block_chat');
   const [banDuration, setBanDuration] = useState<string>('24h');
   const [pointsModal, setPointsModal] = useState<{ userId: string; points: number } | null>(null);
   const [pointsInput, setPointsInput] = useState('');
@@ -59,10 +61,33 @@ export default function AdminUserManager() {
     if (!banModal) return;
 
     try {
-        await apiFetch(`/admin/users/${banModal.userId}/ban`, {
-            method: 'POST',
-            body: JSON.stringify({ type: banType, duration: banDuration })
-        });
+    try {
+        if (banType === 'lift_ban' || banType === 'lift_block') {
+             await apiFetch(`/admin/users/${banModal.userId}/ban?type=${banType === 'lift_ban' ? 'ban_app' : 'block_chat'}`, {
+                method: 'DELETE'
+            });
+        } else {
+            await apiFetch(`/admin/users/${banModal.userId}/ban`, {
+                method: 'POST',
+                body: JSON.stringify({ type: banType, duration: banDuration })
+            });
+        }
+        
+        // Refresh users locally to reflect change
+        setUsers(users.map(u => {
+            if (u.id === banModal.userId) {
+                if (banType === 'ban_app') return { ...u, isBanned: true };
+                if (banType === 'block_chat') return { ...u, isChatBlocked: true };
+                if (banType === 'lift_ban') return { ...u, isBanned: false };
+                if (banType === 'lift_block') return { ...u, isChatBlocked: false };
+            }
+            return u;
+        }));
+
+        setBanModal(null);
+    } catch (e) {
+        console.error('Failed to update ban status', e);
+    }
         setBanModal(null);
         // ideally fetch users again or show toast
     } catch (e) {
@@ -143,7 +168,13 @@ export default function AdminUserManager() {
                     key={user.id}
                     className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors"
                   >
-                    <td className="py-3 px-4 text-white">{user.email}</td>
+                    <td className="py-3 px-4 text-white">
+                        {user.email}
+                        <div className="flex gap-1 mt-1">
+                            {user.isBanned && <span className="text-[10px] bg-red-900 text-red-100 px-1 py-0.5 rounded border border-red-700">APP BANNED</span>}
+                            {user.isChatBlocked && <span className="text-[10px] bg-orange-900 text-orange-100 px-1 py-0.5 rounded border border-orange-700">CHAT BLOCKED</span>}
+                        </div>
+                    </td>
                     <td className="py-3 px-4 text-slate-300">{user.name || '-'}</td>
                     <td className="py-3 px-4 text-yellow-400 font-semibold">{user.points}</td>
                     <td className="py-3 px-4 text-blue-400">{user.clicks}</td>
@@ -173,10 +204,15 @@ export default function AdminUserManager() {
                         ➕ Points
                       </button>
                       <button
-                        onClick={() => setBanModal({ userId: user.id, name: user.name || user.email || 'User' })}
+                        onClick={() => setBanModal({ 
+                            userId: user.id, 
+                            name: user.name || user.email || 'User',
+                            isBanned: user.isBanned,
+                            isChatBlocked: user.isChatBlocked
+                        })}
                         className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-semibold transition-colors"
                       >
-                        🚫 Ban
+                        {user.isBanned || user.isChatBlocked ? '⚠️ Manage' : '🚫 Ban'}
                       </button>
                     </td>
                   </tr>
@@ -245,21 +281,41 @@ export default function AdminUserManager() {
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Restriction Type</label>
                 <div className="grid grid-cols-2 gap-2">
-                    <button
-                        onClick={() => setBanType('block_chat')}
-                        className={`p-3 rounded-lg border ${banType === 'block_chat' ? 'bg-orange-600 border-orange-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400'}`}
-                    >
-                        Block Chat
-                    </button>
-                    <button
-                        onClick={() => setBanType('ban_app')}
-                        className={`p-3 rounded-lg border ${banType === 'ban_app' ? 'bg-red-600 border-red-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400'}`}
-                    >
-                        Ban Account
-                    </button>
+                    {!banModal.isChatBlocked ? (
+                        <button
+                            onClick={() => setBanType('block_chat')}
+                            className={`p-3 rounded-lg border ${banType === 'block_chat' ? 'bg-orange-600 border-orange-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400'}`}
+                        >
+                            Block Chat
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => setBanType('lift_block')}
+                             className={`p-3 rounded-lg border ${banType === 'lift_block' ? 'bg-green-600 border-green-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400'}`}
+                        >
+                            Unblock Chat
+                        </button>
+                    )}
+
+                    {!banModal.isBanned ? (
+                        <button
+                            onClick={() => setBanType('ban_app')}
+                            className={`p-3 rounded-lg border ${banType === 'ban_app' ? 'bg-red-600 border-red-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400'}`}
+                        >
+                            Ban Account
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => setBanType('lift_ban')}
+                            className={`p-3 rounded-lg border ${banType === 'lift_ban' ? 'bg-green-600 border-green-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400'}`}
+                        >
+                            Lift App Ban
+                        </button>
+                    )}
                 </div>
               </div>
 
+               {(banType === 'ban_app' || banType === 'block_chat') && (
                <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Duration</label>
                 <select 
@@ -273,6 +329,7 @@ export default function AdminUserManager() {
                     <option value="permanent">Permanent</option>
                 </select>
               </div>
+              )}
 
               <div className="flex gap-3 mt-6">
                 <button

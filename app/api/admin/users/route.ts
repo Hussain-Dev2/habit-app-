@@ -30,6 +30,8 @@ export async function GET() {
         clicks: true,
         isAdmin: true,
         createdAt: true,
+        isBanned: true,
+        isChatBlocked: true,
       },
       orderBy: { createdAt: 'desc' },
     });

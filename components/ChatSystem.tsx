@@ -28,6 +28,8 @@ export default function ChatSystem() {
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const [blockPopup, setBlockPopup] = useState<string | null>(null);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -71,6 +73,16 @@ export default function ChatSystem() {
       if (res.ok) {
         setNewMessage('');
         fetchMessages(); // Refresh immediately
+      } else if (res.status === 403) {
+          const data = await res.json();
+          if (data.error === 'blocked') {
+              const date = data.expiresAt ? new Date(data.expiresAt) : null;
+              const timeString = date 
+                ? date.toLocaleString() 
+                : "Permanent";
+              
+              setBlockPopup(`You are blocked from chat until: ${timeString}`);
+          }
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -90,7 +102,26 @@ export default function ChatSystem() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)] bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-12rem)] bg-gray-900 rounded-xl border border-gray-800 overflow-hidden relative">
+      {/* Block Popup */}
+      {blockPopup && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+            <div className="bg-slate-800 border-2 border-red-500 rounded-2xl p-6 text-center max-w-sm w-full shadow-2xl animate-in fade-in zoom-in duration-200">
+                <div className="w-16 h-16 bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    🚫
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Chat Access Restricted</h3>
+                <p className="text-slate-300 mb-6">{blockPopup}</p>
+                <button 
+                    onClick={() => setBlockPopup(null)}
+                    className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-semibold transition-colors"
+                >
+                    Dismiss
+                </button>
+            </div>
+        </div>
+      )}
+
       {/* Chat Header */}
       <div className="p-4 bg-gray-800 border-b border-gray-700">
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
