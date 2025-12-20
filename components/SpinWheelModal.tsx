@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import InterstitialAd from '@/components/ads/InterstitialAd';
 
 interface SpinWheelModalProps {
   isOpen: boolean;
@@ -27,7 +26,6 @@ export default function SpinWheelModal({ isOpen, onClose, onSpin, reward }: Spin
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
   const [showReward, setShowReward] = useState(false);
-  const [showInterstitial, setShowInterstitial] = useState(false);
 
   useEffect(() => {
     if (reward !== null) {
@@ -56,8 +54,6 @@ export default function SpinWheelModal({ isOpen, onClose, onSpin, reward }: Spin
       setTimeout(() => {
         setIsSpinning(false);
         setShowReward(true);
-        // Show interstitial ad after spin
-        setShowInterstitial(true);
       }, 4000);
     } catch (error) {
       setIsSpinning(false);
@@ -77,10 +73,6 @@ export default function SpinWheelModal({ isOpen, onClose, onSpin, reward }: Spin
 
   return (
     <>
-      {/* Interstitial Ad */}
-      {showInterstitial && (
-        <InterstitialAd onClose={() => setShowInterstitial(false)} />
-      )}
       
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-gradient-to-br from-white to-cyan-50 dark:from-gray-900 dark:to-cyan-950 rounded-3xl p-8 max-w-lg w-full shadow-2xl border-4 border-cyan-400 dark:border-cyan-600 relative">

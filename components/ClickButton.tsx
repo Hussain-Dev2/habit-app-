@@ -24,14 +24,12 @@
  * - Combo bonuses for rapid clicking (resets after 3 seconds)
  * - Achievement unlocks for milestones
  * - Daily bonus multipliers
- * - Ad break cooldown every 20 clicks
  */
 
 import { useState } from 'react';
 import Loader from '@/components/Loader';
 import { apiFetch } from '@/lib/client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import InterstitialAd from '@/components/ads/InterstitialAd';
 
 /**
  * API response structure from /api/points/click
@@ -79,9 +77,6 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
   // Loading state - prevents spam clicking
   const [loading, setLoading] = useState(false);
   
-  // Ad break state - shows cooldown after every 20 clicks
-  const [isAdBreak, setIsAdBreak] = useState(false);
-  
   // Ripple animation state (position where user clicked)
   const [ripple, setRipple] = useState<{ x: number; y: number } | null>(null);
   
@@ -101,9 +96,6 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
   
   // Particle burst effect
   const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([]);
-  
-  // Interstitial ad state
-  const [showInterstitial, setShowInterstitial] = useState(false);
 
   /**
    * Handle click event
@@ -114,7 +106,6 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
    * 3. Calls API to award points
    * 4. Shows floating points animation
    * 5. Displays achievement notifications
-   * 6. Handles ad break cooldown
    * 
    * Performance: Uses setTimeout for cleanup to prevent memory leaks
    * Anti-spam: Loading state prevents concurrent clicks
@@ -223,32 +214,12 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
       // Handle API errors
       onError(error instanceof Error ? error.message : 'Failed to click');
     } finally {
-      // ===== AD BREAK COOLDOWN =====
-      
-      // Every 50th click triggers an interstitial ad (reduced frequency) - Skip for admins
-      const isEvery50thClick = data && data.user.clicks % 50 === 0 && !isAdmin;
-      setIsAdBreak(isEvery50thClick);
-      
-      if (isEvery50thClick) {
-        // Show interstitial ad
-        setShowInterstitial(true);
-        setTimeout(() => setLoading(false), 300);
-      } else {
-        // Immediate unlock for regular clicks
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
 
   return (
     <>
-      {/* Interstitial Ad */}
-      {showInterstitial && (
-        <InterstitialAd onClose={() => {
-          setShowInterstitial(false);
-          setIsAdBreak(false);
-        }} />
-      )}
       
     <div className="flex flex-col items-center gap-6 relative">
       {/* Combo counter */}
@@ -363,11 +334,7 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
       <div className="h-8">
         {loading && (
           <p className="text-base text-gray-600 dark:text-gray-400 animate-pulse font-bold">
-            {isAdBreak ? (
-              <>🎬 Ad Break! Preparing reward... 💰</>
-            ) : (
-              <>Processing your click... ✨</>
-            )}
+            Processing your click... ✨
           </p>
         )}
       </div>
@@ -376,9 +343,6 @@ export default function ClickButton({ onSuccess, onError, isAuthenticated = true
       <div className="text-center max-w-lg">
         <p className="text-base text-gray-700 dark:text-gray-300 mb-3 font-bold">
           🎮 Build combos for multiplier bonuses!
-        </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-          Every 20 clicks = 🎬 Ad Break | Maintain streak = 🔥 Bonus multiplier
         </p>
       </div>
 
