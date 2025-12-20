@@ -3,9 +3,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-config";
 import { prisma } from "@/lib/prisma";
 
+type RouteParams = { params: Promise<{ userId: string }> };
+
 export async function POST(
     req: Request,
-    { params }: { params: { userId: string } }
+    { params }: RouteParams
 ) {
     try {
         const session = await getServerSession(authOptions);
@@ -26,7 +28,7 @@ export async function POST(
 
         const body = await req.json();
         const { type, duration } = body; // type: 'ban_app' | 'block_chat'
-        const userId = params.userId;
+        const { userId } = await params;
 
         let expiresAt: Date | null = null;
         if (duration !== 'permanent') {
@@ -68,7 +70,7 @@ export async function POST(
 
 export async function DELETE(
     req: Request,
-    { params }: { params: { userId: string } }
+    { params }: RouteParams
 ) {
     try {
         const session = await getServerSession(authOptions);
@@ -82,7 +84,7 @@ export async function DELETE(
 
         const url = new URL(req.url);
         const type = url.searchParams.get('type'); // 'ban_app' or 'block_chat'
-        const userId = params.userId;
+        const { userId } = await params;
 
         if (type === 'ban_app') {
              await prisma.user.update({
