@@ -2,24 +2,16 @@
 
 /**
  * Notification Settings Page
- * Premium UI Redesign
+ * 
+ * Users can configure habit reminders:
+ * - Enable/disable notifications
+ * - Set reminder time
+ * - Choose which days to remind
+ * - Select notification channels (push, email, SMS)
  */
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { 
-  Bell, 
-  Clock, 
-  Calendar, 
-  Smartphone, 
-  CheckCircle2, 
-  AlertCircle,
-  Save,
-  Zap,
-  Mail,
-  Moon,
-  Sun
-} from 'lucide-react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Toast from '@/components/Toast';
 import Loader from '@/components/Loader';
@@ -42,11 +34,10 @@ const FULL_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frid
 export default function NotificationSettingsPage() {
   const { status } = useSession();
   const { subscribeToNotifications, isSupported } = usePushNotifications();
-  
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -61,6 +52,7 @@ export default function NotificationSettingsPage() {
       setSettings(data.settings);
     } catch (error) {
       setToast({ message: 'Failed to load settings', type: 'error' });
+      console.error('Error fetching settings:', error);
     } finally {
       setLoading(false);
     }
@@ -77,9 +69,12 @@ export default function NotificationSettingsPage() {
         body: JSON.stringify(settingsToSave),
       });
 
-      if (newSettings) setSettings(newSettings);
+      // Update local state if provided
+      if (newSettings) {
+        setSettings(newSettings);
+      }
       
-      setToast({ message: 'Settings saved successfully', type: 'success' });
+      setToast({ message: '✅ Settings saved successfully!', type: 'success' });
     } catch (error: any) {
       setToast({ message: error.message || 'Failed to save settings', type: 'error' });
     } finally {
@@ -95,264 +90,253 @@ export default function NotificationSettingsPage() {
   const handlePushToggle = async () => {
     if (!settings) return;
     
+    // If enabling push notifications
     if (!settings.pushEnabled) {
       if (!isSupported) {
-        setToast({ message: 'Push notifications are not supported on this device', type: 'error' });
+        setToast({ message: 'Push notifications are not supported in this browser.', type: 'error' });
         return;
       }
       
       try {
         setSaving(true);
+        // Request permission and subscribe
         await subscribeToNotifications();
+        
+        // If successful, update settings
         await handleSave({ ...settings, pushEnabled: true });
         setToast({ message: 'Push notifications enabled!', type: 'success' });
       } catch (error) {
         console.error('Failed to enable push:', error);
-        setToast({ message: 'Please allow notifications in your browser settings', type: 'error' });
+        setToast({ message: 'Failed to enable push notifications. Please check browser permissions.', type: 'error' });
         setSaving(false);
       }
     } else {
+      // Disabling
       await handleSave({ ...settings, pushEnabled: false });
     }
   };
 
   const toggleDay = (day: string) => {
     if (!settings) return;
+
     const days = settings.reminderDays.split(',').map(d => d.trim());
     const index = days.indexOf(day);
-    if (index > -1) days.splice(index, 1);
-    else days.push(day);
-    updateSettings({ reminderDays: days.join(',') });
-  };
 
-  // --- UI Components ---
+    if (index > -1) {
+      days.splice(index, 1);
+    } else {
+      days.push(day);
+    }
+
+    setSettings({
+      ...settings,
+      reminderDays: days.join(','),
+    });
+  };
 
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+        <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
           <Loader size="lg" color="cyan" />
         </div>
       </ProtectedRoute>
     );
   }
 
-  if (!settings) return null;
+  if (!settings) {
+    return (
+      <ProtectedRoute>
+        <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">Failed to load settings</p>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
 
   const selectedDays = settings.reminderDays.split(',').map(d => d.trim());
 
   return (
     <ProtectedRoute>
-      <main className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
-          
+      <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
           {/* Header */}
-          <header className="mb-12 text-center sm:text-left">
-            <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-3">
-              Notification Settings
+          <div className="mb-8 sm:mb-10 lg:mb-12">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              🔔 Notification Settings
             </h1>
-            <p className="text-lg text-slate-600 dark:text-slate-400">
-              Manage how and when you want to be reminded properly.
+            <p className="text-gray-600 dark:text-gray-400 text-base sm:text-lg">
+              Customize how and when you receive habit reminders
             </p>
-          </header>
+          </div>
 
-          <div className="space-y-6">
-            
-            {/* 1. Main Toggle Card */}
-            <div className={`
-              backdrop-blur-xl rounded-3xl border p-8 shadow-sm transition-all duration-300
-              ${settings.enabled 
-                ? 'bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800' 
-                : 'bg-slate-100 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 opacity-90'
-              }
-            `}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`p-4 rounded-2xl ${settings.enabled ? 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400' : 'bg-slate-200 dark:bg-slate-800 text-slate-400'}`}>
-                    <Bell className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Daily Reminders</h2>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">
-                      {settings.enabled ? 'Reminders are active' : 'Reminders are paused'}
-                    </p>
+          {/* Settings Card */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sm:p-8 space-y-8">
+            {/* Enable/Disable Toggle */}
+            <div className="flex items-center justify-between p-4 sm:p-6 bg-gray-50 dark:bg-gray-700 rounded-xl">
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-1">
+                  Enable Reminders
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                  Receive notifications for incomplete habits
+                </p>
+              </div>
+              <button
+                onClick={() => setSettings({ ...settings, enabled: !settings.enabled })}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                  settings.enabled
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : 'bg-gray-300 dark:bg-gray-600'
+                }`}
+              >
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    settings.enabled ? 'translate-x-7' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {settings.enabled && (
+              <>
+                {/* Reminder Time */}
+                <div>
+                  <label className="block text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">
+                    ⏰ Reminder Time
+                  </label>
+                  <input
+                    type="time"
+                    value={settings.reminderTime}
+                    onChange={(e) => updateSettings({ reminderTime: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white text-lg"
+                  />
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                    You'll receive a reminder at this time each day
+                  </p>
+                </div>
+
+                {/* Days Selection */}
+                <div>
+                  <label className="block text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">
+                    📅 Remind Me On
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                    {DAYS.map((day, index) => (
+                      <button
+                        key={day}
+                        onClick={() => toggleDay(day)}
+                        className={`p-3 rounded-xl font-semibold transition-all ${
+                          selectedDays.includes(day)
+                            ? 'bg-blue-600 text-white shadow-lg'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        }`}
+                      >
+                        <div className="text-xs">{day}</div>
+                        <div className="text-lg mt-1">{FULL_DAYS[index].substring(0, 3)}</div>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
+                {/* Notification Channels */}
+                <div>
+                  <label className="block text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">
+                    📬 Notification Channels
+                  </label>
+                  <div className="space-y-3">
+                    {/* Push Notifications */}
+                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white">Push Notifications</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">In-app notifications</p>
+                      </div>
+                      <button
+                        onClick={handlePushToggle}
+                        disabled={saving}
+                        className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                          settings.pushEnabled
+                            ? 'bg-blue-600 hover:bg-blue-700'
+                            : 'bg-gray-300 dark:bg-gray-600'
+                        } ${saving ? 'opacity-50 cursor-wait' : ''}`}
+                      >
+                        <span
+                          className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                            settings.pushEnabled ? 'translate-x-7' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Email Notifications */}
+                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl opacity-50">
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white">Email Notifications</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Coming soon</p>
+                      </div>
+                      <button
+                        disabled
+                        className="relative inline-flex h-8 w-14 items-center rounded-full bg-gray-300 dark:bg-gray-600 cursor-not-allowed"
+                      >
+                        <span className="inline-block h-6 w-6 transform rounded-full bg-white translate-x-1" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Save Button */}
+            <div className="space-y-4">
+              <button
+                onClick={() => handleSave()}
+                disabled={saving}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 sm:py-4 rounded-xl font-bold text-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? '💾 Saving...' : '💾 Save Settings'}
+              </button>
+
+              {settings.pushEnabled && (
                 <button
-                  onClick={() => handleSave({ ...settings, enabled: !settings.enabled })}
-                  className={`
-                    relative w-16 h-9 rounded-full transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-cyan-500/20
-                    ${settings.enabled ? 'bg-cyan-600' : 'bg-slate-300 dark:bg-slate-700'}
-                  `}
+                  onClick={async () => {
+                    try {
+                      setToast({ message: 'Sending test notification...', type: 'success' }); // Changed to success (closest valid type)
+                      await apiFetch('/notifications/test', { method: 'POST' });
+                      setToast({ message: '✅ Test notification sent!', type: 'success' });
+                    } catch (e: any) {
+                      setToast({ message: 'Failed to send test: ' + e.message, type: 'error' });
+                    }
+                  }}
+                  className="w-full bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-2 border-gray-200 dark:border-gray-600 py-3 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                 >
-                  <span className={`
-                    absolute top-1 left-1 bg-white w-7 h-7 rounded-full shadow-md transform transition-transform duration-300
-                    ${settings.enabled ? 'translate-x-7' : 'translate-x-0'}
-                  `} />
+                  🔔 Send Test Notification
                 </button>
-              </div>
+              )}
             </div>
+          </div>
 
-            {/* Expanded Settings Area */}
-            <div className={`space-y-6 transition-all duration-500 ${settings.enabled ? 'opacity-100 translate-y-0' : 'opacity-50 pointer-events-none blur-sm'}`}>
-              
-              {/* 2. Schedule Card */}
-              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-cyan-500" />
-                  Schedule
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                  {/* Time Picker */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                      Time
-                    </label>
-                    <div className="relative group">
-                      <input
-                        type="time"
-                        value={settings.reminderTime}
-                        onChange={(e) => updateSettings({ reminderTime: e.target.value })}
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 text-xl font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                      />
-                      <Clock className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-                    </div>
-                  </div>
-
-                  {/* Days Selector */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                      Days
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {DAYS.map((day) => {
-                        const isSelected = selectedDays.includes(day);
-                        return (
-                          <button
-                            key={day}
-                            onClick={() => toggleDay(day)}
-                            className={`
-                              w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-200
-                              ${isSelected 
-                                ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/20 scale-105' 
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-                              }
-                            `}
-                          >
-                            {day.charAt(0)}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 3. Delivery Method (Push) */}
-              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                  <Smartphone className="w-5 h-5 text-purple-500" />
-                  Delivery
-                </h3>
-
-                {/* Push Row */}
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800/50 mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-purple-100 dark:bg-purple-900/20 text-purple-600 rounded-xl">
-                      <Zap className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-slate-900 dark:text-white">Push Notifications</h4>
-                      <p className="text-sm text-slate-500">Receive alerts on this device</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handlePushToggle}
-                    disabled={saving}
-                    className={`
-                      relative w-12 h-7 rounded-full transition-colors duration-300
-                      ${settings.pushEnabled ? 'bg-purple-600' : 'bg-slate-300 dark:bg-slate-700'}
-                    `}
-                  >
-                    <span className={`
-                      absolute top-1 left-1 bg-white w-5 h-5 rounded-full shadow-sm transform transition-transform duration-300
-                      ${settings.pushEnabled ? 'translate-x-5' : 'translate-x-0'}
-                    `} />
-                  </button>
-                </div>
-
-                {/* Test Button (Visible if active in browser) */}
-                {settings.pushEnabled && (
-                  <button
-                    onClick={async () => {
-                      try {
-                        setToast({ message: 'Sending test...', type: 'info' });
-                        await apiFetch('/notifications/test', { method: 'POST' });
-                        setToast({ message: 'Test notification sent!', type: 'success' });
-                      } catch (e: any) {
-                        setToast({ message: 'Error: ' + e.message, type: 'error' });
-                      }
-                    }}
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-purple-50 dark:bg-purple-900/10 text-purple-600 dark:text-purple-400 font-semibold rounded-xl border border-purple-100 dark:border-purple-800/30 hover:bg-purple-100 dark:hover:bg-purple-900/20 transition-colors"
-                  >
-                    <Zap className="w-4 h-4" />
-                    Send Test Notification
-                  </button>
-                )}
-
-                {/* Email Row (Disabled) */}
-                <div className="flex items-center justify-between p-4 mt-4 opacity-50 cursor-not-allowed">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-xl">
-                      <Mail className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-slate-900 dark:text-white">Email</h4>
-                      <p className="text-sm text-slate-500">Coming soon</p>
-                    </div>
-                  </div>
-                  <div className="w-12 h-7 bg-slate-200 dark:bg-slate-800 rounded-full relative">
-                    <div className="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-sm" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Bar */}
-              <div className="flex justify-end pt-4">
-                 <button
-                  onClick={() => handleSave()}
-                  disabled={saving}
-                  className="
-                    flex items-center gap-2 px-8 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-bold shadow-xl hover:scale-105 active:scale-95 transition-all
-                  "
-                 >
-                   {saving ? (
-                     <Loader size="sm" color={settings.enabled ? 'white' : 'white'} />
-                   ) : (
-                     <>
-                       <Save className="w-5 h-5" />
-                       Save Settings
-                     </>
-                   )}
-                 </button>
-              </div>
-
-            </div>
+          {/* Info Box */}
+          <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-xl">
+            <h3 className="font-bold text-gray-900 dark:text-white mb-2">ℹ️ How it works</h3>
+            <ul className="text-sm sm:text-base text-gray-700 dark:text-gray-300 space-y-2">
+              <li>✅ You'll get a reminder at your chosen time if a habit is incomplete</li>
+              <li>✅ Reminders won't be sent if you've already completed the habit</li>
+              <li>✅ You can manage reminders for each habit individually</li>
+              <li>✅ Disable reminders anytime by toggling the switch above</li>
+            </ul>
           </div>
         </div>
-
-        {toast && (
-          <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
-            <Toast
-              message={toast.message}
-              type={toast.type === 'info' ? 'success' : toast.type}
-              onClose={() => setToast(null)}
-            />
-          </div>
-        )}
       </main>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </ProtectedRoute>
   );
 }

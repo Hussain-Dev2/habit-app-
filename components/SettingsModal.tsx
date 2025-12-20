@@ -2,6 +2,9 @@
 
 import ThemeToggle from './ThemeToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
+import Toast from './Toast';
+import { useState } from 'react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -10,11 +13,22 @@ interface SettingsModalProps {
 
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { language, setLanguage, t } = useLanguage();
+  const { subscribeToNotifications, subscription } = usePushNotifications();
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Toast Notification */}
+      {toast && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={() => setToast(null)} 
+        />
+      )}
+
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
@@ -91,6 +105,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </div>
           </div>
 
+
           {/* Theme Section */}
           <div className="bg-gradient-to-br from-slate-700/40 to-slate-800/40 rounded-lg p-4 border border-slate-600/50 shadow-lg">
             <label className="block text-white font-bold mb-3 flex items-center gap-2 text-sm">
@@ -103,6 +118,56 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <ThemeToggle />
               </div>
             </div>
+          </div>
+
+          {/* Notifications Section */}
+          <div className="bg-gradient-to-br from-slate-700/40 to-slate-800/40 rounded-lg p-4 border border-slate-600/50 shadow-lg">
+             <label className="block text-white font-bold mb-3 flex items-center gap-2 text-sm">
+               <span className="text-lg">🔔</span>
+               <span>Notifications</span>
+             </label>
+             
+             {!subscription ? (
+               <button
+                 onClick={async () => {
+                   try {
+                     setToast({ message: 'Requesting permission...', type: 'info' });
+                     await subscribeToNotifications();
+                     setToast({ message: 'Notifications enabled!', type: 'success' });
+                   } catch (e: any) {
+                     setToast({ message: e.message || 'Failed to enable', type: 'error' });
+                   }
+                 }}
+                 className="w-full px-3 py-2.5 rounded-lg font-semibold transition-all flex items-center justify-between shadow-md text-sm bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500"
+               >
+                 <span className="flex items-center gap-2">
+                   <span>Enable Push Notifications</span>
+                 </span>
+                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                 </svg>
+               </button>
+             ) : (
+               <button
+                 onClick={async () => {
+                   try {
+                     await fetch('/api/notifications/test', { method: 'POST' });
+                     setToast({ message: 'Test notification sent!', type: 'success' });
+                   } catch (e: any) {
+                     setToast({ message: 'Failed to send test', type: 'error' });
+                   }
+                 }}
+                 className="w-full px-3 py-2.5 rounded-lg font-semibold transition-all flex items-center justify-between shadow-md text-sm bg-slate-700/60 text-green-400 border border-green-500/30 hover:bg-slate-700"
+               >
+                 <span className="flex items-center gap-2">
+                   <span className="flex h-2 w-2 rounded-full bg-green-500"></span>
+                   <span>Test Notification</span>
+                 </span>
+                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                 </svg>
+               </button>
+             )}
           </div>
         </div>
 

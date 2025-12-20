@@ -93,11 +93,24 @@ export async function sendHabitReminders(options: ReminderOptions = {}) {
 
           if (alreadySent) continue;
 
-          // Send push notification
-          const message = `⏰ Don't forget: ${habit.name}! Complete it to maintain your ${habit.streak} day streak.`;
+          // Calculate urgency and message based on streak
+          let message = '';
+          let type = 'habit_reminder';
+          
+          if (habit.streak > 0) {
+            // Streak Rescue Mode
+            type = 'streak_rescue';
+            const flameIcon = '🔥';
+            message = `${flameIcon} STREAK DANGER! You're about to lose your ${habit.streak}-day streak for "${habit.name}". Complete it now to keep it burning!`;
+          } else {
+            // Standard Reminder
+            type = 'habit_reminder';
+            message = `⏰ Time to build a habit! Don't forget to complete "${habit.name}" today.`;
+          }
 
           if (settings.pushEnabled) {
-            await sendPushNotification(user.id, habit.id, message);
+             // Pass the calculated type/urgency to the sender
+            await sendPushNotification(user.id, habit.id, message, type);
             remindersSent++;
           }
 
@@ -106,7 +119,7 @@ export async function sendHabitReminders(options: ReminderOptions = {}) {
             data: {
               habitId: habit.id,
               userId: user.id,
-              type: 'push',
+              type: 'push', // Channel type
               status: 'sent',
               message,
             },
@@ -129,7 +142,7 @@ export async function sendHabitReminders(options: ReminderOptions = {}) {
 /**
  * Send a push notification
  */
-async function sendPushNotification(userId: string, habitId: string, message: string) {
+async function sendPushNotification(userId: string, habitId: string, message: string, type: string = 'habit_reminder') {
   try {
     // Create in-app notification
     const user = await prisma.user.findUnique({
@@ -142,8 +155,8 @@ async function sendPushNotification(userId: string, habitId: string, message: st
     await prisma.notification.create({
       data: {
         userId,
-        type: 'habit_reminder',
-        title: '🔔 Habit Reminder',
+        type, // Use the passed type (e.g., 'streak_rescue')
+        title: type === 'streak_rescue' ? '🔥 Streak Rescue' : '🔔 Habit Reminder',
         message,
       },
     });
