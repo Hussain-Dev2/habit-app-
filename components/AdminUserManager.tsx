@@ -17,6 +17,9 @@ export default function AdminUserManager() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchEmail, setSearchEmail] = useState('');
+  const [banModal, setBanModal] = useState<{ userId: string; name: string } | null>(null);
+  const [banType, setBanType] = useState<'ban_app' | 'block_chat'>('block_chat');
+  const [banDuration, setBanDuration] = useState<string>('24h');
   const [pointsModal, setPointsModal] = useState<{ userId: string; points: number } | null>(null);
   const [pointsInput, setPointsInput] = useState('');
 
@@ -49,6 +52,21 @@ export default function AdminUserManager() {
       );
     } catch (error) {
       console.error('Failed to update user:', error);
+    }
+  };
+
+  const handleBan = async () => {
+    if (!banModal) return;
+
+    try {
+        await apiFetch(`/admin/users/${banModal.userId}/ban`, {
+            method: 'POST',
+            body: JSON.stringify({ type: banType, duration: banDuration })
+        });
+        setBanModal(null);
+        // ideally fetch users again or show toast
+    } catch (e) {
+        console.error('Failed to ban user', e);
     }
   };
 
@@ -144,7 +162,7 @@ export default function AdminUserManager() {
                         {user.isAdmin ? '⭐ Admin' : 'User'}
                       </button>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 flex gap-2">
                       <button
                         onClick={() => {
                           setPointsModal({ userId: user.id, points: user.points });
@@ -153,6 +171,12 @@ export default function AdminUserManager() {
                         className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-semibold transition-colors"
                       >
                         ➕ Points
+                      </button>
+                      <button
+                        onClick={() => setBanModal({ userId: user.id, name: user.name || user.email || 'User' })}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-semibold transition-colors"
+                      >
+                        🚫 Ban
                       </button>
                     </td>
                   </tr>
@@ -199,6 +223,67 @@ export default function AdminUserManager() {
                 <button
                   onClick={() => setPointsModal(null)}
                   className="flex-1 px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Ban Modal */}
+      {banModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-slate-800 border border-red-900/50 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span>🚫</span> Restrict User
+            </h3>
+            <p className="text-slate-400 mb-6">User: <span className="text-white font-semibold">{banModal.name}</span></p>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Restriction Type</label>
+                <div className="grid grid-cols-2 gap-2">
+                    <button
+                        onClick={() => setBanType('block_chat')}
+                        className={`p-3 rounded-lg border ${banType === 'block_chat' ? 'bg-orange-600 border-orange-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400'}`}
+                    >
+                        Block Chat
+                    </button>
+                    <button
+                        onClick={() => setBanType('ban_app')}
+                        className={`p-3 rounded-lg border ${banType === 'ban_app' ? 'bg-red-600 border-red-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400'}`}
+                    >
+                        Ban Account
+                    </button>
+                </div>
+              </div>
+
+               <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Duration</label>
+                <select 
+                    value={banDuration}
+                    onChange={(e) => setBanDuration(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                >
+                    <option value="1h">1 Hour</option>
+                    <option value="24h">24 Hours</option>
+                    <option value="7d">7 Days</option>
+                    <option value="permanent">Permanent</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={handleBan}
+                  className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition-colors"
+                >
+                  Confirm Restriction
+                </button>
+                <button
+                  onClick={() => setBanModal(null)}
+                  className="flex-1 px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-semibold transition-colors"
                 >
                   Cancel
                 </button>

@@ -53,6 +53,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    // Check Chat Block
+    if (user.isChatBlocked) {
+        if (!user.chatBlockExpiresAt || new Date(user.chatBlockExpiresAt) > new Date()) {
+            return NextResponse.json({ 
+                error: 'blocked',
+                expiresAt: user.chatBlockExpiresAt
+            }, { status: 403 });
+        } else {
+            // Ban expired, auto-unban (optional but good practice to clean up eventually)
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { isChatBlocked: false, chatBlockExpiresAt: null }
+            });
+        }
+    }
+
     const message = await prisma.chatMessage.create({
       data: {
         userId: user.id,

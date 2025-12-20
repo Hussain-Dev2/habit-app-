@@ -49,6 +49,16 @@ export async function POST(
             },
         });
 
+        // Send Notification
+        const { sendPushNotificationToUser } = await import('@/lib/notification-service');
+        await sendPushNotificationToUser(
+            userId,
+            '🎁 Gift Received',
+            `Congratulations! You received ${points} points from RECKON!`,
+            '/profile',
+            { type: 'admin_gift', points } // Pass data for client handling
+        );
+
         return NextResponse.json(user);
     } catch (error) {
         console.error("Failed to add points:", error);

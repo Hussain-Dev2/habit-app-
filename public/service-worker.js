@@ -1,6 +1,19 @@
 self.addEventListener('push', function(event) {
   if (event.data) {
     const data = event.data.json();
+    
+    // Broadcast to open windows
+    event.waitUntil(
+      self.clients.matchAll({ type: 'window' }).then(clients => {
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'PUSH_NOTIFICATION',
+            payload: data
+          });
+        });
+      })
+    );
+
     const options = {
       body: data.body,
       icon: data.icon || '/icon-192x192.png',
@@ -9,7 +22,8 @@ self.addEventListener('push', function(event) {
       data: {
         dateOfArrival: Date.now(),
         primaryKey: '2',
-        url: data.url || '/'
+        url: data.url || '/',
+        ...data // include original data for retrieval
       }
     };
     event.waitUntil(

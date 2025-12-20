@@ -5,6 +5,8 @@ import { Providers } from './providers';
 import './globals.css';
 import { Analytics } from "@vercel/analytics/next"
 import NotificationPrompt from '@/components/NotificationPrompt';
+import GlobalNotificationHandler from '@/components/GlobalNotificationHandler';
+import AppBanEnforcer from '@/components/AppBanEnforcer';
 
 export const metadata: Metadata = {
   title: 'Gamified Habit Tracker - Track Habits, Earn Rewards',
@@ -116,6 +118,9 @@ export default function RootLayout({
             
             <Analytics />
             <NotificationPrompt />
+            <NotificationPrompt />
+            <GlobalNotificationHandler />
+            <AppBanEnforcer />
           </VPNBlocker>
         </Providers>
       </body>

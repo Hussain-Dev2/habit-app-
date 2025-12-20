@@ -7,9 +7,10 @@ import dynamic from 'next/dynamic';
 import AdminProductManager from '@/components/AdminProductManager';
 import AdminUserManager from '@/components/AdminUserManager';
 import AdminCodesManager from '@/components/AdminCodesManager';
+import AdminNotificationManager from '@/components/AdminNotificationManager';
 import Toast from '@/components/Toast';
 
-type TabType = 'overview' | 'habits' | 'shop' | 'users' | 'categories' | 'analytics';
+type TabType = 'overview' | 'habits' | 'shop' | 'users' | 'categories' | 'analytics' | 'announcements';
 
 interface AdminStats {
   totalUsers: number;
@@ -140,6 +141,7 @@ export default function AdminPage() {
     { id: 'categories', label: '🏷️ Categories', icon: '🏷️' },
     { id: 'users', label: '👥 Users', icon: '👥' },
     { id: 'analytics', label: '📈 Analytics', icon: '📈' },
+    { id: 'announcements', label: '📢 Announcements', icon: '📢' },
   ] as const;
 
   return (
@@ -500,6 +502,11 @@ export default function AdminPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+          {activeTab === 'announcements' && (
+            <div className="space-y-6">
+              <AdminNotificationManager />
             </div>
           )}
         </div>

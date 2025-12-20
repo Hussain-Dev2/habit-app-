@@ -24,7 +24,7 @@ export async function sendNotification(userId: string, title: string, message: s
         title,
         body: message,
         icon: '/icons/icon-192x192.png',
-        url: '/inbox', // Default URL
+        url: '/', // Default URL
         ...data
       };
 
@@ -46,7 +46,7 @@ export async function sendNotification(userId: string, title: string, message: s
   }
 }
 
-export async function sendPushNotificationToUser(userId: string, title: string, message: string, url: string = '/inbox') {
+export async function sendPushNotificationToUser(userId: string, title: string, message: string, url: string = '/', data: any = {}) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -59,6 +59,7 @@ export async function sendPushNotificationToUser(userId: string, title: string, 
         body: message,
         icon: '/icons/icon-192x192.png',
         url,
+        ...data
       };
 
       const promises = user.pushSubscriptions.map(sub => {
