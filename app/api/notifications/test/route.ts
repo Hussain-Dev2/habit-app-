@@ -2,15 +2,11 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-config';
-import { prisma } from '@/lib/prisma';
-import { getMessaging } from '@/lib/firebase-admin';
+import { sendPushNotificationToUser } from '@/lib/notification-service';
 
 export async function POST(request: Request) {
-  console.log('--- Push Test Started ---');
-  
   try {
     const session = await getServerSession(authOptions);
-    console.log('Session user:', session?.user?.email);
     
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -21,51 +17,16 @@ export async function POST(request: Request) {
        return NextResponse.json({ error: 'User ID not found in session' }, { status: 400 });
     }
 
-    // 1. Get User's Tokens
-    console.log('Fetching tokens for user:', userId);
-    const tokens = await prisma.fcmToken.findMany({
-       where: { userId }
-    });
+    await sendPushNotificationToUser(
+      userId,
+      '🔔 Test Notification',
+      'This is a test notification to verify your settings!',
+      '/notifications-settings'
+    );
 
-    if (tokens.length === 0) {
-       console.log('No tokens found');
-       return NextResponse.json({ error: 'No device tokens found for this user. Make sure you have allowed notifications in your browser.' }, { status: 404 });
-    }
-
-    const deviceTokens = tokens.map(t => t.token);
-    console.log(`Found ${deviceTokens.length} tokens. Sending test message...`);
-
-    // 2. Send Message
-    const message = {
-       notification: {
-           title: '🔔 Test Notification',
-           body: 'This is a test notification from RECKON!'
-       },
-       data: {
-           url: '/stats'
-       },
-       tokens: deviceTokens
-    };
-
-    try {
-      const messaging = getMessaging();
-      if (!messaging) {
-        return NextResponse.json({ error: 'Firebase messaging not initialized. Check your environment variables.' }, { status: 500 });
-      }
-      const response = await messaging.sendEachForMulticast(message);
-      console.log('Multicast response:', response);
-      return NextResponse.json({ 
-          success: true, 
-          message: `Sent to ${response.successCount} devices`,
-          failures: response.failureCount 
-      });
-    } catch (firebaseError: any) {
-      console.error('Firebase messaging error:', firebaseError);
-      return NextResponse.json({ error: 'Firebase error: ' + firebaseError.message }, { status: 500 });
-    }
-
+    return NextResponse.json({ success: true, message: 'Test notification sent' });
   } catch (error: any) {
-    console.error('General test notification error:', error);
+    console.error('Test notification error:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }

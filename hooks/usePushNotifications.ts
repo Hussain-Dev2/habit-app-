@@ -29,27 +29,42 @@ export function usePushNotifications() {
   };
 
   const subscribeToNotifications = async () => {
-    if (!isSupported) return;
+    if (!isSupported) {
+      throw new Error('Push notifications are not supported in this browser');
+    }
 
     try {
       const registration = await navigator.serviceWorker.ready;
-      const sub = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!)
-      });
+      
+      // Check if already subscribed
+      let sub = await registration.pushManager.getSubscription();
+      
+      if (!sub) {
+        sub = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!)
+        });
+      }
 
       setSubscription(sub);
 
       // Send subscription to server
-      await fetch('/api/notifications/subscribe', {
+      const response = await fetch('/api/notifications/subscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(sub),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to save subscription on server');
+      }
+
+      return sub;
     } catch (error) {
       console.error('Failed to subscribe:', error);
+      throw error;
     }
   };
 

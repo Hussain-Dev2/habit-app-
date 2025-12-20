@@ -16,6 +16,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import Toast from '@/components/Toast';
 import Loader from '@/components/Loader';
 import { apiFetch } from '@/lib/client';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface NotificationSettings {
   id?: string;
@@ -32,6 +33,7 @@ const FULL_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frid
 
 export default function NotificationSettingsPage() {
   const { status } = useSession();
+  const { subscribeToNotifications, isSupported } = usePushNotifications();
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -56,21 +58,61 @@ export default function NotificationSettingsPage() {
     }
   };
 
-  const handleSave = async () => {
-    if (!settings) return;
+  const handleSave = async (newSettings?: NotificationSettings) => {
+    const settingsToSave = newSettings || settings;
+    if (!settingsToSave) return;
 
     try {
       setSaving(true);
       await apiFetch('/notifications/settings', {
         method: 'POST',
-        body: JSON.stringify(settings),
+        body: JSON.stringify(settingsToSave),
       });
 
+      // Update local state if provided
+      if (newSettings) {
+        setSettings(newSettings);
+      }
+      
       setToast({ message: '✅ Settings saved successfully!', type: 'success' });
     } catch (error: any) {
       setToast({ message: error.message || 'Failed to save settings', type: 'error' });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const updateSettings = (updates: Partial<NotificationSettings>) => {
+    if (!settings) return;
+    setSettings({ ...settings, ...updates });
+  };
+
+  const handlePushToggle = async () => {
+    if (!settings) return;
+    
+    // If enabling push notifications
+    if (!settings.pushEnabled) {
+      if (!isSupported) {
+        setToast({ message: 'Push notifications are not supported in this browser.', type: 'error' });
+        return;
+      }
+      
+      try {
+        setSaving(true);
+        // Request permission and subscribe
+        await subscribeToNotifications();
+        
+        // If successful, update settings
+        await handleSave({ ...settings, pushEnabled: true });
+        setToast({ message: 'Push notifications enabled!', type: 'success' });
+      } catch (error) {
+        console.error('Failed to enable push:', error);
+        setToast({ message: 'Failed to enable push notifications. Please check browser permissions.', type: 'error' });
+        setSaving(false);
+      }
+    } else {
+      // Disabling
+      await handleSave({ ...settings, pushEnabled: false });
     }
   };
 
@@ -168,7 +210,7 @@ export default function NotificationSettingsPage() {
                   <input
                     type="time"
                     value={settings.reminderTime}
-                    onChange={(e) => setSettings({ ...settings, reminderTime: e.target.value })}
+                    onChange={(e) => updateSettings({ reminderTime: e.target.value })}
                     className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white text-lg"
                   />
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
@@ -212,12 +254,13 @@ export default function NotificationSettingsPage() {
                         <p className="text-sm text-gray-600 dark:text-gray-400">In-app notifications</p>
                       </div>
                       <button
-                        onClick={() => setSettings({ ...settings, pushEnabled: !settings.pushEnabled })}
+                        onClick={handlePushToggle}
+                        disabled={saving}
                         className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
                           settings.pushEnabled
                             ? 'bg-blue-600 hover:bg-blue-700'
                             : 'bg-gray-300 dark:bg-gray-600'
-                        }`}
+                        } ${saving ? 'opacity-50 cursor-wait' : ''}`}
                       >
                         <span
                           className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
@@ -246,13 +289,32 @@ export default function NotificationSettingsPage() {
             )}
 
             {/* Save Button */}
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 sm:py-4 rounded-xl font-bold text-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? '💾 Saving...' : '💾 Save Settings'}
-            </button>
+            <div className="space-y-4">
+              <button
+                onClick={() => handleSave()}
+                disabled={saving}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 sm:py-4 rounded-xl font-bold text-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? '💾 Saving...' : '💾 Save Settings'}
+              </button>
+
+              {settings.pushEnabled && (
+                <button
+                  onClick={async () => {
+                    try {
+                      setToast({ message: 'Sending test notification...', type: 'success' }); // Changed to success (closest valid type)
+                      await apiFetch('/notifications/test', { method: 'POST' });
+                      setToast({ message: '✅ Test notification sent!', type: 'success' });
+                    } catch (e: any) {
+                      setToast({ message: 'Failed to send test: ' + e.message, type: 'error' });
+                    }
+                  }}
+                  className="w-full bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-2 border-gray-200 dark:border-gray-600 py-3 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                >
+                  🔔 Send Test Notification
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Info Box */}
