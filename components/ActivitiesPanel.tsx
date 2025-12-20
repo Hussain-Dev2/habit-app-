@@ -32,9 +32,7 @@ import { useState, useEffect } from 'react';
 import Loader from '@/components/Loader';
 import SpinWheelModal from '@/components/SpinWheelModal';
 import AdWatchModal from '@/components/AdWatchModal';
-import AdsterraRewarded from '@/components/ads/AdsterraRewarded';
 import ShareEarnModal from '@/components/ShareEarnModal';
-import InterstitialAd from '@/components/ads/InterstitialAd';
 import { apiFetch } from '@/lib/client';
 import { calculateLevel } from '@/lib/level-system';
 
@@ -139,8 +137,6 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [spinReward, setSpinReward] = useState<number | null>(null);
   const [showShareEarn, setShowShareEarn] = useState(false);
-  const [showInterstitial, setShowInterstitial] = useState(false);
-  const [showAdsterraRewarded, setShowAdsterraRewarded] = useState(false);
   const [showAdWatch, setShowAdWatch] = useState(false);
   const [adReward, setAdReward] = useState(0);
 
@@ -240,56 +236,11 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
       return;
     }
 
-    // Special handling for watch ad - Show Adsterra rewarded ad (skip for admins)
+    // Special handling for watch ad (skip for admins)
     if (activity.id === 'watch_ad') {
-      if (isAdmin) {
-        // Admins get instant reward without watching ad
-        setLoading(activity.id);
-        try {
-          const response = await apiFetch<{ 
-            success: boolean; 
-            reward: number; 
-            user: { points: number };
-            error?: string;
-          }>('/points/activity', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ activityId: 'watch_ad' }),
-          });
-
-          if (response.error) {
-            throw new Error(response.error);
-          }
-
-          setLastActivity({
-            ...lastActivity,
-            watch_ad: Math.floor(Date.now() / 1000),
-          });
-
-          setMessage({
-            text: `+${response.reward} points! ${activity.icon} (Admin)`,
-            type: 'success',
-          });
-
-          if (onPointsEarned) {
-            onPointsEarned();
-          }
-
-          setTimeout(() => setMessage({ text: '', type: 'success' }), 2000);
-        } catch (error: unknown) {
-          const errorMessage = error instanceof Error ? error.message : 'Activity failed';
-          setMessage({
-            text: errorMessage,
-            type: 'error',
-          });
-          setTimeout(() => setMessage({ text: '', type: 'error' }), 3000);
-        } finally {
-          setLoading(null);
-        }
-      } else {
-        setShowAdsterraRewarded(true);
-      }
-      return;
+       setShowAdWatch(true);
+       setAdReward(getActivityReward(activity));
+       return;
     }
 
     // Special handling for share & earn
@@ -386,33 +337,6 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
     }
   };
 
-  const handleAdsterraReward = (user: any, reward: number) => {
-    setLastActivity({
-      ...lastActivity,
-      watch_ad: Math.floor(Date.now() / 1000),
-    });
-
-    setMessage({
-      text: `+${reward} points from ad! 📺`,
-      type: 'success',
-    });
-
-    // Refresh parent component's user data
-    if (onPointsEarned) {
-      onPointsEarned();
-    }
-
-    setTimeout(() => setMessage({ text: '', type: 'success' }), 3000);
-    setShowAdsterraRewarded(false);
-  };
-
-  const handleAdsterraError = (errorMessage: string) => {
-    setMessage({
-      text: errorMessage,
-      type: 'error',
-    });
-    setTimeout(() => setMessage({ text: '', type: 'error' }), 3000);
-  };
 
   const handleWatchAd = async (): Promise<number> => {
     try {
@@ -450,10 +374,6 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
 
   return (
     <>
-      {/* Interstitial Ad */}
-      {showInterstitial && (
-        <InterstitialAd onClose={() => setShowInterstitial(false)} />
-      )}
       
       <SpinWheelModal
         isOpen={showSpinWheel}
@@ -554,23 +474,6 @@ export default function ActivitiesPanel({ onPointsEarned, lifetimePoints = 0, is
         onClose={() => setShowShareEarn(false)}
       />
 
-      {/* Adsterra Rewarded Ad Modal */}
-      {showAdsterraRewarded && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
-            <button
-              onClick={() => setShowAdsterraRewarded(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl font-bold"
-            >
-              ✕
-            </button>
-            <AdsterraRewarded 
-              onReward={handleAdsterraReward}
-              onError={handleAdsterraError}
-            />
-          </div>
-        </div>
-      )}
     </>
   );
 }

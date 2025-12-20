@@ -144,7 +144,7 @@ model PointsHistory {
   id          String   @id @default(cuid())
   userId      String
   amount      Int
-  source      String   // "click", "ad_watch_adsterra", "ad_watch_google", "activity", "task", etc
+  source      String   // "click", "ad_watch", "activity", "task", etc
   description String?
   createdAt   DateTime @default(now())
 

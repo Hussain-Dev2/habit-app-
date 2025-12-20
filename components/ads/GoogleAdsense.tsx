@@ -63,20 +63,25 @@ export default function GoogleAdsense({
   }, []);
 
   return (
-    <div className={`w-full flex justify-center ${className}`}>
-      <ins
-        ref={adRef}
-        className="adsbygoogle"
-        style={{
-          display: 'block',
-          minHeight: '90px',
-          ...style
-        }}
-        data-ad-client="ca-pub-4681103183883079"
-        data-ad-slot={adSlot}
-        data-ad-format={adFormat}
-        data-full-width-responsive="true"
-      />
+    <div className={`w-full flex flex-col items-center my-4 ${className}`}>
+      <span className="text-[10px] uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1 font-medium select-none">
+        Advertisement
+      </span>
+      <div className="w-full flex justify-center">
+        <ins
+          ref={adRef}
+          className="adsbygoogle"
+          style={{
+            display: 'block',
+            minHeight: '90px',
+            ...style
+          }}
+          data-ad-client="ca-pub-4681103183883079"
+          data-ad-slot={adSlot}
+          data-ad-format={adFormat}
+          data-full-width-responsive="true"
+        />
+      </div>
     </div>
   );
 }

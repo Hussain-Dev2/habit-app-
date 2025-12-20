@@ -161,12 +161,11 @@ export function getAdMetricsSummary(): {
   avgCPM: number;
 } {
   const adsense = adManager.getMetrics('adsense') as any;
-  const adsterra = adManager.getMetrics('adsterra') as any;
 
-  const totalImpressions = adsense.impressions + adsterra.impressions;
-  const totalClicks = adsense.clicks + adsterra.clicks;
-  const totalErrors = adsense.errors + adsterra.errors;
-  const totalRevenue = adsense.revenue + adsterra.revenue;
+  const totalImpressions = adsense.impressions;
+  const totalClicks = adsense.clicks;
+  const totalErrors = adsense.errors;
+  const totalRevenue = adsense.revenue;
 
   return {
     totalImpressions,
@@ -184,13 +183,12 @@ export function getAdMetricsSummary(): {
 export function generateAdReport(): string {
   const summary = getAdMetricsSummary();
   const adsense = adManager.getMetrics('adsense') as any;
-  const adsterra = adManager.getMetrics('adsterra') as any;
 
   return `
 Ad Performance Report
 =====================
 
-OVERALL METRICS
+OVERALL METRICS (GOOGLE ADSENSE)
 ---------------
 Total Impressions: ${summary.totalImpressions}
 Total Clicks: ${summary.totalClicks}
@@ -199,7 +197,7 @@ Average CPM: ${formatAdRevenue(summary.avgCPM * 100)}
 Total Revenue: ${formatAdRevenue(summary.totalRevenue)}
 Performance Grade: ${getAdGrade(summary.avgCTR)}
 
-GOOGLE ADSENSE
+DETAILS
 --------------
 Impressions: ${adsense.impressions}
 Clicks: ${adsense.clicks}
@@ -207,15 +205,6 @@ CTR: ${calculateCTR(adsense.clicks, adsense.impressions).toFixed(2)}%
 CPM: ${formatAdRevenue(calculateCPM(adsense.revenue, adsense.impressions) * 100)}
 Revenue: ${formatAdRevenue(adsense.revenue)}
 Errors: ${adsense.errors}
-
-ADSTERRA
---------
-Impressions: ${adsterra.impressions}
-Clicks: ${adsterra.clicks}
-CTR: ${calculateCTR(adsterra.clicks, adsterra.impressions).toFixed(2)}%
-CPM: ${formatAdRevenue(calculateCPM(adsterra.revenue, adsterra.impressions) * 100)}
-Revenue: ${formatAdRevenue(adsterra.revenue)}
-Errors: ${adsterra.errors}
 
 Generated: ${new Date().toISOString()}
 `;

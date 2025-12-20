@@ -92,8 +92,8 @@ export async function POST() {
       data: {
         userId: user.id,
         amount: REWARD_POINTS,
-        source: 'ad_watch_adsterra',
-        description: 'Adsterra rewarded ad completed',
+        source: 'ad_watch',
+        description: 'Rewarded ad completed',
       },
     });
 

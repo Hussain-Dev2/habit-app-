@@ -34,13 +34,6 @@ export default function StatsPage() {
             <p className="text-slate-600 dark:text-slate-300 text-lg">Monitor your earnings, habits, and achievements</p>
           </div>
 
-          {/* Top Ad Banner */}
-          <div className="mb-8 animate-fade-in">
-            <GoogleAdsense 
-              adSlot="1234567890" 
-              className="min-h-[90px] bg-gray-100/50 dark:bg-gray-800/50 rounded-lg overflow-hidden"
-            />
-          </div>
 
           {/* Tab Navigation */}
           {isAuthenticated && (

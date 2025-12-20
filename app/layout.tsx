@@ -48,30 +48,27 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* Google AdSense */}
+        {/* Google AdSense - Configured for non-intrusive ads */}
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4681103183883079"
           crossOrigin="anonymous"
           suppressHydrationWarning
         />
-        {/* Google AdSense Auto Ads - Automatically places ads throughout the site */}
+        {/* Google AdSense Auto Ads - Configuration to prevent navigation interference */}
         <script
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                if (typeof window !== 'undefined' && window.adsbygoogle && !window._adsenseInitialized) {
-                  window._adsenseInitialized = true;
+                if (typeof window !== 'undefined' && window.adsbygoogle) {
                   try {
                     (window.adsbygoogle = window.adsbygoogle || []).push({
                       google_ad_client: "ca-pub-4681103183883079",
                       enable_page_level_ads: true,
-                      overlays: {bottom: true}
+                      overlays: {bottom: false, top: false} // Disable sticky anchor ads that block navigation
                     });
-                  } catch (e) {
-                    console.log('AdSense initialization:', e);
-                  }
+                  } catch (e) {}
                 }
               })();
             `,

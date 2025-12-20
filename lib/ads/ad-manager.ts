@@ -5,7 +5,7 @@
 
 interface AdEvent {
   type: 'impression' | 'click' | 'error' | 'load' | 'revenue';
-  network: 'adsense' | 'adsterra';
+  network: 'adsense';
   slotId?: string;
   timestamp: number;
   value?: number;
@@ -40,7 +40,6 @@ class AdManager {
 
   private initializeMetrics(): void {
     this.metrics.set('adsense', { impressions: 0, clicks: 0, errors: 0, revenue: 0, lastRefresh: 0 });
-    this.metrics.set('adsterra', { impressions: 0, clicks: 0, errors: 0, revenue: 0, lastRefresh: 0 });
   }
 
   /**
@@ -65,7 +64,7 @@ class AdManager {
   /**
    * Get current metrics
    */
-  getMetrics(network?: 'adsense' | 'adsterra'): AdMetrics | Map<string, AdMetrics> {
+  getMetrics(network?: 'adsense'): AdMetrics | Map<string, AdMetrics> {
     if (network) {
       return this.metrics.get(network) || { impressions: 0, clicks: 0, errors: 0, revenue: 0, lastRefresh: 0 };
     }
