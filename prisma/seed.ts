@@ -6,9 +6,10 @@ async function main() {
   await prisma.product.deleteMany();
   await prisma.product.createMany({
     data: [
-      { title: "1x Multiplier", description: "Earn 2x points per click", costPoints: 100, stock: 10 },
-      { title: "Auto Clicker (5s)", description: "Auto-click every 5 seconds", costPoints: 500, stock: 5 },
-      { title: "Double Points", description: "2x points for 1 minute", costPoints: 1000, stock: 3 },
+      { title: "Streak Freeze", description: "Missed a day? Keep your streak alive!", costPoints: 500, stock: null, category: "Power-ups", region: "Global" },
+      { title: "Streak Recovery", description: "Restore a streak you lost in the last 48 hours.", costPoints: 1000, stock: null, category: "Power-ups", region: "Global" },
+      { title: "7-Day VIP", description: "Double XP and special themes for a week.", costPoints: 2500, stock: null, category: "Premium", region: "Global" },
+      { title: "Charity Donation", description: "Donate 1000 points to plant a real tree.", costPoints: 1000, stock: null, category: "Charity", region: "Global" },
     ],
   });
 

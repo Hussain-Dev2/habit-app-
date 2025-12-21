@@ -33,7 +33,7 @@ export function CreateHabitForm({ onSuccess, initialData, isEditing = false }: C
     setError(null);
 
     try {
-      const url = isEditing ? '/api/habits/update' : '/api/habits/create';
+      const url = isEditing ? '/habits/update' : '/habits/create';
       const body = isEditing 
         ? JSON.stringify({ habitId: initialData.id, data: formData })
         : JSON.stringify(formData);
