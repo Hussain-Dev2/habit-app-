@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import Header from '@/components/Header';
 import VPNBlocker from '@/components/VPNBlocker';
 import { Providers } from './providers';
@@ -51,32 +52,7 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* Google AdSense - Configured for non-intrusive ads */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4681103183883079"
-          crossOrigin="anonymous"
-          suppressHydrationWarning
-        />
-        {/* Google AdSense Auto Ads - Configuration to prevent navigation interference */}
-        <script
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                if (typeof window !== 'undefined' && window.adsbygoogle) {
-                  try {
-                    (window.adsbygoogle = window.adsbygoogle || []).push({
-                      google_ad_client: "ca-pub-4681103183883079",
-                      enable_page_level_ads: true,
-                      overlays: {bottom: false, top: false} // Disable sticky anchor ads that block navigation
-                    });
-                  } catch (e) {}
-                }
-              })();
-            `,
-          }}
-        />
+
       </head>
       <body className="bg-gradient-to-br from-cyan-50 via-orange-50 to-cyan-100 dark:from-gray-900 dark:via-cyan-900 dark:to-orange-950 text-gray-900 dark:text-gray-50 transition-all duration-500 ease-in-out">
         <Providers>
@@ -123,6 +99,31 @@ export default function RootLayout({
             <AppBanEnforcer />
           </VPNBlocker>
         </Providers>
+
+        {/* Google AdSense */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4681103183883079"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+        
+        {/* Google AdSense Auto Ads Config */}
+        <Script id="adsense-init" strategy="afterInteractive">
+          {`
+            (function() {
+              if (typeof window !== 'undefined' && window.adsbygoogle) {
+                try {
+                  (window.adsbygoogle = window.adsbygoogle || []).push({
+                    google_ad_client: "ca-pub-4681103183883079",
+                    enable_page_level_ads: true,
+                    overlays: {bottom: false, top: false} // Disable sticky anchor ads that block navigation
+                  });
+                } catch (e) {}
+              }
+            })();
+          `}
+        </Script>
       </body>
     </html>
   );
