@@ -277,7 +277,7 @@ export async function createHabit(
 }
 
 export async function getUserHabits(userId: string, activeOnly = true) {
-  return prisma.habit.findMany({
+  const habits = await prisma.habit.findMany({
     where: activeOnly ? { userId, isActive: true } : { userId },
     include: {
       completions: {
@@ -286,6 +286,39 @@ export async function getUserHabits(userId: string, activeOnly = true) {
       },
     },
     orderBy: { createdAt: 'desc' },
+  });
+
+  // Dynamic Streak Calculation
+  // If lastCompletedAt is older than yesterday, the streak is broken (0) for display purposes.
+  // We don't update the DB on read to avoid perf hits, but the UI will show correct state.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  return habits.map(habit => {
+    let effectiveStreak = habit.streak;
+    
+    // Check if streak is broken
+    if (habit.lastCompletedAt) {
+      const lastCompletedDate = new Date(habit.lastCompletedAt);
+      lastCompletedDate.setHours(0, 0, 0, 0);
+      
+      // If last completed was before yesterday, streak is broken
+      // (Unless the habit is frozen, which is a feature not yet fully implemented in service but present in schema)
+      if (lastCompletedDate < yesterday && !habit.isCurrentlyFrozen) {
+        effectiveStreak = 0;
+      }
+    } else {
+      // Never completed
+      effectiveStreak = 0;
+    }
+
+    return {
+      ...habit,
+      streak: effectiveStreak
+    };
   });
 }
 

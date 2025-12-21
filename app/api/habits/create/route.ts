@@ -22,8 +22,11 @@ export async function POST(req: Request) {
     return Response.json(habit);
   } catch (error: any) {
     console.error('Error creating habit:', error);
+    if (error?.meta) {
+        console.error('Prisma Meta:', error.meta);
+    }
     return Response.json(
-      { error: error.message || 'Failed to create habit' },
+      { error: `Creation failed: ${error.message} ${error?.meta ? JSON.stringify(error.meta) : ''}` },
       { status: 400 }
     );
   }
