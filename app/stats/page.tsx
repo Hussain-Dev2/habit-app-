@@ -74,7 +74,7 @@ export default function StatsPage() {
                   </div>
 
                   {/* Middle Ad Banner */}
-                  <div className="mb-12 animate-fade-in">
+                  <div className="my-12 animate-fade-in">
                     <GoogleAdsense 
                       adSlot="1234567890" 
                       adFormat="auto"

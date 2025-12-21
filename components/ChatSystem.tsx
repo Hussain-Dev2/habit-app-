@@ -163,6 +163,12 @@ export default function ChatSystem() {
                 >
                   {(isAdmin || !isOwn) && (
                     <div className="flex items-center gap-2 mb-1">
+                      {/* Avatar added here */}
+                      <img 
+                         src={(msg.user as any).selectedAvatar?.imageUrl || msg.user.image || `https://ui-avatars.com/api/?name=${msg.user.name}&background=random`} 
+                         alt="Avatar" 
+                         className="w-5 h-5 rounded-full object-cover border border-white/20"
+                      />
                       <span className={`text-xs font-bold ${isAdmin ? (isOwn ? 'text-yellow-100' : 'text-yellow-400') : 'text-blue-400'}`}>
                         {msg.user.name || 'Anonymous'}
                       </span>

@@ -65,10 +65,17 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
+      if (session.user && session.user.email) {
         (session.user as any).id = token.id as string;
         session.user.email = token.email as string;
         (session.user as any).isAdmin = token.isAdmin as boolean;
+
+        // Fetch latest avatar
+        const userWithAvatar = await prisma.user.findUnique({
+          where: { email: session.user.email },
+          select: { selectedAvatar: { select: { imageUrl: true } } }
+        });
+        (session.user as any).avatarImage = userWithAvatar?.selectedAvatar?.imageUrl || null;
       }
       return session;
     },

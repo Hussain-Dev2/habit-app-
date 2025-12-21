@@ -692,8 +692,8 @@ export default function HabitsPage() {
             </div>
           )}
 
-          {/* Google AdSense - Tiny Banner */}
-          <div className="mt-8 animate-fade-in flex justify-center">
+          {/* Google AdSense - Separated Banner */}
+          <div className="my-12 animate-fade-in flex justify-center">
             <GoogleAdsense 
               adSlot="1234567890" 
               adFormat="horizontal"

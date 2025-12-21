@@ -19,9 +19,11 @@ export async function GET(req: NextRequest) {
             id: true,
             name: true,
             image: true,
-            points: true, // For displaying level/badge
+            points: true,
             isAdmin: true,
-          },
+            selectedAvatar: { select: { imageUrl: true } },
+            selectedFrame: { select: { imageUrl: true } },
+          } as any,
         },
       },
     });
@@ -82,7 +84,9 @@ export async function POST(req: NextRequest) {
             image: true,
             points: true,
             isAdmin: true,
-          },
+            selectedAvatar: { select: { imageUrl: true } },
+            selectedFrame: { select: { imageUrl: true } },
+          } as any,
         },
       },
     });

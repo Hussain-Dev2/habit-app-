@@ -44,7 +44,24 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 glass backdrop-blur-2xl bg-white/80 dark:bg-gray-900/80 border-b-2 border-primary-200/60 dark:border-primary-700/60 shadow-lg">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 py-2 sm:py-3 flex items-center justify-between">
+      {/* Absolute Profile Corner Button */}
+      {session && (
+        <Link
+          href="/profile"
+          className="hidden lg:block absolute top-1/2 right-6 -translate-y-1/2 w-12 h-12 rounded-full ring-4 ring-white dark:ring-gray-800 shadow-2xl z-[60] hover:scale-110 transition-transform duration-300 cursor-pointer"
+          title={(t as any).profile || 'Profile'}
+        >
+           <img 
+             src={(session.user as any).avatarImage || session.user.image || `https://ui-avatars.com/api/?name=${session.user.name}&background=random`} 
+             alt="Profile" 
+             className="w-full h-full rounded-full object-cover" 
+           />
+           {/* Online Indicator */}
+           <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
+        </Link>
+      )}
+
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 py-2 sm:py-3 flex items-center justify-between relative">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl overflow-hidden shadow-glow group-hover:shadow-glow-lg transition-all duration-500 group-hover:scale-110">
@@ -123,11 +140,12 @@ export default function Header() {
                   🛡️ {t.admin}
                 </Link>
               )}
+              
               <button
                 onClick={handleLogout}
                 className="px-3 py-2 rounded-xl font-bold text-sm bg-gradient-smooth-4 text-white shadow-lg hover:shadow-xl hover-scale active:scale-95 transition-all duration-300"
               >
-                👋 {t.logout}
+                👋
               </button>
             </>
           ) : (
@@ -221,6 +239,13 @@ export default function Header() {
               className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-green-100/80 dark:hover:bg-green-900/50 transition-all"
             >
               💬 {t.community}
+            </Link>
+            <Link
+              href="/profile"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-cyan-100/80 dark:hover:bg-cyan-900/50 transition-all"
+            >
+              👤 {(t as any).profile || 'Profile'}
             </Link>
             <Link
               href="/shop"

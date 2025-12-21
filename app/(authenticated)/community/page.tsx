@@ -17,8 +17,8 @@ export default function CommunityPage() {
       
       <ChatSystem />
 
-      {/* Google AdSense - Tiny Banner */}
-      <div className="mt-8 flex justify-center">
+      {/* Google AdSense - Separated Banner */}
+      <div className="my-12 flex justify-center">
         <GoogleAdsense 
           adSlot="1234567890" 
           adFormat="horizontal"

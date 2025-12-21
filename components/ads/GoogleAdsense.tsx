@@ -63,11 +63,11 @@ export default function GoogleAdsense({
   }, []);
 
   return (
-    <div className={`w-full flex flex-col items-center my-4 ${className}`}>
-      <span className="text-[10px] uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1 font-medium select-none">
-        Advertisement
+    <div className={`w-full flex flex-col items-center my-8 p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700/50 ${className}`}>
+      <span className="text-[10px] uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2 font-medium select-none border px-2 py-0.5 rounded border-gray-200 dark:border-gray-600">
+        Google Advertisement
       </span>
-      <div className="w-full flex justify-center">
+      <div className="w-full flex justify-center overflow-hidden min-h-[90px]">
         <ins
           ref={adRef}
           className="adsbygoogle"

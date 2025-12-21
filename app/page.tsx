@@ -409,9 +409,9 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Google AdSense - Tiny Banner */}
+          {/* Google AdSense - Separated Banner */}
           {!user?.isAdmin && (
-            <div className="mb-4 sm:mb-6 animate-fade-in flex justify-center" style={{ animationDelay: '300ms' }}>
+            <div className="my-12 animate-fade-in flex justify-center" style={{ animationDelay: '300ms' }}>
               <GoogleAdsense 
                 adSlot="1234567890" 
                 adFormat="horizontal"
