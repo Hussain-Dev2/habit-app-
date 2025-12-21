@@ -96,12 +96,7 @@ export default function Header() {
                 🎁 {t.templates || 'Templates'}
               </Link>
 
-              <Link
-                href="/stats"
-                className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50 border-2 border-transparent hover:border-emerald-300 dark:hover:border-emerald-600 transition-all duration-300 hover-scale"
-              >
-                📈 {t.statsAndAnalytics}
-              </Link>
+
               <Link
                 href="/leaderboard"
                 className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-100/80 dark:hover:bg-yellow-900/50 border-2 border-transparent hover:border-yellow-300 dark:hover:border-yellow-600 transition-all duration-300 hover-scale"
@@ -143,9 +138,9 @@ export default function Header() {
               
               <button
                 onClick={handleLogout}
-                className="px-3 py-2 rounded-xl font-bold text-sm bg-gradient-smooth-4 text-white shadow-lg hover:shadow-xl hover-scale active:scale-95 transition-all duration-300"
+                className="px-3 py-2 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-100/80 dark:hover:bg-red-900/50 border-2 border-transparent hover:border-red-300 dark:hover:border-red-600 transition-all duration-300 hover-scale"
               >
-                👋
+                � {t.logout || 'Logout'}
               </button>
             </>
           ) : (
@@ -218,13 +213,6 @@ export default function Header() {
               className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-purple-100/80 dark:hover:bg-purple-900/50 transition-all"
             >
               🎁 {t.templates || 'Templates'}
-            </Link>
-            <Link
-              href="/stats"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm glass bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-secondary-100/80 dark:hover:bg-secondary-900/50 transition-all"
-            >
-              � Stats & Analytics
             </Link>
             <Link
               href="/leaderboard"
