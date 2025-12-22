@@ -1,0 +1,22 @@
+{
+  "name": "ClickVault - Gamified Habit Tracker",
+  "short_name": "ClickVault",
+  "description": "Build better habits with gamification. Track daily habits, earn XP points, level up, and redeem rewards!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "gcm_sender_id": "1048463361714",
+  "icons": [
+    {
+      "src": "/RECKON.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/RECKON.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

@@ -24,6 +24,7 @@ export const metadata: Metadata = {
       { url: '/RECKON.jpg', sizes: '180x180', type: 'image/jpeg' },
     ],
   },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
