@@ -17,6 +17,7 @@ import Loader from '@/components/Loader';
 import Link from 'next/link';
 import GoogleAdsense from '@/components/ads/GoogleAdsense';
 import { HABIT_CATEGORIES, HABIT_ICONS, HABIT_DIFFICULTY_REWARDS, DIFFICULTY_COLORS } from '@/lib/habit-constants';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Lazy load heavy components
 const CreateHabitForm = dynamic(() => Promise.resolve(CreateHabitFormComponent), { 
@@ -308,6 +309,7 @@ function CreateHabitFormComponent({ onSuccess, initialData, isEditing = false }:
 
 export default function HabitsPage() {
   const { status } = useSession();
+  const { t } = useLanguage();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [stats, setStats] = useState<HabitStats | null>(null);
   const [featuredTemplates, setFeaturedTemplates] = useState<HabitTemplate[]>([]);
@@ -528,10 +530,10 @@ export default function HabitsPage() {
               <span className="text-3xl sm:text-4xl md:text-5xl flex-shrink-0">📌</span>
               <div className="flex-1 min-w-0">
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-aurora bg-clip-text text-transparent break-words">
-                  My Habits
+                  {t.myHabits}
                 </h1>
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  {completedCount} of {habits.length} completed today
+                  {t.completedTodayCount?.replace('{{completed}}', completedCount.toString()).replace('{{total}}', habits.length.toString())}
                 </p>
               </div>
             </div>
@@ -541,19 +543,18 @@ export default function HabitsPage() {
           {stats && (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4 mb-6 sm:mb-8 animate-fade-in">
               {[
-                { label: 'Total', value: stats.totalHabits, icon: '📌', color: 'blue' },
-                { label: 'Today', value: stats.todayCompletions, icon: '✅', color: 'green' },
-                { label: 'Best Streak', value: stats.longestStreak, icon: '🔥', color: 'orange' },
-                { label: 'This Week', value: stats.weekCompletions, icon: '📊', color: 'purple' },
-                { label: 'Completed', value: stats.habitsCompleted, icon: '⭐', color: 'pink' },
+                { label: t.total, value: stats.totalHabits, icon: '📌', color: 'blue' },
+                { label: t.today, value: stats.todayCompletions, icon: '✅', color: 'green' },
+                { label: t.bestStreak, value: stats.longestStreak, icon: '🔥', color: 'orange' },
+                { label: t.thisWeek, value: stats.weekCompletions, icon: '📊', color: 'purple' },
+                { label: t.completed, value: stats.habitsCompleted, icon: '⭐', color: 'pink' },
               ].map((stat, idx) => (
                 <div
-                  key={idx}
-                  className="glass-card glass-hover border border-white/40 dark:border-gray-700/40 p-4 sm:p-5"
+                  className="glass-card glass-hover border border-white/40 dark:border-gray-700/40 p-3 sm:p-4 lg:p-5 flex flex-col items-center sm:items-start text-center sm:text-left"
                 >
-                  <div className="text-2xl sm:text-3xl mb-2 filter drop-shadow-sm">{stat.icon}</div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mb-1">{stat.label}</p>
-                  <p className="text-xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">{stat.value}</p>
+                  <div className="text-2xl sm:text-3xl mb-1 sm:mb-2 filter drop-shadow-sm">{stat.icon}</div>
+                  <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mb-0.5 sm:mb-1">{stat.label}</p>
+                  <p className="text-lg sm:text-xl lg:text-3xl font-black text-gray-900 dark:text-white tracking-tight">{stat.value}</p>
                 </div>
               ))}
             </div>
@@ -562,18 +563,18 @@ export default function HabitsPage() {
           {/* Create Habit Section - Responsive */}
           <div className="mb-8 animate-fade-in">
             {!showCreateForm ? (
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button
                   onClick={() => setShowCreateForm(true)}
-                  className="flex-1 bg-gradient-ocean text-white px-6 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-glow hover:-translate-y-1 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
+                  className="flex-1 bg-gradient-ocean text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg shadow-lg hover:shadow-glow hover:-translate-y-1 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
                 >
-                  <span className="text-2xl">+</span> Create New Habit
+                  <span className="text-xl sm:text-2xl">+</span> {t.createNewHabit}
                 </button>
                 <Link
                   href="/templates"
-                  className="flex-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-purple-200 dark:border-purple-900/50 px-6 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl hover:border-purple-400 dark:hover:border-purple-700 hover:-translate-y-1 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
+                  className="flex-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-purple-200 dark:border-purple-900/50 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:border-purple-400 dark:hover:border-purple-700 hover:-translate-y-1 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
                 >
-                  <span className="text-2xl">✨</span> Browse Templates
+                  <span className="text-xl sm:text-2xl">✨</span> {t.browseTemplates?.replace('✨ ', '')}
                 </Link>
               </div>
             ) : (
@@ -607,9 +608,9 @@ export default function HabitsPage() {
           {!showCreateForm && featuredTemplates.length > 0 && (
             <div className="mb-6 sm:mb-8 animate-fade-in">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Popular Templates</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t.popularTemplates}</h3>
                 <Link href="/templates" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
-                  View All
+                  {t.viewAll}
                 </Link>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -644,13 +645,13 @@ export default function HabitsPage() {
             {habits.length === 0 ? (
               <div className="glass backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-lg sm:rounded-xl p-6 sm:p-12 text-center border border-gray-200 dark:border-gray-700">
                 <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">📌</div>
-                <h3 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">No Habits Yet</h3>
-                <p className="text-xs sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-6">Create your first habit to start earning XP!</p>
+                <h3 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">{t.noHabitsTitle}</h3>
+                <p className="text-xs sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-6">{t.noHabitsYet}</p>
                 <button
                   onClick={() => setShowCreateForm(true)}
                   className="inline-block bg-gradient-ocean text-white px-4 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:shadow-glow transition-all text-sm sm:text-base"
                 >
-                  🎯 Create First Habit
+                  {t.createFirstHabitBtn}
                 </button>
               </div>
             ) : (
@@ -675,19 +676,20 @@ export default function HabitsPage() {
           {habits.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mt-8 sm:mt-12 animate-fade-in">
               <Link href="/stats" className="glass backdrop-blur-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-cyan-300 dark:border-cyan-600 hover:border-cyan-400 dark:hover:border-cyan-500 hover:shadow-glow transition-all duration-300">
+
                 <h3 className="font-bold text-sm sm:text-lg flex items-center gap-2 mb-1 sm:mb-2">
                   <span className="text-lg sm:text-xl">📈</span>
-                  <span>Stats & Analytics</span>
+                  <span>{t.statsAndAnalytics}</span>
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Track progress, habits & achievements</p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{t.statsDesc}</p>
               </Link>
 
               <Link href="/shop" className="glass backdrop-blur-xl bg-gradient-to-br from-emerald-500/20 to-green-500/20 dark:from-emerald-900/30 dark:to-green-900/30 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-emerald-300 dark:border-emerald-600 hover:border-emerald-400 dark:hover:border-emerald-500 hover:shadow-glow transition-all duration-300">
                 <h3 className="font-bold text-sm sm:text-lg flex items-center gap-2 mb-1 sm:mb-2">
                   <span className="text-lg sm:text-xl">🛍️</span>
-                  <span>Rewards</span>
+                  <span>{t.rewards}</span>
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Redeem XP for rewards</p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{t.rewardsPanelDesc}</p>
               </Link>
             </div>
           )}

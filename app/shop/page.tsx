@@ -9,6 +9,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import Loader from '@/components/Loader';
 import { apiFetch } from '@/lib/client';
 import Link from 'next/link';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Product {
   id: string;
@@ -44,6 +45,7 @@ interface PurchaseResponse {
  */
 export default function RewardsMarketplace() {
   const { data: session, status } = useSession();
+  const { t } = useLanguage();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -174,9 +176,9 @@ export default function RewardsMarketplace() {
                 <span className="text-5xl sm:text-6xl lg:text-7xl drop-shadow-lg">🎁</span>
                 <div>
                   <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-gray-900 dark:text-white drop-shadow-sm">
-                    Rewards Marketplace
+                    {t.digitalStore || 'Rewards Marketplace'}
                   </h1>
-                  <p className="text-gray-600 dark:text-slate-300 text-sm sm:text-base lg:text-lg xl:text-xl mt-1 sm:mt-2">Spend your earned points to claim amazing rewards</p>
+                  <p className="text-gray-600 dark:text-slate-300 text-sm sm:text-base lg:text-lg xl:text-xl mt-1 sm:mt-2">{t.rewardsPanelDesc}</p>
                 </div>
               </div>
 
@@ -185,7 +187,7 @@ export default function RewardsMarketplace() {
                 href="/purchases"
                 className="px-4 sm:px-6 py-2 sm:py-3 glass bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl border border-gray-200 dark:border-slate-700 hover:border-purple-500 rounded-xl text-gray-700 dark:text-white text-sm sm:text-base font-semibold transition-all hover:shadow-lg hover:shadow-purple-500/20 w-full sm:w-auto text-center"
               >
-                📜 My Purchases
+                📜 {t.myPurchases}
               </Link>
             </div>
 
@@ -193,7 +195,7 @@ export default function RewardsMarketplace() {
             <div className="w-full sm:inline-block backdrop-blur-xl bg-gradient-to-br from-yellow-500/10 to-amber-500/10 dark:from-yellow-600/30 dark:to-amber-600/20 border-2 border-yellow-500/30 dark:border-yellow-400/50 rounded-2xl sm:rounded-3xl px-6 sm:px-8 lg:px-10 py-4 sm:py-5 lg:py-6 shadow-xl">
               <p className="text-gray-600 dark:text-slate-300 text-xs sm:text-sm mb-1 sm:mb-2 font-bold flex items-center gap-2">
                 <span className="text-lg sm:text-xl">⭐</span>
-                Spendable Points
+                {t.spendablePoints}
               </p>
               <p className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-yellow-600 dark:text-white drop-shadow-sm">
                 {userPoints.toLocaleString()}
@@ -204,32 +206,32 @@ export default function RewardsMarketplace() {
           {products.find(p => p.title.includes('Streak Freeze')) && (
             <div className="mb-8 sm:mb-10 lg:mb-12 animate-fade-in">
               <div className="backdrop-blur-xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 dark:from-blue-600/40 dark:to-cyan-600/40 border-2 border-cyan-500/30 dark:border-cyan-400/60 rounded-3xl sm:rounded-4xl p-6 sm:p-8 lg:p-10 shadow-xl dark:shadow-2xl dark:shadow-cyan-500/20">
-                <div className="flex items-center gap-4 mb-4">
+                <div className="flex flex-col sm:flex-row items-center gap-4 mb-4 text-center sm:text-left">
                   <span className="text-5xl sm:text-6xl">🧊</span>
                   <div className="flex-1">
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                      Streak Freeze - Premium Power-Up!
+                      {t.streakFreezeTitle}
                     </h2>
                     <p className="text-gray-600 dark:text-slate-200 text-sm sm:text-base lg:text-lg">
-                      ⚡ Skip a day without losing your streak. Perfect for when life gets busy!
+                      {t.streakFreezeDesc}
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-                  <div className="flex items-center gap-2 bg-white/80 dark:bg-black/30 px-4 sm:px-6 py-2 sm:py-3 rounded-xl border border-gray-200 dark:border-transparent">
+                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full sm:w-auto">
+                  <div className="flex items-center gap-2 bg-white/80 dark:bg-black/30 px-4 sm:px-6 py-2 sm:py-3 rounded-xl border border-gray-200 dark:border-transparent w-full sm:w-auto justify-center">
                     <span className="text-2xl sm:text-3xl">⭐</span>
                     <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-cyan-600 dark:text-cyan-300">50 Points</span>
                   </div>
                   <button
                     onClick={() => handlePurchase(products.find(p => p.title.includes('Streak Freeze'))?.id || '')}
                     disabled={userPoints < 50}
-                    className={`px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-white text-sm sm:text-base lg:text-lg transition-all ${
+                    className={`w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-white text-sm sm:text-base lg:text-lg transition-all ${
                       userPoints < 50
                         ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed opacity-50'
                         : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:shadow-xl hover:shadow-cyan-500/50 active:scale-95'
                     }`}
                   >
-                    {userPoints < 50 ? 'Need More Points' : '💎 Get Freeze Now'}
+                    {userPoints < 50 ? t.needMore + ' ' + t.morePoints : t.getFreezeNow}
                   </button>
                 </div>
               </div>
@@ -258,7 +260,7 @@ export default function RewardsMarketplace() {
           {selectedCategory !== 'All' ? (
             // Show filtered view when a category is selected
             filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
                 {filteredProducts.map((product, index) => (
                   <div
                     key={product.id}
@@ -276,8 +278,8 @@ export default function RewardsMarketplace() {
             ) : (
               <div className="flex flex-col items-center justify-center py-16 sm:py-20 lg:py-24 glass bg-white/30 dark:bg-slate-800/30 border-2 border-gray-200 dark:border-slate-700 rounded-2xl sm:rounded-3xl">
                 <p className="text-6xl sm:text-7xl lg:text-8xl mb-4 sm:mb-6">📭</p>
-                <p className="text-gray-900 dark:text-white text-lg sm:text-xl lg:text-2xl font-bold mb-2">No products available</p>
-                <p className="text-gray-500 dark:text-slate-400 text-sm sm:text-base">Check back soon for amazing deals!</p>
+                <p className="text-gray-900 dark:text-white text-lg sm:text-xl lg:text-2xl font-bold mb-2">{t.noProductsAvailable}</p>
+                <p className="text-gray-500 dark:text-slate-400 text-sm sm:text-base">{t.checkBackSoon}</p>
               </div>
             )
           ) : (
@@ -301,7 +303,7 @@ export default function RewardsMarketplace() {
                         onClick={() => setSelectedCategory(category)}
                         className="text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 text-sm sm:text-base font-semibold transition-colors"
                       >
-                        View All →
+                        {t.viewAll}
                       </button>
                     </div>
 
@@ -350,12 +352,12 @@ export default function RewardsMarketplace() {
         {/* Sign-in prompt for non-authenticated users */}
         {!isAuthenticated && (
           <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 glass backdrop-blur-xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-2 border-purple-400 dark:border-purple-600 rounded-2xl p-4 text-center animate-fade-in shadow-glow max-w-md mx-4">
-            <p className="text-white font-semibold mb-2">🔐 Sign in to claim rewards!</p>
+            <p className="text-white font-semibold mb-2">{t.signInToClaim}</p>
             <a
               href="/login"
               className="inline-block px-6 py-2 bg-gradient-ocean text-white font-semibold rounded-lg hover:shadow-glow transition-all duration-300 text-sm"
             >
-              Sign In / Register
+              {t.signInRegister}
             </a>
           </div>
         )}

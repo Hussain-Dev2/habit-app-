@@ -48,7 +48,7 @@ export default function Header() {
       {session && (
         <Link
           href="/profile"
-          className="hidden lg:block absolute top-1/2 right-6 -translate-y-1/2 w-12 h-12 rounded-full ring-4 ring-white dark:ring-gray-800 shadow-2xl z-[60] hover:scale-110 transition-transform duration-300 cursor-pointer"
+          className="lg:block absolute top-1/2 right-14 lg:right-6 -translate-y-1/2 w-8 h-8 lg:w-12 lg:h-12 rounded-full ring-2 lg:ring-4 ring-white dark:ring-gray-800 shadow-2xl z-[60] hover:scale-110 transition-transform duration-300 cursor-pointer"
           title={(t as any).profile || 'Profile'}
         >
            <img 
@@ -204,8 +204,8 @@ export default function Header() {
 
       {/* Mobile Menu Drawer */}
       {session && mobileMenuOpen && (
-        <div className="lg:hidden glass backdrop-blur-2xl bg-white/95 dark:bg-gray-900/95 border-t border-primary-200/60 dark:border-primary-700/60">
-          <div className="px-4 py-4 space-y-2">
+        <div className="lg:hidden fixed inset-x-0 top-[60px] sm:top-[72px] bottom-0 z-40 glass backdrop-blur-3xl bg-white/95 dark:bg-gray-900/95 border-t border-primary-200/60 dark:border-primary-700/60 overflow-y-auto animate-slide-in-top">
+          <div className="px-4 py-6 space-y-3">
 
             <Link
               href="/templates"

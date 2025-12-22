@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { Send, User as UserIcon } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ChatUser {
   id: string;
@@ -22,6 +23,7 @@ interface ChatMessage {
 
 export default function ChatSystem() {
   const { data: session } = useSession();
+  const { t } = useLanguage();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -95,14 +97,14 @@ export default function ChatSystem() {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] text-center p-4">
         <UserIcon className="w-16 h-16 text-gray-400 mb-4" />
-        <h2 className="text-xl font-bold text-white mb-2">Sign in to Chat</h2>
-        <p className="text-gray-400">Join the global community conversation!</p>
+        <h2 className="text-xl font-bold text-white mb-2">{t.signInToChat}</h2>
+        <p className="text-gray-400">{t.joinConversation}</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)] bg-gray-900 rounded-xl border border-gray-800 overflow-hidden relative">
+    <div className="flex flex-col h-[calc(100dvh-8rem)] sm:h-[calc(100vh-12rem)] bg-gray-900 rounded-xl border border-gray-800 overflow-hidden relative">
       {/* Block Popup */}
       {blockPopup && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
@@ -110,13 +112,13 @@ export default function ChatSystem() {
                 <div className="w-16 h-16 bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
                     🚫
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Chat Access Restricted</h3>
+                <h3 className="text-xl font-bold text-white mb-2">{t.chatRestricted}</h3>
                 <p className="text-slate-300 mb-6">{blockPopup}</p>
                 <button 
                     onClick={() => setBlockPopup(null)}
                     className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-semibold transition-colors"
                 >
-                    Dismiss
+                    {t.dismiss}
                 </button>
             </div>
         </div>
@@ -126,7 +128,7 @@ export default function ChatSystem() {
       <div className="p-4 bg-gray-800 border-b border-gray-700">
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
           <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-          Global Community Chat
+          {t.globalChat}
         </h2>
       </div>
 
@@ -203,7 +205,7 @@ export default function ChatSystem() {
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
+            placeholder={t.typeMessage}
             className="flex-1 bg-gray-900 text-white border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
             disabled={isSending}
           />
