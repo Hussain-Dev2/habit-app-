@@ -45,8 +45,12 @@ export default function NotificationPrompt() {
     try {
       await subscribeToNotifications();
       setShowPrompt(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to enable notifications:', error);
+      
+      // Show error to user (you can replace this with your Toast component if available)
+      alert(error.message || 'Failed to enable notifications');
+
        // If denied during prompt, close it
        if (Notification.permission === 'denied') {
            setShowPrompt(false);
